@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="search" type="application/opensearchdescription+xml" title="flashbang" href="/opensearch.xml" />
-    <meta name="description" content="The sub-1ms local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker." />
+    <meta name="description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker." />
     <meta name="theme-color" content="#0a0a0f" />
     <script>
       "use strict";
@@ -39,15 +39,15 @@
           </div>
         </form>
         <p class="text-[0.82rem] text-text-secondary mt-2">Runs through the same <code>?q=</code> redirect flow as the browser search engine integration.</p>
-        <div class="flex gap-2 items-center w-full mt-2">
-          <input type="text" id="setup-url" readonly aria-label="Search engine URL" class="input-field font-mono text-xs flex-1" />
-          <button type="button" id="copy-btn" class="btn max-w-[5rem] min-w-[5rem]">Copy</button>
-        </div>
         <p class="text-[0.95rem] text-text-secondary mt-2.5">
           the
-          <a href="/bench" class="text-success font-semibold hover:underline">sub-1ms</a>
+          <a href="/bench" class="text-success font-semibold hover:underline">blazing fast</a>
           local first duck-duck-go style bang redirects.
         </p>
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-3 text-sm text-text-secondary">
+          <a href="/instructions">Instructions</a>
+          <a href="/faq">FAQ</a>
+        </div>
       </main>
 
       <footer class="absolute bottom-0 inset-x-0 text-center p-5 text-sm text-text-secondary">
@@ -66,6 +66,15 @@
       <div class="modal-card relative bg-bg rounded-2xl p-5 sm:p-8 max-w-[520px] w-[calc(100%-2rem)] max-h-[calc(100vh-4rem)] overflow-y-auto translate-y-2" role="dialog" aria-label="Settings">
         <button type="button" id="modal-close" class="absolute top-4 right-4 bg-transparent border-none text-2xl leading-none cursor-pointer text-text-secondary py-1 px-2 rounded-md hover:text-text hover:bg-bg-hover" aria-label="Close">&times;</button>
         <h2 class="section-title mb-5">Settings</h2>
+
+        <section class="card mb-5">
+          <h3 class="section-title">Install Link</h3>
+          <p class="label-text mb-2">Copy this URL into your browser's custom search engine settings.</p>
+          <div class="flex gap-2 items-center">
+            <input type="text" id="setup-url" readonly aria-label="Search engine URL" class="input-field font-mono text-xs flex-1" />
+            <button type="button" id="copy-btn" class="btn max-w-[5rem] min-w-[5rem]">Copy</button>
+          </div>
+        </section>
 
         <!-- Default Bang -->
         <section class="card mb-5">

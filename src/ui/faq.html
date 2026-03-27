@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>flashbang FAQ</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta
+      name="description"
+      content="Answers to common questions about flashbang in plain language."
+    />
+    <meta name="theme-color" content="#0a0a0f" />
+  </head>
+  <body>
+    <main class="min-h-screen px-6 py-10 sm:py-16">
+      <div class="max-w-[760px] mx-auto">
+        <div class="flex items-center justify-between gap-4 mb-8">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-text-secondary">
+              flashbang
+            </p>
+            <h1 class="text-4xl font-800 leading-tight mt-2">FAQ</h1>
+          </div>
+          <a href="/" class="btn px-4 py-2 rounded-xl no-underline">Home</a>
+        </div>
+
+        <p class="text-lg text-text-secondary max-w-[60ch] mb-8">
+          Short answers for people who just want to know what this is and whether it is safe to use.
+        </p>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">What is flashbang?</h2>
+          <p class="text-text-secondary">
+            flashbang is a shortcut search tool. It lets you type things like
+            <code>!gh react</code> to search GitHub, <code>!w cats</code> to search Wikipedia,
+            or just plain words for a normal web search.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">What is a bang?</h2>
+          <p class="text-text-secondary">
+            A bang is a short code that starts with <code>!</code>. It tells flashbang where to send
+            your search. For example, <code>!yt ambient music</code> goes to YouTube and
+            <code>!mdn fetch</code> goes to MDN.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">Does flashbang see everything I search for?</h2>
+          <p class="text-text-secondary">
+            Normally, no. The redirect happens in your browser with a Service Worker, so your query is
+            usually turned into the final destination before it ever reaches the network. The main
+            exception is search suggestions, because those come from a search suggestion provider.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">Do I need to install an extension?</h2>
+          <p class="text-text-secondary">
+            No browser extension is required. You visit the site once, then add it as a custom search engine
+            in your browser. After that, your address bar can use it directly.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">What happens if I type a normal search?</h2>
+          <p class="text-text-secondary">
+            If you do not use a bang, flashbang sends the search to your default search engine. In this
+            project, that default is DuckDuckGo unless you change it in Settings.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">Can I change the default search engine?</h2>
+          <p class="text-text-secondary">
+            Yes. Open Settings and change the default bang. That decides where plain searches go when you do
+            not type a shortcut.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">What does “Feeling Lucky” mean?</h2>
+          <p class="text-text-secondary">
+            It means “take me straight to the first result instead of showing a results page.” You can use
+            <code>\query</code>, <code>query !</code>, or <code>! query</code> for that.
+          </p>
+        </section>
+
+        <section class="card mb-4">
+          <h2 class="section-title mb-2">Is this private?</h2>
+          <p class="text-text-secondary">
+            It is more private than sending every search through a remote redirect page, because the redirect
+            logic runs on your device. But the site you end up using, like DuckDuckGo, Google, YouTube, or
+            GitHub, still receives the search you send to it.
+          </p>
+        </section>
+
+        <section class="card">
+          <h2 class="section-title mb-2">Where should I start?</h2>
+          <p class="text-text-secondary">
+            Read the
+            <a href="/instructions">Instructions</a>
+            page if you want a simple step-by-step setup guide.
+          </p>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

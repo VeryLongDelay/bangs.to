@@ -78,7 +78,7 @@ await Bun.build({
 });
 
 console.log("=== Generate CSS ===");
-await $`bunx unocss "src/ui/home.html" "src/ui/bench.html" "src/ui/**/*.ts" -o dist/styles.css --minify`;
+await $`bunx unocss "src/ui/*.html" "src/ui/**/*.ts" -o dist/styles.css --minify`;
 
 console.log("=== Inline CSS + minify HTML ===");
 const css = await Bun.file("dist/styles.css").text();
@@ -112,6 +112,24 @@ await Bun.write(
   })
 );
 
+const faqHtml = await Bun.file("src/ui/faq.html").text();
+await Bun.write(
+  "dist/faq.html",
+  minify(Buffer.from(inlineCSS(faqHtml)), {
+    minify_css: true,
+    minify_js: true,
+  })
+);
+
+const instructionsHtml = await Bun.file("src/ui/instructions.html").text();
+await Bun.write(
+  "dist/instructions.html",
+  minify(Buffer.from(inlineCSS(instructionsHtml)), {
+    minify_css: true,
+    minify_js: true,
+  })
+);
+
 await rm("dist/styles.css");
 await Bun.write("dist/manifest.json", Bun.file("src/ui/manifest.json"));
 await Bun.write("dist/icon.svg", Bun.file("src/ui/icon.svg"));
@@ -130,10 +148,14 @@ function extractScriptHashes(html: string): string[] {
 const distIndex = await Bun.file("dist/index.html").text();
 const distHome = await Bun.file("dist/home.html").text();
 const distBench = await Bun.file("dist/bench.html").text();
+const distFaq = await Bun.file("dist/faq.html").text();
+const distInstructions = await Bun.file("dist/instructions.html").text();
 const scriptHashes = [
   ...extractScriptHashes(distIndex),
   ...extractScriptHashes(distHome),
   ...extractScriptHashes(distBench),
+  ...extractScriptHashes(distFaq),
+  ...extractScriptHashes(distInstructions),
 ];
 const { pageHeaders, SW_CSP } = await import("../src/server/headers");
 const { "Content-Security-Policy": pageCsp, ...baseHeaders } = pageHeaders(
@@ -161,6 +183,18 @@ await Bun.write(
     `  ${pageCspHeader}`,
     "",
     "/bench.html",
+    `  ${pageCspHeader}`,
+    "",
+    "/faq",
+    `  ${pageCspHeader}`,
+    "",
+    "/faq.html",
+    `  ${pageCspHeader}`,
+    "",
+    "/instructions",
+    `  ${pageCspHeader}`,
+    "",
+    "/instructions.html",
     `  ${pageCspHeader}`,
     "",
     "/sw.js",

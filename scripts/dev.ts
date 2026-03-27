@@ -82,7 +82,7 @@ async function build() {
     }),
   ]);
 
-  await $`bunx unocss "src/ui/home.html" "src/ui/bench.html" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
+  await $`bunx unocss "src/ui/*.html" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
 
   const css = await Bun.file("dist/styles.css").text();
   const inlineCSS = (src: string) =>
@@ -110,6 +110,24 @@ async function build() {
   await Bun.write(
     "dist/bench.html",
     minify(Buffer.from(inlineCSS(benchHtml)), {
+      minify_css: true,
+      minify_js: true,
+    })
+  );
+
+  const faqHtml = await Bun.file("src/ui/faq.html").text();
+  await Bun.write(
+    "dist/faq.html",
+    minify(Buffer.from(inlineCSS(faqHtml)), {
+      minify_css: true,
+      minify_js: true,
+    })
+  );
+
+  const instructionsHtml = await Bun.file("src/ui/instructions.html").text();
+  await Bun.write(
+    "dist/instructions.html",
+    minify(Buffer.from(inlineCSS(instructionsHtml)), {
       minify_css: true,
       minify_js: true,
     })
