@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0f">
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      title="flashbang"
+      href="/opensearch.xml"
+    >
+    <link rel="preload" as="script" href="/sw.js">
+    <style>
+    html {
+      background: #0a0a0f;
+    }
+    </style>
+    <script>
+    "use strict";
+    (() => {
+      const hasQuery =
+        location.search.startsWith("?q=") || location.search.includes("&q=");
+
+      const query = hasQuery && new URLSearchParams(location.search).get("q");
+
+      if (
+        "serviceWorker" in navigator &&
+        query &&
+        !navigator.serviceWorker.controller
+      ) {
+        navigator.serviceWorker.addEventListener(
+          "message",
+          (e) => {
+            if (e.data?.url) {
+              location.replace(e.data.url);
+            }
+          },
+          { once: true }
+        );
+        navigator.serviceWorker.addEventListener(
+          "controllerchange",
+          () => {
+            navigator.serviceWorker.controller.postMessage({
+              type: "redirect",
+              query,
+            });
+          },
+          { once: true }
+        );
+        navigator.serviceWorker.register("/sw.js");
+      } else if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js");
+        Promise.all([
+          fetch("/opensearch.xml").catch(() => {
+            // pre-warm — ignore errors
+          }),
+          new Promise((resolve) => {
+            if (navigator.serviceWorker.controller) {
+              resolve();
+            } else {
+              navigator.serviceWorker.addEventListener(
+                "controllerchange",
+                resolve,
+                { once: true }
+              );
+            }
+          }),
+        ]).then(() => {
+          const p = location.pathname;
+          if (p === "/" || p === "/index.html" || p === "/settings") {
+            location.replace(location.href);
+          }
+        });
+      }
+    })();
+    </script>
+  </head>
+  <body></body>
+</html>

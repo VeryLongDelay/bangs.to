@@ -1,0 +1,15 @@
+export const CH_EXCL = 33; // '!'
+export const CH_SPACE = 32; // ' '
+export const CH_TAB = 9;
+export const CH_NL = 10;
+export const CH_VTAB = 11;
+export const CH_FF = 12;
+export const CH_CR = 13;
+export const CH_PERCENT = 37; // '%'
+export const CH_PLUS = 43; // '+'
+export const CH_0 = 48; // '0'
+export const CH_1 = 49; // '1'
+export const CH_2 = 50; // '2'
+export const CH_F = 70; // 'F'
+export const CH_f = 102; // 'f'
+export const CH_BSLASH = 92; // '\'
