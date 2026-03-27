@@ -190,7 +190,7 @@ export async function initSettings(db: DB) {
     });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `flashbang-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `bangs-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   });

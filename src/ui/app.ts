@@ -26,7 +26,7 @@ function init() {
 
   const metal = initLiquidMetal(
     $<HTMLCanvasElement>("#metal-canvas"),
-    "flashbang"
+    "Bangs"
   );
   $(".wordmark").classList.add("has-shader");
 

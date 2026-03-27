@@ -1,6 +1,6 @@
 {
-  "name": "flashbang",
-  "short_name": "flashbang",
+  "name": "Bangs",
+  "short_name": "Bangs",
   "description": "Fast, private bang redirects",
   "start_url": "/",
   "display": "standalone",
