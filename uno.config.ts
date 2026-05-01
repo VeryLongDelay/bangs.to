@@ -1,83 +1,77 @@
-import { defineConfig, presetUno } from "unocss";
+import { defineConfig, presetUno } from 'unocss';
 
 export default defineConfig({
   presets: [presetUno()],
   content: {
-    filesystem: ["src/**/*.{astro,html,ts}"],
+    filesystem: ['src/**/*.{astro,html,ts}']
   },
   theme: {
     colors: {
       text: {
-        DEFAULT: "#16324f",
-        secondary: "#58708c",
-        muted: "#7890aa",
-        hover: "#0f2740",
+        DEFAULT: '#16324f',
+        secondary: '#58708c',
+        muted: '#7890aa',
+        hover: '#0f2740'
       },
       bg: {
-        DEFAULT: "#f4f8fc",
-        secondary: "rgba(255, 255, 255, 0.76)",
-        hover: "#ffffff",
-        active: "#e6eef8",
-        soft: "#edf4fb",
-        strong: "#dce8f5",
+        DEFAULT: '#f4f8fc',
+        secondary: 'rgba(255, 255, 255, 0.76)',
+        hover: '#ffffff',
+        active: '#e6eef8',
+        soft: '#edf4fb',
+        strong: '#dce8f5'
       },
-      border: "#c5d5e6",
-      danger: "#dc4f5f",
-      success: "#1d8f6d",
+      border: '#c5d5e6',
+      danger: '#dc4f5f',
+      success: '#1d8f6d',
       primary: {
-        50: "#eff6ff",
-        100: "#dbeafe",
-        300: "#93c5fd",
-        500: "#3b82f6",
-        600: "#2563eb",
-        700: "#1d4ed8",
+        50: '#eff6ff',
+        100: '#dbeafe',
+        300: '#93c5fd',
+        500: '#3b82f6',
+        600: '#2563eb',
+        700: '#1d4ed8'
       },
-      accent: "#0f766e",
+      accent: '#0f766e',
       chrome: {
-        1: "#7ba6d8",
-        2: "#4d82c3",
-        3: "#16324f",
-        highlight: "rgba(59, 130, 246, 0.16)",
+        1: '#7ba6d8',
+        2: '#4d82c3',
+        3: '#16324f',
+        highlight: 'rgba(59, 130, 246, 0.16)'
       },
-      glow: "rgba(37, 99, 235, 0.12)",
+      glow: 'rgba(37, 99, 235, 0.12)'
     },
     fontFamily: {
       sans: [
         '"Work Sans"',
-        "ui-sans-serif",
-        "system-ui",
-        "-apple-system",
-        "BlinkMacSystemFont",
+        'ui-sans-serif',
+        'system-ui',
+        '-apple-system',
+        'BlinkMacSystemFont',
         '"Segoe UI"',
-        "sans-serif",
+        'sans-serif'
       ],
-      display: [
-        '"Outfit"',
-        '"Work Sans"',
-        "ui-sans-serif",
-        "system-ui",
-        "sans-serif",
-      ],
+      display: ['"Outfit"', '"Work Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       mono: [
-        "ui-monospace",
-        "SFMono-Regular",
-        "Menlo",
-        "Monaco",
-        "Consolas",
+        'ui-monospace',
+        'SFMono-Regular',
+        'Menlo',
+        'Monaco',
+        'Consolas',
         '"Liberation Mono"',
         '"Courier New"',
-        "monospace",
-      ],
-    },
+        'monospace'
+      ]
+    }
   },
   safelist: [
-    "opacity-100",
-    "visible",
-    "translate-y-0",
-    "sm:grid-cols-2",
-    "lg:grid-cols-2",
-    "lg:col-span-2",
-    "md:grid-cols-3",
+    'opacity-100',
+    'visible',
+    'translate-y-0',
+    'sm:grid-cols-2',
+    'lg:grid-cols-2',
+    'lg:col-span-2',
+    'md:grid-cols-3'
   ],
   preflights: [
     {
@@ -192,7 +186,7 @@ export default defineConfig({
         :root[data-theme="dark"] *:focus-visible {
           outline: 3px solid rgba(96, 165, 250, 0.34);
         }
-      `,
+      `
     },
     {
       getCSS: ({ theme }) => `
@@ -282,7 +276,7 @@ export default defineConfig({
           position: absolute;
           inset: 0;
           cursor: pointer;
-          background-color: #2a2a2a;
+          background-color: #00a6ff;
           transition: 0.4s;
           border-radius: 30px;
           overflow: hidden;
@@ -298,21 +292,21 @@ export default defineConfig({
           bottom: 0.5em;
           transition: 0.4s;
           transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
-          box-shadow: inset 8px -4px 0 0 #fff;
+          box-shadow: inset 15px -4px 0 15px #ffcf48;
           background: transparent;
         }
 
         .theme-switch-input:checked + .slider {
-          background-color: #00a6ff;
+          background-color: #2a2a2a;
         }
 
         .theme-switch-input:checked + .slider::before {
           transform: translateX(1.8em);
-          box-shadow: inset 15px -4px 0 15px #ffcf48;
+          box-shadow: inset 8px -4px 0 0 #fff;
         }
 
-        .star {
-          background-color: #fff;
+        .sun {
+          background-color: rgba(255, 255, 255, 0.92);
           border-radius: 50%;
           position: absolute;
           width: 5px;
@@ -320,22 +314,22 @@ export default defineConfig({
           transition: all 0.4s;
         }
 
-        .star_1 {
+        .sun_1 {
           left: 2.5em;
           top: 0.5em;
         }
 
-        .star_2 {
+        .sun_2 {
           left: 2.2em;
           top: 1.2em;
         }
 
-        .star_3 {
+        .sun_3 {
           left: 3em;
           top: 0.9em;
         }
 
-        .theme-switch-input:checked + .slider .star {
+        .theme-switch-input:checked + .slider .sun {
           opacity: 0;
         }
 
@@ -344,13 +338,13 @@ export default defineConfig({
           position: absolute;
           bottom: -1.4em;
           left: -1.1em;
-          opacity: 0;
+          opacity: 1;
           transition: all 0.4s;
           color: #fff;
         }
 
         .theme-switch-input:checked + .slider .cloud {
-          opacity: 1;
+          opacity: 0;
         }
 
         .wordmark {
@@ -581,7 +575,7 @@ export default defineConfig({
           border-color: rgba(148, 163, 184, 0.16) !important;
           box-shadow: 0 30px 90px rgba(2, 6, 23, 0.48) !important;
         }
-      `,
+      `
     },
     {
       getCSS: ({ theme }) => `
@@ -654,20 +648,20 @@ export default defineConfig({
             transition: none;
           }
         }
-      `,
-    },
+      `
+    }
   ],
   shortcuts: {
-    card: "rounded-[24px] border border-white/70 bg-bg-secondary p-5 shadow-[0_22px_50px_rgba(15,39,64,0.08)] backdrop-blur-xl sm:p-6",
-    btn: "px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none",
-    "btn-primary":
-      "px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none",
-    "btn-danger":
-      "text-xs px-2.5 py-1.5 rounded-xl font-600 transition-all duration-200 cursor-pointer border-none",
-    "input-field":
-      "w-full px-4 py-3 rounded-2xl text-text text-sm transition-all duration-150",
-    "label-text": "text-sm text-text-secondary leading-relaxed",
-    "section-title":
-      "text-[1.05rem] font-700 tracking-tight text-text font-display",
-  },
+    'card':
+      'rounded-[24px] border border-white/70 bg-bg-secondary p-5 shadow-[0_22px_50px_rgba(15,39,64,0.08)] backdrop-blur-xl sm:p-6',
+    'btn':
+      'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
+    'btn-primary':
+      'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
+    'btn-danger':
+      'text-xs px-2.5 py-1.5 rounded-xl font-600 transition-all duration-200 cursor-pointer border-none',
+    'input-field': 'w-full px-4 py-3 rounded-2xl text-text text-sm transition-all duration-150',
+    'label-text': 'text-sm text-text-secondary leading-relaxed',
+    'section-title': 'text-[1.05rem] font-700 tracking-tight text-text font-display'
+  }
 });
