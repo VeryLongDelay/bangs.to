@@ -1,5 +1,5 @@
 ---
-import ThemeSwitch from "./ThemeSwitch.astro";
+import ThemeSwitch from './ThemeSwitch.astro';
 
 interface Props {
   currentPath: string;
@@ -9,10 +9,10 @@ interface Props {
 const { currentPath, showSettingsButton = false } = Astro.props;
 
 const links = [
-  { href: "/", label: "Home", match: ["/", "/home"] },
-  { href: "/instructions", label: "Instructions", match: ["/instructions"] },
-  { href: "/faq", label: "FAQ", match: ["/faq"] },
-  { href: "/bench", label: "Bench", match: ["/bench"] },
+  { href: '/', label: 'Home', match: ['/', '/home'] },
+  { href: '/instructions', label: 'Instructions', match: ['/instructions'] },
+  { href: '/faq', label: 'FAQ', match: ['/faq'] },
+  // { href: '/bench', label: 'Bench', match: ['/bench'] }
 ];
 ---
 
@@ -26,25 +26,20 @@ const links = [
       !
     </div>
     <div>
-      <p class="font-display text-lg font-700 tracking-tight text-text">
-        ban.gs
-      </p>
-      <p class="text-sm text-text-secondary">
-        Search shortcuts that stay local-first.
-      </p>
+      <p class="font-display text-lg font-700 tracking-tight text-text">ban.gs</p>
+      <p class="text-sm text-text-secondary">Search shortcuts that stay local-first.</p>
     </div>
   </div>
 
   <nav class="flex flex-wrap items-center gap-2 text-sm">
-    <ThemeSwitch />
     {
-      links.map((link) => {
+      links.map(link => {
         const active = link.match.includes(currentPath);
         return (
           <a
             href={link.href}
-            class={`btn no-underline ${active ? "border-primary-300 bg-primary-50/80 text-primary-700" : ""}`}
-            aria-current={active ? "page" : undefined}
+            class={`btn no-underline ${active ? 'border-primary-300 bg-primary-50/80 text-primary-700' : ''}`}
+            aria-current={active ? 'page' : undefined}
           >
             {link.label}
           </a>
@@ -77,5 +72,6 @@ const links = [
         </button>
       )
     }
+    <ThemeSwitch />
   </nav>
 </header>

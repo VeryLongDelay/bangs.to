@@ -1,0 +1,11 @@
+# Project Files
+node_modules
+dist
+.preview
+.github
+.codex
+.agent
+
+# System / OS Files
+.DS_Store
+**/.DS_Store

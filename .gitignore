@@ -5,6 +5,7 @@
 .astro/
 .astro-build/
 .wrangler/
+wrangler.toml
 dist/
 test-results/
 !data/bangs.json

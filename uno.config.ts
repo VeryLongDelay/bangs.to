@@ -1,77 +1,83 @@
-import { defineConfig, presetUno } from 'unocss';
+import { defineConfig, presetUno } from "unocss";
 
 export default defineConfig({
   presets: [presetUno()],
   content: {
-    filesystem: ['src/**/*.{astro,html,ts}']
+    filesystem: ["src/**/*.{astro,html,ts}"],
   },
   theme: {
     colors: {
       text: {
-        DEFAULT: '#16324f',
-        secondary: '#58708c',
-        muted: '#7890aa',
-        hover: '#0f2740'
+        DEFAULT: "#16324f",
+        secondary: "#58708c",
+        muted: "#7890aa",
+        hover: "#0f2740",
       },
       bg: {
-        DEFAULT: '#f4f8fc',
-        secondary: 'rgba(255, 255, 255, 0.76)',
-        hover: '#ffffff',
-        active: '#e6eef8',
-        soft: '#edf4fb',
-        strong: '#dce8f5'
+        DEFAULT: "#f4f8fc",
+        secondary: "rgba(255, 255, 255, 0.76)",
+        hover: "#ffffff",
+        active: "#e6eef8",
+        soft: "#edf4fb",
+        strong: "#dce8f5",
       },
-      border: '#c5d5e6',
-      danger: '#dc4f5f',
-      success: '#1d8f6d',
+      border: "#c5d5e6",
+      danger: "#dc4f5f",
+      success: "#1d8f6d",
       primary: {
-        50: '#eff6ff',
-        100: '#dbeafe',
-        300: '#93c5fd',
-        500: '#3b82f6',
-        600: '#2563eb',
-        700: '#1d4ed8'
+        50: "#eff6ff",
+        100: "#dbeafe",
+        300: "#93c5fd",
+        500: "#3b82f6",
+        600: "#2563eb",
+        700: "#1d4ed8",
       },
-      accent: '#0f766e',
+      accent: "#0f766e",
       chrome: {
-        1: '#7ba6d8',
-        2: '#4d82c3',
-        3: '#16324f',
-        highlight: 'rgba(59, 130, 246, 0.16)'
+        1: "#7ba6d8",
+        2: "#4d82c3",
+        3: "#16324f",
+        highlight: "rgba(59, 130, 246, 0.16)",
       },
-      glow: 'rgba(37, 99, 235, 0.12)'
+      glow: "rgba(37, 99, 235, 0.12)",
     },
     fontFamily: {
       sans: [
         '"Work Sans"',
-        'ui-sans-serif',
-        'system-ui',
-        '-apple-system',
-        'BlinkMacSystemFont',
+        "ui-sans-serif",
+        "system-ui",
+        "-apple-system",
+        "BlinkMacSystemFont",
         '"Segoe UI"',
-        'sans-serif'
+        "sans-serif",
       ],
-      display: ['"Outfit"', '"Work Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      display: [
+        '"Outfit"',
+        '"Work Sans"',
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif",
+      ],
       mono: [
-        'ui-monospace',
-        'SFMono-Regular',
-        'Menlo',
-        'Monaco',
-        'Consolas',
+        "ui-monospace",
+        "SFMono-Regular",
+        "Menlo",
+        "Monaco",
+        "Consolas",
         '"Liberation Mono"',
         '"Courier New"',
-        'monospace'
-      ]
-    }
+        "monospace",
+      ],
+    },
   },
   safelist: [
-    'opacity-100',
-    'visible',
-    'translate-y-0',
-    'sm:grid-cols-2',
-    'lg:grid-cols-2',
-    'lg:col-span-2',
-    'md:grid-cols-3'
+    "opacity-100",
+    "visible",
+    "translate-y-0",
+    "sm:grid-cols-2",
+    "lg:grid-cols-2",
+    "lg:col-span-2",
+    "md:grid-cols-3",
   ],
   preflights: [
     {
@@ -186,7 +192,7 @@ export default defineConfig({
         :root[data-theme="dark"] *:focus-visible {
           outline: 3px solid rgba(96, 165, 250, 0.34);
         }
-      `
+      `,
     },
     {
       getCSS: ({ theme }) => `
@@ -218,10 +224,13 @@ export default defineConfig({
 
         select {
           padding-right: 2.75rem;
+          -webkit-appearance: none;
           appearance: none;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%234d82c3' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-          background-repeat: no-repeat;
+          background-repeat: no-repeat !important;
           background-position: right 0.9rem center;
+          background-size: 1rem 1rem;
+          background-origin: content-box;
         }
 
         select option {
@@ -462,6 +471,9 @@ export default defineConfig({
 
         :root[data-theme="dark"] select {
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2393c5fd' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat !important;
+          background-position: right 0.9rem center;
+          background-size: 1rem 1rem;
         }
 
         :root[data-theme="dark"] select option {
@@ -575,7 +587,28 @@ export default defineConfig({
           border-color: rgba(148, 163, 184, 0.16) !important;
           box-shadow: 0 30px 90px rgba(2, 6, 23, 0.48) !important;
         }
-      `
+
+        :root[data-theme="dark"] #settings-modal .section-title,
+        :root[data-theme="dark"] #settings-modal h2,
+        :root[data-theme="dark"] #settings-modal strong {
+          color: #f8fbff !important;
+        }
+
+        :root[data-theme="dark"] #settings-modal .label-text,
+        :root[data-theme="dark"] #settings-modal .text-text-secondary,
+        :root[data-theme="dark"] #settings-modal #bang-status,
+        :root[data-theme="dark"] #settings-modal #bang-count {
+          color: #bfd1e6 !important;
+        }
+
+        :root[data-theme="dark"] #settings-modal .text-text-muted {
+          color: #8fa7c1 !important;
+        }
+
+        :root[data-theme="dark"] #settings-modal .bg-bg-soft {
+          background: rgba(23, 37, 63, 0.92) !important;
+        }
+      `,
     },
     {
       getCSS: ({ theme }) => `
@@ -648,20 +681,20 @@ export default defineConfig({
             transition: none;
           }
         }
-      `
-    }
+      `,
+    },
   ],
   shortcuts: {
-    'card':
-      'rounded-[24px] border border-white/70 bg-bg-secondary p-5 shadow-[0_22px_50px_rgba(15,39,64,0.08)] backdrop-blur-xl sm:p-6',
-    'btn':
-      'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
-    'btn-primary':
-      'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
-    'btn-danger':
-      'text-xs px-2.5 py-1.5 rounded-xl font-600 transition-all duration-200 cursor-pointer border-none',
-    'input-field': 'w-full px-4 py-3 rounded-2xl text-text text-sm transition-all duration-150',
-    'label-text': 'text-sm text-text-secondary leading-relaxed',
-    'section-title': 'text-[1.05rem] font-700 tracking-tight text-text font-display'
-  }
+    card: "rounded-[24px] border border-white/70 bg-bg-secondary p-5 shadow-[0_22px_50px_rgba(15,39,64,0.08)] backdrop-blur-xl sm:p-6",
+    btn: "px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none",
+    "btn-primary":
+      "px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none",
+    "btn-danger":
+      "text-xs px-2.5 py-1.5 rounded-xl font-600 transition-all duration-200 cursor-pointer border-none",
+    "input-field":
+      "w-full px-4 py-3 rounded-2xl text-text text-sm transition-all duration-150",
+    "label-text": "text-sm text-text-secondary leading-relaxed",
+    "section-title":
+      "text-[1.05rem] font-700 tracking-tight text-text font-display",
+  },
 });

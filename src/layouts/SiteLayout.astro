@@ -47,9 +47,14 @@ const {
           if (theme === "dark" || theme === "light") {
             document.documentElement.dataset.theme = theme;
             document.documentElement.style.colorScheme = theme;
+          } else {
+            document.documentElement.dataset.theme = "dark";
+            document.documentElement.style.colorScheme = "dark";
           }
         } catch {
           // ignore storage failures before app boot
+          document.documentElement.dataset.theme = "dark";
+          document.documentElement.style.colorScheme = "dark";
         }
       })();
     </script>

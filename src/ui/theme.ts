@@ -16,19 +16,19 @@ function readStoredTheme(): Theme | null {
 }
 
 function getTheme(): Theme {
-  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
 }
 
 function updateThemeToggles(theme: Theme) {
-  for (const toggle of document.querySelectorAll<HTMLElement>(
-    "[data-theme-toggle]"
+  for (const toggle of Array.from(
+    document.querySelectorAll<HTMLElement>("[data-theme-toggle]")
   )) {
     toggle.dataset.theme = theme;
     toggle.setAttribute("aria-checked", String(theme === "dark"));
 
-    const input = toggle.querySelector<HTMLInputElement>(
+    const input = toggle.querySelector(
       "[data-theme-toggle-input]"
-    );
+    ) as HTMLInputElement | null;
     if (input) {
       input.checked = theme === "dark";
     }
@@ -52,8 +52,8 @@ function applyTheme(theme: Theme) {
 }
 
 function initThemeToggle() {
-  for (const input of document.querySelectorAll<HTMLInputElement>(
-    "[data-theme-toggle-input]"
+  for (const input of Array.from(
+    document.querySelectorAll<HTMLInputElement>("[data-theme-toggle-input]")
   )) {
     input.addEventListener("change", () => {
       applyTheme(input.checked ? "dark" : "light");
