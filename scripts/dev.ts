@@ -1,6 +1,6 @@
 import { watch } from "node:fs";
 import { mkdir } from "node:fs/promises";
-import { normalize } from "node:path";
+import { join, normalize } from "node:path";
 import { minify } from "@minify-html/node";
 import { $ } from "bun";
 import {
@@ -45,6 +45,8 @@ __es.onmessage = async () => {
 addEventListener("beforeunload", () => __es.close());
 </script>`;
 
+const ASTRO_OUTDIR = ".astro-build";
+
 async function build() {
   const t = performance.now();
   await mkdir("dist", { recursive: true });
@@ -80,9 +82,18 @@ async function build() {
       target: "browser",
       format: "esm",
     }),
+    Bun.build({
+      entrypoints: ["src/ui/theme.ts"],
+      outdir: "dist",
+      naming: "theme.js",
+      minify: true,
+      target: "browser",
+      format: "esm",
+    }),
   ]);
 
-  await $`bunx unocss "src/ui/*.html" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
+  await $`bunx unocss "src/**/*.astro" "src/ui/index.html" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
+  await $`bunx astro build --outDir ${ASTRO_OUTDIR}`.quiet();
 
   const css = await Bun.file("dist/styles.css").text();
   const inlineCSS = (src: string) =>
@@ -97,41 +108,21 @@ async function build() {
     minify(Buffer.from(indexHtml), { minify_css: true, minify_js: true })
   );
 
-  const homeHtml = await Bun.file("src/ui/home.html").text();
-  await Bun.write(
-    "dist/home.html",
-    minify(Buffer.from(inlineCSS(homeHtml)), {
-      minify_css: true,
-      minify_js: true,
-    })
-  );
-
-  const benchHtml = await Bun.file("src/ui/bench.html").text();
-  await Bun.write(
-    "dist/bench.html",
-    minify(Buffer.from(inlineCSS(benchHtml)), {
-      minify_css: true,
-      minify_js: true,
-    })
-  );
-
-  const faqHtml = await Bun.file("src/ui/faq.html").text();
-  await Bun.write(
-    "dist/faq.html",
-    minify(Buffer.from(inlineCSS(faqHtml)), {
-      minify_css: true,
-      minify_js: true,
-    })
-  );
-
-  const instructionsHtml = await Bun.file("src/ui/instructions.html").text();
-  await Bun.write(
-    "dist/instructions.html",
-    minify(Buffer.from(inlineCSS(instructionsHtml)), {
-      minify_css: true,
-      minify_js: true,
-    })
-  );
+  for (const file of [
+    "home.html",
+    "bench.html",
+    "faq.html",
+    "instructions.html",
+  ]) {
+    const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
+    await Bun.write(
+      join("dist", file),
+      minify(Buffer.from(inlineCSS(astroHtml)), {
+        minify_css: true,
+        minify_js: true,
+      })
+    );
+  }
 
   await Bun.write("dist/robots.txt", "User-agent: *\nAllow: /\n");
   await Bun.write("dist/manifest.json", Bun.file("src/ui/manifest.json"));

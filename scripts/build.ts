@@ -1,18 +1,22 @@
 import { createHash } from "node:crypto";
 import { mkdir, rm } from "node:fs/promises";
+import { join } from "node:path";
 import { brotliCompressSync, constants } from "node:zlib";
 import { minify } from "@minify-html/node";
 import { $ } from "bun";
 import { ensureGeneratedBangData } from "./codegen";
 
+const ASTRO_OUTDIR = ".astro-build";
+
 await ensureGeneratedBangData(true);
 
 // Start from a clean dist to avoid stale artifacts (e.g. orphaned .br chunks).
 await rm("dist", { recursive: true, force: true });
+await rm(ASTRO_OUTDIR, { recursive: true, force: true });
 await mkdir("dist", { recursive: true });
 
-console.log("=== Bundle app + bench (to discover chunks) ===");
-const [appBuild, benchBuild] = await Promise.all([
+console.log("=== Bundle app + bench + theme (to discover chunks) ===");
+const [appBuild, benchBuild, themeBuild] = await Promise.all([
   Bun.build({
     entrypoints: ["src/ui/app.ts"],
     outdir: "dist",
@@ -30,10 +34,22 @@ const [appBuild, benchBuild] = await Promise.all([
     target: "browser",
     format: "esm",
   }),
+  Bun.build({
+    entrypoints: ["src/ui/theme.ts"],
+    outdir: "dist",
+    naming: "theme.js",
+    minify: true,
+    target: "browser",
+    format: "esm",
+  }),
 ]);
 
 const SIZE_THRESHOLD = 50 * 1024; // 50 KB
-const allOutputs = [...appBuild.outputs, ...benchBuild.outputs];
+const allOutputs = [
+  ...appBuild.outputs,
+  ...benchBuild.outputs,
+  ...themeBuild.outputs,
+];
 const outputFingerprints: string[] = [];
 for (const out of allOutputs) {
   const contentHash = createHash("sha256")
@@ -52,8 +68,11 @@ const cacheVersion =
 const extraAssets = allOutputs
   .filter(
     (o) =>
-      !(o.path.endsWith("/app.js") || o.path.endsWith("/bench.js")) &&
-      o.size < SIZE_THRESHOLD
+      !(
+        o.path.endsWith("/app.js") ||
+        o.path.endsWith("/bench.js") ||
+        o.path.endsWith("/theme.js")
+      ) && o.size < SIZE_THRESHOLD
   )
   .map((o) => `/${o.path.split("/").pop()!}`);
 
@@ -78,7 +97,10 @@ await Bun.build({
 });
 
 console.log("=== Generate CSS ===");
-await $`bunx unocss "src/ui/*.html" "src/ui/**/*.ts" -o dist/styles.css --minify`;
+await $`bunx unocss "src/**/*.astro" "src/ui/index.html" "src/ui/**/*.ts" -o dist/styles.css --minify`;
+
+console.log("=== Build Astro pages ===");
+await $`bunx astro build --outDir ${ASTRO_OUTDIR}`;
 
 console.log("=== Inline CSS + minify HTML ===");
 const css = await Bun.file("dist/styles.css").text();
@@ -94,43 +116,24 @@ await Bun.write(
   minify(Buffer.from(indexHtml), { minify_css: true, minify_js: true })
 );
 
-const homeHtml = await Bun.file("src/ui/home.html").text();
-await Bun.write(
-  "dist/home.html",
-  minify(Buffer.from(inlineCSS(homeHtml)), {
-    minify_css: true,
-    minify_js: true,
-  })
-);
-
-const benchHtml = await Bun.file("src/ui/bench.html").text();
-await Bun.write(
-  "dist/bench.html",
-  minify(Buffer.from(inlineCSS(benchHtml)), {
-    minify_css: true,
-    minify_js: true,
-  })
-);
-
-const faqHtml = await Bun.file("src/ui/faq.html").text();
-await Bun.write(
-  "dist/faq.html",
-  minify(Buffer.from(inlineCSS(faqHtml)), {
-    minify_css: true,
-    minify_js: true,
-  })
-);
-
-const instructionsHtml = await Bun.file("src/ui/instructions.html").text();
-await Bun.write(
-  "dist/instructions.html",
-  minify(Buffer.from(inlineCSS(instructionsHtml)), {
-    minify_css: true,
-    minify_js: true,
-  })
-);
+for (const file of [
+  "home.html",
+  "bench.html",
+  "faq.html",
+  "instructions.html",
+]) {
+  const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
+  await Bun.write(
+    join("dist", file),
+    minify(Buffer.from(inlineCSS(astroHtml)), {
+      minify_css: true,
+      minify_js: true,
+    })
+  );
+}
 
 await rm("dist/styles.css");
+await rm(ASTRO_OUTDIR, { recursive: true, force: true });
 await Bun.write("dist/manifest.json", Bun.file("src/ui/manifest.json"));
 await Bun.write("dist/icon.svg", Bun.file("src/ui/icon.svg"));
 await Bun.write("dist/robots.txt", "User-agent: *\nAllow: /\n");

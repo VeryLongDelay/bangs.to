@@ -18,7 +18,6 @@ export function setupModal(onFirstOpen: () => void) {
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     card.classList.replace("translate-y-2", "translate-y-0");
-    gearBtn.classList.add("rotate-180");
     document.body.style.overflow = "hidden";
     closeBtn.focus();
   }
@@ -29,7 +28,6 @@ export function setupModal(onFirstOpen: () => void) {
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
     card.classList.replace("translate-y-0", "translate-y-2");
-    gearBtn.classList.remove("rotate-180");
     document.body.style.overflow = "";
     gearBtn.focus();
   }

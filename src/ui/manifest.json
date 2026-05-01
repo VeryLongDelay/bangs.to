@@ -1,11 +1,11 @@
 {
-  "name": "Bangs",
-  "short_name": "Bangs",
+  "name": "ban.gs",
+  "short_name": "ban.gs",
   "description": "Fast, private bang redirects",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
+  "background_color": "#f4f8fc",
+  "theme_color": "#f4f8fc",
   "icons": [
     {
       "src": "/icon.svg",

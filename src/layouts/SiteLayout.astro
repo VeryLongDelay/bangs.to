@@ -1,0 +1,107 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import TopBar from "../components/TopBar.astro";
+import TrySearch from "../components/TrySearch.astro";
+
+interface Props {
+  currentPath: string;
+  description: string;
+  title: string;
+  pageScript?: "app" | "bench";
+  showSettingsButton?: boolean;
+  registerServiceWorker?: boolean;
+}
+
+const {
+  currentPath,
+  description,
+  title,
+  pageScript,
+  showSettingsButton = false,
+  registerServiceWorker = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      title="ban.gs"
+      href="/opensearch.xml"
+    />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f4f8fc" />
+    <script is:inline>
+      "use strict";
+      (() => {
+        try {
+          const theme = localStorage.getItem("theme");
+          if (theme === "dark" || theme === "light") {
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+          }
+        } catch {
+          // ignore storage failures before app boot
+        }
+      })();
+    </script>
+    <script is:inline>
+      "use strict";
+      fetch("/opensearch.xml");
+    </script>
+  </head>
+  <body>
+    <div
+      class="relative min-h-screen px-5 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 lg:px-8"
+    >
+      <div
+        class="mx-auto flex min-h-[calc(100vh-3rem)] max-w-[1180px] flex-col"
+      >
+        <TopBar
+          currentPath={currentPath}
+          showSettingsButton={showSettingsButton}
+        />
+        <TrySearch />
+        <main class="flex-1 pb-8">
+          <slot />
+        </main>
+        <SiteFooter />
+      </div>
+    </div>
+
+    <slot name="afterBody" />
+
+    <script type="module" src="/theme.js"></script>
+    {pageScript && <script type="module" src={`/${pageScript}.js`}></script>}
+    {
+      registerServiceWorker && (
+        <script is:inline>
+          "use strict";
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js").then((reg) => {
+              reg.addEventListener("updatefound", () => {
+                const sw = reg.installing;
+                if (!sw) {
+                  return;
+                }
+                sw.addEventListener("statechange", () => {
+                  if (sw.state === "activated") {
+                    location.reload();
+                  }
+                });
+              });
+            });
+          }
+        </script>
+      )
+    }
+  </body>
+</html>

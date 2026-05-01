@@ -1,0 +1,198 @@
+<div
+  id="settings-modal"
+  class="fixed inset-0 z-100 flex items-center justify-center bg-[#d8e4f3]/70 px-3 opacity-0 invisible"
+  aria-hidden="true"
+>
+  <div
+    class="modal-card relative max-h-[calc(100vh-2rem)] w-full max-w-[760px] overflow-y-auto rounded-[30px] border border-white/85 bg-[rgba(248,251,255,0.96)] p-5 shadow-[0_30px_90px_rgba(15,39,64,0.18)] translate-y-2 sm:p-7"
+    role="dialog"
+    aria-label="Settings"
+  >
+    <button
+      type="button"
+      id="modal-close"
+      class="btn absolute right-4 top-4 px-3 py-2 text-base leading-none"
+      aria-label="Close"
+    >
+      &times;
+    </button>
+    <div class="pr-12">
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-text-muted">
+        Preferences
+      </p>
+      <h2
+        class="mt-2 font-display text-[1.8rem] font-700 tracking-tight text-text"
+      >
+        Settings
+      </h2>
+      <p class="mt-2 max-w-[52ch] text-sm leading-6 text-text-secondary">
+        Tune defaults, search providers, lucky behavior, and your personal
+        shortcut list without leaving the page.
+      </p>
+    </div>
+
+    <div class="mt-6 grid gap-5 lg:grid-cols-2">
+      <section class="card">
+        <h3 class="section-title mb-2">Install Link</h3>
+        <p class="label-text mb-3">
+          Copy this URL into your browser’s custom search engine settings.
+        </p>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <input
+            type="text"
+            id="setup-url"
+            readonly
+            aria-label="Search engine URL"
+            class="input-field min-w-0 flex-1 font-mono text-xs"
+          />
+          <button
+            type="button"
+            id="copy-btn"
+            class="btn w-full sm:w-auto sm:min-w-[5.5rem]"
+          >
+            Copy
+          </button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="section-title mb-2">Default Search Engine</h3>
+        <p class="label-text mb-3">
+          Plain searches go here when you do not specify a bang.
+        </p>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div class="flex items-center gap-2">
+            <span
+              class="rounded-xl bg-bg-soft px-3 py-2 font-mono text-sm text-primary-700"
+            >
+              !
+            </span>
+            <input
+              type="text"
+              id="default-bang"
+              class="input-field w-full font-mono text-sm sm:w-24"
+            />
+          </div>
+          <span id="bang-status" class="text-sm text-text-secondary"></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="section-title mb-2">Feeling Lucky</h3>
+        <p class="label-text mb-3">
+          Use <code>\query</code>, <code>query !</code>, or <code>! query</code>
+          to jump straight to the first result.
+        </p>
+        <select id="lucky-provider" class="input-field text-sm">
+          <option value="default">Default (match bang)</option>
+          <option value="google">Google</option>
+          <option value="ddg">DuckDuckGo</option>
+          <option value="kagi">Kagi</option>
+          <option value="custom">Custom</option>
+          <option value="none">Disabled</option>
+        </select>
+        <input
+          type="text"
+          id="lucky-url"
+          placeholder="URL with {} for query"
+          class="input-field mt-2 hidden font-mono text-sm"
+        />
+      </section>
+
+      <section class="card">
+        <h3 class="section-title mb-2">Search Suggestions</h3>
+        <p class="label-text mb-3">
+          Choose where address bar autocomplete suggestions come from.
+        </p>
+        <select id="suggest-provider" class="input-field text-sm">
+          <option value="default">Default (match bang)</option>
+          <option value="google">Google</option>
+          <option value="ddg">DuckDuckGo</option>
+          <option value="bing">Bing</option>
+          <option value="brave">Brave</option>
+          <option value="yahoo">Yahoo</option>
+          <option value="ecosia">Ecosia</option>
+          <option value="kagi">Kagi</option>
+          <option value="yandex">Yandex</option>
+          <option value="baidu">Baidu</option>
+          <option value="custom">Custom</option>
+          <option value="none">None</option>
+        </select>
+        <input
+          type="text"
+          id="suggest-url"
+          placeholder="URL with {} for query"
+          class="input-field mt-2 hidden font-mono text-sm"
+        />
+      </section>
+
+      <section class="card">
+        <h3 class="section-title mb-2">Search Bangs</h3>
+        <p id="bang-count" class="label-text mb-3"></p>
+        <input
+          type="text"
+          id="bang-search"
+          placeholder="Search by name or shortcut..."
+          class="input-field text-sm"
+        />
+        <div
+          id="bang-results"
+          class="mt-3 max-h-60 overflow-y-auto rounded-2xl pr-1 pt-1"
+        ></div>
+      </section>
+
+      <section class="card">
+        <h3 class="section-title mb-2">Custom Bangs</h3>
+        <form id="add-bang-form" class="mb-4 space-y-2">
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <input
+              type="text"
+              name="shortcut"
+              placeholder="Shortcut (e.g. gh)"
+              class="input-field font-mono text-sm"
+              required
+            />
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              class="input-field text-sm"
+              required
+            />
+          </div>
+          <input
+            type="text"
+            name="url"
+            placeholder="URL with {} for query"
+            class="input-field font-mono text-sm"
+            required
+          />
+          <button type="submit" class="btn-primary w-full">Add Bang</button>
+        </form>
+        <div id="custom-list"></div>
+      </section>
+
+      <section class="card lg:col-span-2">
+        <h3 class="section-title mb-2">Import / Export</h3>
+        <p class="label-text mb-3">
+          Back up your current settings or restore them on another device.
+        </p>
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <button type="button" id="export-btn" class="btn flex-1">
+            Export
+          </button>
+          <label class="btn flex-1 cursor-pointer text-center">
+            Import
+            <input
+              type="file"
+              id="import-file"
+              accept=".json"
+              class="hidden"
+            />
+          </label>
+        </div>
+        <span id="import-status" class="mt-2 block text-sm"></span>
+      </section>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+---
+import ThemeSwitch from "./ThemeSwitch.astro";
+
+interface Props {
+  currentPath: string;
+  showSettingsButton?: boolean;
+}
+
+const { currentPath, showSettingsButton = false } = Astro.props;
+
+const links = [
+  { href: "/", label: "Home", match: ["/", "/home"] },
+  { href: "/instructions", label: "Instructions", match: ["/instructions"] },
+  { href: "/faq", label: "FAQ", match: ["/faq"] },
+  { href: "/bench", label: "Bench", match: ["/bench"] },
+];
+---
+
+<header
+  class="card mb-6 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+>
+  <div class="flex items-center gap-3">
+    <div
+      class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary-100 via-white to-primary-50 text-[1.35rem] font-800 text-primary-700 shadow-[0_12px_24px_rgba(37,99,235,0.14)]"
+    >
+      !
+    </div>
+    <div>
+      <p class="font-display text-lg font-700 tracking-tight text-text">
+        ban.gs
+      </p>
+      <p class="text-sm text-text-secondary">
+        Search shortcuts that stay local-first.
+      </p>
+    </div>
+  </div>
+
+  <nav class="flex flex-wrap items-center gap-2 text-sm">
+    <ThemeSwitch />
+    {
+      links.map((link) => {
+        const active = link.match.includes(currentPath);
+        return (
+          <a
+            href={link.href}
+            class={`btn no-underline ${active ? "border-primary-300 bg-primary-50/80 text-primary-700" : ""}`}
+            aria-current={active ? "page" : undefined}
+          >
+            {link.label}
+          </a>
+        );
+      })
+    }
+    {
+      showSettingsButton && (
+        <button
+          type="button"
+          id="gear-btn"
+          class="btn flex items-center gap-2"
+          aria-label="Open settings"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Settings
+        </button>
+      )
+    }
+  </nav>
+</header>

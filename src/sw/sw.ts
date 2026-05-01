@@ -25,6 +25,7 @@ const ASSETS = [
   "/bench",
   "/bench.js",
   "/app.js",
+  "/theme.js",
   "/icon.svg",
   "/manifest.json",
   ...__EXTRA_ASSETS__,

@@ -24,18 +24,20 @@ function init() {
 
   $<HTMLInputElement>("#setup-url").value = `${location.origin}?q=%s`;
 
-  const metal = initLiquidMetal(
-    $<HTMLCanvasElement>("#metal-canvas"),
-    "Bangs"
-  );
-  $(".wordmark").classList.add("has-shader");
+  const wordmark = document.querySelector(".wordmark") as HTMLElement | null;
+  const metalCanvas = document.querySelector(
+    "#metal-canvas"
+  ) as HTMLCanvasElement | null;
+  const metal =
+    wordmark && metalCanvas ? initLiquidMetal(metalCanvas, "ban.gs") : null;
+  wordmark?.classList.add("has-shader");
 
   $("#copy-btn").addEventListener("click", async () => {
     await navigator.clipboard.writeText(
       $<HTMLInputElement>("#setup-url").value
     );
     flashAnim($<HTMLInputElement>("#setup-url"));
-    metal.flash();
+    metal?.flash();
     $("#copy-btn").textContent = "Copied!";
     setTimeout(() => ($("#copy-btn").textContent = "Copy"), 1500);
   });

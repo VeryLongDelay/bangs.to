@@ -1,0 +1,230 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="ban.gs — query type benchmark"
+  description="Measure redirect latency across query types and verify that the local-first route stays fast under repeated runs."
+  currentPath="/bench"
+  pageScript="bench"
+>
+  <div
+    id="sw-status"
+    class="warning hidden rounded-[20px] px-4 py-3 text-sm mb-4"
+  ></div>
+
+  <div class="grid gap-4 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
+    <aside class="card h-fit p-5 sm:p-6">
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">
+        What this checks
+      </p>
+      <h1
+        class="mt-2 font-display text-[2.4rem] font-800 leading-tight tracking-[-0.04em] text-text sm:text-[2.8rem]"
+      >
+        Benchmark
+      </h1>
+      <p class="mt-3 text-sm leading-7 text-text-secondary">
+        The benchmark stops at the Service Worker redirect response. That
+        isolates routing overhead from the destination site’s network latency.
+      </p>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-[20px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Warmup included</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Each query type gets a warmup phase first to stabilize caches.
+          </p>
+        </div>
+        <div class="rounded-[20px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">High-resolution clock</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Results use <code>performance.now()</code> for per-iteration
+            timings.
+          </p>
+        </div>
+        <div class="rounded-[20px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Compare spread</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Median, mean, p95, p99, min, and max make regressions easier to
+            spot.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <div class="grid gap-4">
+      <div class="card">
+        <h2 class="section-title mb-3">Configuration</h2>
+        <div class="flex flex-col gap-2">
+          <label for="iterations" class="label-text">
+            Iterations per query type
+          </label>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <input
+              type="text"
+              id="iterations"
+              value="500"
+              inputmode="numeric"
+              class="input-field w-full sm:!w-48"
+            />
+            <button
+              type="button"
+              class="btn-primary whitespace-nowrap"
+              id="run-btn"
+            >
+              Run Benchmark
+            </button>
+          </div>
+        </div>
+
+        <div id="progress" class="hidden">
+          <div class="mt-4 h-[5px] overflow-hidden rounded-full bg-bg-strong">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div
+            class="mt-2 text-[0.82rem] text-text-secondary"
+            id="progress-text"
+          ></div>
+        </div>
+      </div>
+
+      <div class="hidden" id="results-section">
+        <div class="card mb-4">
+          <h2 class="section-title">Detailed Statistics</h2>
+          <div class="overflow-x-auto">
+            <table class="stats-table mt-4 text-[0.8rem]" id="stats-table">
+              <thead>
+                <tr>
+                  <th>Query Type</th>
+                  <th>Median</th>
+                  <th>Mean</th>
+                  <th>p95</th>
+                  <th>p99</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                </tr>
+              </thead>
+              <tbody id="stats-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mb-4 hidden" id="summary-card">
+          <div class="py-3 text-center text-[0.98rem] font-700" id="summary"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title mb-3">Methodology</h2>
+        <div class="text-[0.9rem] leading-[1.8] text-text-secondary">
+          <p class="mb-3">
+            Each query type is benchmarked independently using
+            <code class="font-mono text-[0.85em]">
+              fetch('/?q=...', &#123; redirect: 'manual' &#125;)
+            </code>
+            which stops at the Service Worker’s 302 redirect response without
+            following it. This measures the actual SW processing time with no
+            network overhead.
+          </p>
+          <ul class="my-2 ml-5">
+            <li class="mb-1">
+              <strong>50 warmup iterations</strong>
+              per query type (discarded) to stabilize caches
+            </li>
+            <li class="mb-1">
+              <strong>500 measured iterations</strong>
+              by default (configurable 100–5,000)
+            </li>
+            <li class="mb-1">
+              <strong>performance.now()</strong>
+              for high-resolution timing per iteration
+            </li>
+            <li class="mb-1">
+              Stats computed: <strong>median</strong>, mean, p95, p99, min, max
+            </li>
+          </ul>
+          <p>
+            Run with DevTools <strong>closed</strong> because Chrome adds heavy
+            instrumentation overhead to Service Worker timing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style is:inline>
+    .warning {
+      color: #9a6700;
+      background: rgba(255, 244, 214, 0.9);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      box-shadow: 0 12px 28px rgba(245, 158, 11, 0.08);
+    }
+    .warning a {
+      color: #9a6700;
+      text-decoration: underline;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #60a5fa, #0f766e);
+      transition: width 0.1s;
+    }
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .stats-table th {
+      padding: 0.65rem 0.7rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #58708c;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid #d7e3ef;
+    }
+    .stats-table td {
+      padding: 0.6rem 0.7rem;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #e6eef8;
+    }
+    .stats-table tr td:first-child {
+      font-family: inherit;
+      font-weight: 600;
+      color: #16324f;
+    }
+    .stats-table .fastest {
+      color: #1d8f6d;
+    }
+    .summary-value {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #1d8f6d;
+    }
+    :root[data-theme="dark"] .warning {
+      color: #facc15;
+      background: rgba(71, 47, 8, 0.76);
+      border-color: rgba(250, 204, 21, 0.2);
+      box-shadow: 0 12px 28px rgba(2, 6, 23, 0.28);
+    }
+    :root[data-theme="dark"] .warning a {
+      color: #fcd34d;
+    }
+    :root[data-theme="dark"] .stats-table th {
+      color: #8fa7c1;
+      border-bottom-color: rgba(148, 163, 184, 0.16);
+    }
+    :root[data-theme="dark"] .stats-table td {
+      border-bottom-color: rgba(148, 163, 184, 0.12);
+      color: #d9e6f5;
+    }
+    :root[data-theme="dark"] .stats-table tr td:first-child {
+      color: #eff6ff;
+    }
+    :root[data-theme="dark"] .stats-table .fastest,
+    :root[data-theme="dark"] .summary-value {
+      color: #34d399;
+    }
+  </style>
+</SiteLayout>

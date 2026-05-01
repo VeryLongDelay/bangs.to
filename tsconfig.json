@@ -6,10 +6,12 @@
     "strict": true,
     "noEmit": true,
     "lib": ["ESNext", "WebWorker", "DOM"],
-    "types": ["@types/bun"]
+    "types": ["@types/bun", "astro/client"]
   },
   "include": [
+    "src/**/*.astro",
     "src/**/*.ts",
+    "src/env.d.ts",
     "scripts/**/*.ts",
     "functions/**/*.ts",
     "tests/redirect.test.ts",

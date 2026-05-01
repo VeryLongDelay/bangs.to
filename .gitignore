@@ -2,6 +2,8 @@
 .gemini
 .agent
 .vscode
+.astro
+.wrangler
 dist/
 test-results/
 !data/bangs.json

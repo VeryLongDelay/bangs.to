@@ -1,0 +1,125 @@
+---
+import SettingsModal from "../components/SettingsModal.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="ban.gs"
+  description="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker."
+  currentPath="/home"
+  pageScript="app"
+  showSettingsButton={true}
+  registerServiceWorker={true}
+>
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
+    <section>
+      <div
+        class="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-100 bg-white/80 px-3 py-1 text-xs font-600 uppercase tracking-[0.22em] text-primary-700 shadow-[0_8px_18px_rgba(37,99,235,0.08)]"
+      >
+        Local-first
+        <span class="h-1 w-1 rounded-full bg-primary-300"></span>
+        Private by design
+      </div>
+      <h1
+        class="max-w-[11ch] font-display text-[3rem] font-800 leading-[0.92] tracking-[-0.05em] text-text sm:text-[4.35rem]"
+      >
+        Fast search routing that feels reliable.
+      </h1>
+      <p
+        class="mt-5 max-w-[60ch] text-[1.05rem] leading-8 text-text-secondary sm:text-[1.1rem]"
+      >
+        ban.gs lets your browser turn shortcuts like <code>!gh react</code> or
+        <code>!w saturn</code> into the right destination without shipping every
+        query through a remote redirect page.
+      </p>
+
+      <div class="mt-7 grid gap-3 sm:grid-cols-3">
+        <div class="card p-4">
+          <p
+            class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted"
+          >
+            Trust signal
+          </p>
+          <p class="mt-2 text-lg font-700 text-text">Runs on your device</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Service Worker routing keeps the redirect logic in the browser, not
+            on someone else’s server.
+          </p>
+        </div>
+        <div class="card p-4">
+          <p
+            class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted"
+          >
+            Setup
+          </p>
+          <p class="mt-2 text-lg font-700 text-text">
+            Works with the address bar
+          </p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Add one search URL and your normal browser search field becomes the
+            control surface.
+          </p>
+        </div>
+        <div class="card p-4">
+          <p
+            class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted"
+          >
+            Speed
+          </p>
+          <p class="mt-2 text-lg font-700 text-text">Zero extra page loads</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Queries jump to the destination directly, so the experience stays
+            quick and predictable.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid gap-4">
+      <div class="card">
+        <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">
+          Why it feels fast
+        </p>
+        <h2 class="mt-2 font-display text-2xl font-700 tracking-tight text-text">
+          No extra redirect page in the middle.
+        </h2>
+        <p class="mt-3 text-sm leading-7 text-text-secondary">
+          ban.gs resolves the route before a normal page load has to happen, so
+          the interaction feels closer to a built-in browser feature than a web
+          app detour.
+        </p>
+      </div>
+
+      <div class="card">
+        <p class="text-sm font-700 text-text">What to expect</p>
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-[22px] bg-bg-soft p-4">
+            <p class="text-sm font-700 text-text">No analytics layer</p>
+            <p class="mt-2 text-sm leading-6 text-text-secondary">
+              No account, no hosted dashboard, and no tracking layer required to
+              start using it.
+            </p>
+          </div>
+          <div class="rounded-[22px] bg-bg-soft p-4">
+            <p class="text-sm font-700 text-text">Browser install link</p>
+            <p class="mt-2 text-sm leading-6 text-text-secondary">
+              Open Settings to copy the custom search engine URL and tune
+              defaults, suggestions, and custom shortcuts.
+            </p>
+          </div>
+          <div class="rounded-[22px] bg-bg-soft p-4">
+            <p class="text-sm font-700 text-text">Benchmark included</p>
+            <p class="mt-2 text-sm leading-6 text-text-secondary">
+              The benchmark page measures redirect latency directly so you can
+              validate the overhead on your own machine.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <Fragment slot="afterBody">
+    <SettingsModal />
+  </Fragment>
+</SiteLayout>
