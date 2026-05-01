@@ -1,9 +1,10 @@
-.codex
-.gemini
-.agent
-.vscode
-.astro
-.wrangler
+.codex/
+.gemini/
+.agent/
+.vscode/
+.astro/
+.astro-build/
+.wrangler/
 dist/
 test-results/
 !data/bangs.json

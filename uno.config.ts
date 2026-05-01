@@ -260,51 +260,97 @@ export default defineConfig({
           color: ${theme.colors.text.hover};
         }
 
-        .theme-switch {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .theme-switch-label {
-          white-space: nowrap;
+        .switch {
+          font-size: 17px;
+          position: relative;
+          display: inline-block;
+          width: 4em;
+          height: 2.2em;
+          border-radius: 30px;
+          cursor: pointer;
+          box-shadow: 0 0 10px rgba(15, 39, 64, 0.1);
         }
 
         .theme-switch-input {
-          position: absolute;
           opacity: 0;
-          pointer-events: none;
+          width: 0;
+          height: 0;
+          position: absolute;
         }
 
-        .theme-switch-track {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          width: 2.7rem;
-          height: 1.55rem;
-          padding: 0.15rem;
-          border-radius: 999px;
-          background: rgba(148, 163, 184, 0.38);
-          box-shadow: inset 0 1px 2px rgba(15, 39, 64, 0.16);
-          transition: background-color 0.18s ease;
+        .slider {
+          position: absolute;
+          inset: 0;
+          cursor: pointer;
+          background-color: #2a2a2a;
+          transition: 0.4s;
+          border-radius: 30px;
+          overflow: hidden;
         }
 
-        .theme-switch-thumb {
-          display: block;
-          width: 1.25rem;
-          height: 1.25rem;
-          border-radius: 999px;
-          background: #fff;
-          box-shadow: 0 2px 6px rgba(15, 39, 64, 0.22);
-          transition: transform 0.18s ease;
+        .slider::before {
+          position: absolute;
+          content: "";
+          height: 1.2em;
+          width: 1.2em;
+          border-radius: 20px;
+          left: 0.5em;
+          bottom: 0.5em;
+          transition: 0.4s;
+          transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+          box-shadow: inset 8px -4px 0 0 #fff;
+          background: transparent;
         }
 
-        .theme-switch-input:checked + .theme-switch-track {
-          background: linear-gradient(135deg, ${theme.colors.primary[600]}, ${theme.colors.accent});
+        .theme-switch-input:checked + .slider {
+          background-color: #00a6ff;
         }
 
-        .theme-switch-input:checked + .theme-switch-track .theme-switch-thumb {
-          transform: translateX(1.15rem);
+        .theme-switch-input:checked + .slider::before {
+          transform: translateX(1.8em);
+          box-shadow: inset 15px -4px 0 15px #ffcf48;
+        }
+
+        .star {
+          background-color: #fff;
+          border-radius: 50%;
+          position: absolute;
+          width: 5px;
+          height: 5px;
+          transition: all 0.4s;
+        }
+
+        .star_1 {
+          left: 2.5em;
+          top: 0.5em;
+        }
+
+        .star_2 {
+          left: 2.2em;
+          top: 1.2em;
+        }
+
+        .star_3 {
+          left: 3em;
+          top: 0.9em;
+        }
+
+        .theme-switch-input:checked + .slider .star {
+          opacity: 0;
+        }
+
+        .cloud {
+          width: 3.5em;
+          position: absolute;
+          bottom: -1.4em;
+          left: -1.1em;
+          opacity: 0;
+          transition: all 0.4s;
+          color: #fff;
+        }
+
+        .theme-switch-input:checked + .slider .cloud {
+          opacity: 1;
         }
 
         .wordmark {
@@ -478,14 +524,13 @@ export default defineConfig({
             0 1px 0 rgba(255, 255, 255, 0.08) inset;
         }
 
-        :root[data-theme="dark"] .theme-switch-track {
-          background: rgba(51, 65, 85, 0.88);
-          box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.4);
+        .switch:focus-within {
+          outline: 3px solid rgba(59, 130, 246, 0.24);
+          outline-offset: 3px;
         }
 
-        :root[data-theme="dark"] .theme-switch-thumb {
-          background: #eff6ff;
-          box-shadow: 0 2px 6px rgba(2, 6, 23, 0.4);
+        :root[data-theme="dark"] .switch {
+          box-shadow: 0 0 12px rgba(2, 6, 23, 0.32);
         }
 
         :root[data-theme="dark"] .text-text {
