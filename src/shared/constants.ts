@@ -3,7 +3,7 @@ export const MAX_FRECENCY_ENTRIES = 64;
 export const FRECENCY_BOOST_MULTIPLIER = 10;
 export const FRECENCY_BOOST_CAP = 2000;
 
-export const DEFAULT_URL = "https://www.google.com/search?q={}";
+export const DEFAULT_URL = "https://duckduckgo.com/?q={}";
 
 export const LUCKY_URLS: Record<string, string> = {
   g: "https://www.google.com/search?q={}&btnI=1",

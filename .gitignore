@@ -1,5 +1,7 @@
+.codex
+.gemini
 dist/
-data/*
+data/
 test-results/
 !data/bangs.json
 !data/custom-bangs.json

@@ -58,7 +58,7 @@ export function readRedirectSettings(): Promise<RedirectSettings> {
         const settingsMap = Object.fromEntries(
           settings.map((s) => [s.key, s.value])
         );
-        const defaultBang = settingsMap["default-bang"] || "g";
+        const defaultBang = settingsMap["default-bang"] || "ddg";
         const tpl = lookupBang(defaultBang);
         const defaultUrl: UrlParts = tpl || splitUrl(DEFAULT_URL);
         const luckyProvider = settingsMap["lucky-provider"] ?? "default";
