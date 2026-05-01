@@ -6,8 +6,9 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 <SiteLayout
   title="ban.gs"
   description="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker."
-  currentPath="/home"
+  currentPath="/"
   registerServiceWorker={true}
+  searchEntrypoint={true}
 >
   <HomeContent />
 </SiteLayout>

@@ -92,7 +92,7 @@ async function build() {
     }),
   ]);
 
-  await $`bunx unocss "src/**/*.astro" "src/ui/index.html" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
+  await $`bunx unocss "src/**/*.astro" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
   await $`bunx astro build --outDir ${ASTRO_OUTDIR}`.quiet();
 
   const css = await Bun.file("dist/styles.css").text();
@@ -102,13 +102,8 @@ async function build() {
       `<style>${css}</style>`
     );
 
-  const indexHtml = await Bun.file("src/ui/index.html").text();
-  await Bun.write(
-    "dist/index.html",
-    minify(Buffer.from(indexHtml), { minify_css: true, minify_js: true })
-  );
-
   for (const file of [
+    "index.html",
     "home.html",
     "bench.html",
     "faq.html",

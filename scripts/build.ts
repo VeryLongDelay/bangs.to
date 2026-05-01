@@ -97,7 +97,7 @@ await Bun.build({
 });
 
 console.log("=== Generate CSS ===");
-await $`bunx unocss "src/**/*.astro" "src/ui/index.html" "src/ui/**/*.ts" -o dist/styles.css --minify`;
+await $`bunx unocss "src/**/*.astro" "src/ui/**/*.ts" -o dist/styles.css --minify`;
 
 console.log("=== Build Astro pages ===");
 await $`bunx astro build --outDir ${ASTRO_OUTDIR}`;
@@ -110,13 +110,8 @@ const inlineCSS = (src: string) =>
     `<style>${css}</style>`
   );
 
-const indexHtml = await Bun.file("src/ui/index.html").text();
-await Bun.write(
-  "dist/index.html",
-  minify(Buffer.from(indexHtml), { minify_css: true, minify_js: true })
-);
-
 for (const file of [
+  "index.html",
   "home.html",
   "bench.html",
   "faq.html",
@@ -148,17 +143,12 @@ function extractScriptHashes(html: string): string[] {
   }
   return hashes;
 }
-const distIndex = await Bun.file("dist/index.html").text();
-const distHome = await Bun.file("dist/home.html").text();
-const distBench = await Bun.file("dist/bench.html").text();
-const distFaq = await Bun.file("dist/faq.html").text();
-const distInstructions = await Bun.file("dist/instructions.html").text();
 const scriptHashes = [
-  ...extractScriptHashes(distIndex),
-  ...extractScriptHashes(distHome),
-  ...extractScriptHashes(distBench),
-  ...extractScriptHashes(distFaq),
-  ...extractScriptHashes(distInstructions),
+  ...extractScriptHashes(await Bun.file("dist/index.html").text()),
+  ...extractScriptHashes(await Bun.file("dist/home.html").text()),
+  ...extractScriptHashes(await Bun.file("dist/bench.html").text()),
+  ...extractScriptHashes(await Bun.file("dist/faq.html").text()),
+  ...extractScriptHashes(await Bun.file("dist/instructions.html").text()),
 ];
 const { pageHeaders, SW_CSP } = await import("../src/server/headers");
 const { "Content-Security-Policy": pageCsp, ...baseHeaders } = pageHeaders(
