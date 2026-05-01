@@ -83,6 +83,15 @@ async function build() {
       format: "esm",
     }),
     Bun.build({
+      entrypoints: ["src/ui/bangs.ts"],
+      outdir: "dist",
+      naming: "bangs.js",
+      splitting: true,
+      minify: true,
+      target: "browser",
+      format: "esm",
+    }),
+    Bun.build({
       entrypoints: ["src/ui/theme.ts"],
       outdir: "dist",
       naming: "theme.js",
@@ -105,6 +114,7 @@ async function build() {
   for (const file of [
     "index.html",
     "home.html",
+    "bangs.html",
     "bench.html",
     "faq.html",
     "instructions.html",

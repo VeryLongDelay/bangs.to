@@ -3,16 +3,22 @@ import ThemeSwitch from './ThemeSwitch.astro';
 
 interface Props {
   currentPath: string;
+  settingsHref?: string;
   showSettingsButton?: boolean;
 }
 
-const { currentPath, showSettingsButton = false } = Astro.props;
+const {
+  currentPath,
+  settingsHref = "/#settings",
+  showSettingsButton = false
+} = Astro.props;
 
 const links = [
   { href: '/', label: 'Home', match: ['/', '/home'] },
+  { href: '/bangs', label: 'Bangs', match: ['/bangs'] },
   { href: '/instructions', label: 'Instructions', match: ['/instructions'] },
   { href: '/faq', label: 'FAQ', match: ['/faq'] },
-  // { href: '/bench', label: 'Bench', match: ['/bench'] }
+  { href: '/bench', label: 'Bench', match: ['/bench'] }
 ];
 ---
 
@@ -48,8 +54,8 @@ const links = [
     }
     {
       showSettingsButton && (
-        <button
-          type="button"
+        <a
+          href={settingsHref}
           id="gear-btn"
           class="btn flex items-center gap-2"
           aria-label="Open settings"
@@ -69,7 +75,7 @@ const links = [
             <circle cx="12" cy="12" r="3" />
           </svg>
           Settings
-        </button>
+        </a>
       )
     }
     <ThemeSwitch />

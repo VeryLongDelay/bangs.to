@@ -1,8 +1,48 @@
 ---
+const { settingsHref = '/#settings', exampleCount = 3, dailyRotation = true } = Astro.props;
+
 const examples = [
-  { href: "/?q=!gh%20react", label: "!gh react" },
-  { href: "/?q=!w%20service%20worker", label: "!w service worker" },
-  { href: "/?q=weather%20vancouver", label: "weather vancouver" },
+  { href: '/?q=!gh%20react', label: '!gh react' },
+  { href: '/?q=!gh%20astro', label: '!gh astro' },
+  { href: '/?q=!gh%20cloudflare%20workers', label: '!gh cloudflare workers' },
+  { href: '/?q=!npm%20typescript', label: '!npm typescript' },
+  { href: '/?q=!npm%20astro', label: '!npm astro' },
+  { href: '/?q=!mdn%20fetch%20api', label: '!mdn fetch api' },
+  { href: '/?q=!mdn%20service%20worker', label: '!mdn service worker' },
+  { href: '/?q=!so%20astro%20props', label: '!so astro props' },
+  { href: '/?q=!cp%20aws%20lambda%20pricing', label: '!cp aws lambda pricing' },
+  { href: '/?q=!cf%20workers%20kv', label: '!cf workers kv' },
+
+  { href: '/?q=!w%20saturn', label: '!w saturn' },
+  { href: '/?q=!w%20cloudflare', label: '!w cloudflare' },
+  { href: '/?q=!w%20pokemon', label: '!w pokemon' },
+  { href: '/?q=!ddg%20privacy%20search', label: '!ddg privacy search' },
+  { href: '/?q=!g%20why%20is%20the%20sky%20blue', label: '!g why is the sky blue' },
+
+  { href: '/?q=!yt%20lofi%20coding', label: '!yt lofi coding' },
+  { href: '/?q=!yt%20astro%20tutorial', label: '!yt astro tutorial' },
+  { href: '/?q=!yt%20cat%20videos', label: '!yt cat videos' },
+  { href: '/?q=!imdb%20interstellar', label: '!imdb interstellar' },
+  { href: '/?q=!imdb%20oppenheimer', label: '!imdb oppenheimer' },
+
+  { href: '/?q=!maps%20vancouver%20coffee', label: '!maps vancouver coffee' },
+  { href: '/?q=!maps%20burnaby%20parks', label: '!maps burnaby parks' },
+  { href: '/?q=!maps%20sushi%20near%20me', label: '!maps sushi near me' },
+
+  { href: '/?q=!amz%20mechanical%20keyboard', label: '!amz mechanical keyboard' },
+  { href: '/?q=!amz%20usb%20c%20cable', label: '!amz usb c cable' },
+  { href: '/?q=!ebay%20pokemon%20cards', label: '!ebay pokemon cards' },
+
+  { href: '/?q=!r%20selfhosted', label: '!r selfhosted' },
+  { href: '/?q=!r%20webdev', label: '!r webdev' },
+  { href: '/?q=!r%20astrojs', label: '!r astrojs' },
+
+  { href: '/?q=weather%20vancouver', label: 'weather vancouver' },
+  { href: '/?q=best%20dns%20providers', label: 'best dns providers' },
+  { href: '/?q=how%20service%20workers%20cache', label: 'service worker cache' },
+  { href: '/?q=cheap%20cloud%20hosting', label: 'cheap cloud hosting' },
+  { href: '/?q=things%20to%20do%20in%20burnaby', label: 'things to do in burnaby' },
+  { href: '/?q=random%20trivia%20questions', label: 'random trivia questions' }
 ];
 ---
 
@@ -24,19 +64,28 @@ const examples = [
         Search from anywhere with !bangs
       </h2>
       <p class="mt-3 max-w-[58ch] text-sm leading-7 text-text-secondary sm:text-[0.98rem]">
-        Use a bang to jump to a destination, or type a normal query and let
-        your default engine take over.
+        Use a bang to jump to a destination, or type a normal query and let your default engine take
+        over.
+      </p>
+      <p class="mt-3 text-sm text-text-secondary">
+        Need to tune defaults or copy the install URL?
+        <a href={settingsHref} class="font-700">Open Settings</a>.
       </p>
     </div>
 
     <div class="rounded-[24px] border border-white/80 bg-white/86 p-4">
       <p class="text-sm font-700 text-text">Quick examples</p>
-      <div class="mt-3 flex flex-wrap gap-2 text-sm">
+      <div
+        id="example-list"
+        data-count={exampleCount}
+        data-daily-rotation={dailyRotation ? 'true' : 'false'}
+        class="mt-3 flex flex-wrap gap-2 text-sm"
+      >
         {
-          examples.map((example) => (
+          examples.map(example => (
             <a
               href={example.href}
-              class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"
+              class="example-item hidden rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"
             >
               {example.label}
             </a>
@@ -64,13 +113,13 @@ const examples = [
           aria-label="Try a search"
           class="input-field min-w-0 flex-1"
         />
-        <button
-          type="submit"
-          class="btn-primary w-full sm:w-auto sm:min-w-[7rem]"
-        >
-          Search
-        </button>
+        <button type="submit" class="btn-primary w-full sm:w-auto sm:min-w-[7rem]"> Search </button>
       </div>
     </form>
   </div>
 </section>
+
+<script>
+  import { initTrySearchExamples } from '../ui/try-search-examples';
+  initTrySearchExamples();
+</script>

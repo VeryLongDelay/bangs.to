@@ -1,8 +1,9 @@
 import { flashAnim, shakeAnim } from "./animations";
+import { setupBangBrowser } from "./bang-browser";
 import { setSuggestCookie } from "./cookie";
 import { setupCustomBangs } from "./custom-bangs";
 import { type DB, readCustomBangs } from "./db";
-import { $, el } from "./dom";
+import { $ } from "./dom";
 import { notifySW } from "./sw-bridge";
 
 export async function initSettings(db: DB) {
@@ -20,7 +21,7 @@ export async function initSettings(db: DB) {
     savedLuckyUrl,
     initialCustom,
   ] = await Promise.all([
-    db.getSetting("default-bang").then((v) => v || "g"),
+    db.getSetting("default-bang").then((v) => v || "ddg"),
     db.getSetting("suggest-provider").then((v) => v || "default"),
     db.getSetting("suggest-url").then((v) => v || ""),
     db.getSetting("lucky-provider").then((v) => v || "default"),
@@ -51,8 +52,13 @@ export async function initSettings(db: DB) {
   const mod = await import("../generated/bangs-meta.js");
   const full: Record<string, { s: string; d: string }> = mod.BANGS;
   $("#bang-status").textContent = full[defaultBang]?.s || "Unknown";
-  $("#bang-count").textContent =
-    `${Object.keys(full).length.toLocaleString()} bangs available`;
+  await setupBangBrowser({
+    countSelector: "#bang-count",
+    initialLimit: 0,
+    inputSelector: "#bang-search",
+    resultsSelector: "#bang-results",
+    resultLimit: 20,
+  });
 
   defaultInput.addEventListener("change", async () => {
     const val = defaultInput.value.replace(/^!+/, "").toLowerCase().trim();
@@ -113,74 +119,16 @@ export async function initSettings(db: DB) {
     notifySW("invalidate");
   });
 
-  let timer: ReturnType<typeof setTimeout>;
-  let cachedEntries: [string, { s: string; d: string }][] | null = null;
-  $<HTMLInputElement>("#bang-search").addEventListener("input", (e) => {
-    clearTimeout(timer);
-    const q = (e.target as HTMLInputElement).value.trim().toLowerCase();
-    if (!q) {
-      $("#bang-results").replaceChildren();
-      return;
-    }
-    timer = setTimeout(() => {
-      if (!cachedEntries) {
-        cachedEntries = Object.entries(full);
-      }
-      const hits = cachedEntries
-        .filter(
-          ([t, b]) =>
-            t.includes(q) || b.s.toLowerCase().includes(q) || b.d.includes(q)
-        )
-        .sort((a, b) => {
-          const as_ = a[0].startsWith(q) ? 0 : 1;
-          const bs_ = b[0].startsWith(q) ? 0 : 1;
-          return as_ - bs_ || a[0].length - b[0].length;
-        })
-        .slice(0, 20);
-      const container = $("#bang-results");
-      if (hits.length === 0) {
-        container.replaceChildren(
-          el(
-            "div",
-            "py-3 text-center text-sm text-text-secondary",
-            "No matches"
-          )
-        );
-      } else {
-        container.replaceChildren(
-          ...hits.map(([t, b]) => {
-            const row = el(
-              "div",
-              "flex items-center gap-3 px-2.5 py-2 rounded-lg bg-bg-secondary mb-1"
-            );
-            row.append(
-              el(
-                "code",
-                "px-1.5 py-0.5 rounded bg-bg-active text-xs min-w-15 text-center font-mono",
-                `!${t}`
-              ),
-              el("span", "flex-1 text-[13px] font-medium", b.s),
-              el(
-                "span",
-                "text-[11px] text-text-secondary max-w-30 overflow-hidden text-ellipsis whitespace-nowrap",
-                b.d
-              )
-            );
-            return row;
-          })
-        );
-      }
-    }, 200);
-  });
-
-  setupCustomBangs(db, (nextCustom) => {
-    custom = nextCustom;
-    setSuggestCookie(
-      suggestSelect.value,
-      defaultInput.value,
-      suggestUrlInput.value.trim(),
-      custom
-    );
+  setupCustomBangs(db, {
+    onChange: (nextCustom) => {
+      custom = nextCustom;
+      setSuggestCookie(
+        suggestSelect.value,
+        defaultInput.value,
+        suggestUrlInput.value.trim(),
+        custom
+      );
+    },
   });
 
   $("#export-btn").addEventListener("click", async () => {

@@ -11,7 +11,7 @@ const db = new DB();
 async function syncSuggestCookie() {
   const [provider, trigger, url, custom] = await Promise.all([
     db.getSetting("suggest-provider").then((v) => v || "default"),
-    db.getSetting("default-bang").then((v) => v || "g"),
+    db.getSetting("default-bang").then((v) => v || "ddg"),
     db.getSetting("suggest-url").then((v) => v || ""),
     readCustomBangs(db),
   ]);
@@ -42,11 +42,16 @@ function init() {
     setTimeout(() => ($("#copy-btn").textContent = "Copy"), 1500);
   });
 
-  const { openModal } = setupModal(() => initSettings(db));
+  const { openModal, syncFromHash } = setupModal(() => initSettings(db));
 
   if (location.pathname === "/settings") {
+    history.replaceState(null, "", `${location.origin}/#settings`);
+    syncFromHash();
+    return;
+  }
+
+  if (location.hash === "#settings") {
     openModal();
-    history.replaceState(null, "", "/");
   }
 }
 

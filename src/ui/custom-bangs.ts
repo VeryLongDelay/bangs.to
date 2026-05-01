@@ -5,10 +5,11 @@ import { notifySW } from "./sw-bridge";
 
 async function renderCustom(
   db: DB,
+  listSelector: string,
   onChange?: (customTriggers: string[]) => void
 ) {
   const custom = await db.getAllCustomBangs();
-  const list = $("#custom-list");
+  const list = $(listSelector);
   if (custom.length === 0) {
     list.replaceChildren(
       el("div", "text-sm text-text-secondary", "No custom bangs yet")
@@ -26,7 +27,7 @@ async function renderCustom(
         await db.removeCustomBang(b.trigger);
         notifySW("invalidate");
         onChange?.(await readCustomBangs(db));
-        await renderCustom(db, onChange);
+        await renderCustom(db, listSelector, onChange);
       });
       row.append(
         el(
@@ -44,15 +45,23 @@ async function renderCustom(
 
 export function setupCustomBangs(
   db: DB,
-  onChange?: (customTriggers: string[]) => void
+  {
+    formSelector = "#add-bang-form",
+    listSelector = "#custom-list",
+    onChange,
+  }: {
+    formSelector?: string;
+    listSelector?: string;
+    onChange?: (customTriggers: string[]) => void;
+  } = {}
 ) {
-  void renderCustom(db, onChange);
+  void renderCustom(db, listSelector, onChange);
 
   if (onChange) {
     void readCustomBangs(db).then(onChange);
   }
 
-  $<HTMLFormElement>("#add-bang-form").addEventListener("submit", async (e) => {
+  $<HTMLFormElement>(formSelector).addEventListener("submit", async (e) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const fd = new FormData(form);
@@ -79,6 +88,6 @@ export function setupCustomBangs(
       onChange(await readCustomBangs(db));
     }
     form.reset();
-    await renderCustom(db, onChange);
+    await renderCustom(db, listSelector, onChange);
   });
 }

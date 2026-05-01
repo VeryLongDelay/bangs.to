@@ -15,8 +15,8 @@ await rm("dist", { recursive: true, force: true });
 await rm(ASTRO_OUTDIR, { recursive: true, force: true });
 await mkdir("dist", { recursive: true });
 
-console.log("=== Bundle app + bench + theme (to discover chunks) ===");
-const [appBuild, benchBuild, themeBuild] = await Promise.all([
+console.log("=== Bundle app + bench + bangs + theme (to discover chunks) ===");
+const [appBuild, benchBuild, bangsBuild, themeBuild] = await Promise.all([
   Bun.build({
     entrypoints: ["src/ui/app.ts"],
     outdir: "dist",
@@ -35,6 +35,15 @@ const [appBuild, benchBuild, themeBuild] = await Promise.all([
     format: "esm",
   }),
   Bun.build({
+    entrypoints: ["src/ui/bangs.ts"],
+    outdir: "dist",
+    naming: "bangs.js",
+    splitting: true,
+    minify: true,
+    target: "browser",
+    format: "esm",
+  }),
+  Bun.build({
     entrypoints: ["src/ui/theme.ts"],
     outdir: "dist",
     naming: "theme.js",
@@ -48,6 +57,7 @@ const SIZE_THRESHOLD = 50 * 1024; // 50 KB
 const allOutputs = [
   ...appBuild.outputs,
   ...benchBuild.outputs,
+  ...bangsBuild.outputs,
   ...themeBuild.outputs,
 ];
 const outputFingerprints: string[] = [];
@@ -71,6 +81,7 @@ const extraAssets = allOutputs
       !(
         o.path.endsWith("/app.js") ||
         o.path.endsWith("/bench.js") ||
+        o.path.endsWith("/bangs.js") ||
         o.path.endsWith("/theme.js")
       ) && o.size < SIZE_THRESHOLD
   )
@@ -113,6 +124,7 @@ const inlineCSS = (src: string) =>
 for (const file of [
   "index.html",
   "home.html",
+  "bangs.html",
   "bench.html",
   "faq.html",
   "instructions.html",
@@ -146,6 +158,7 @@ function extractScriptHashes(html: string): string[] {
 const scriptHashes = [
   ...extractScriptHashes(await Bun.file("dist/index.html").text()),
   ...extractScriptHashes(await Bun.file("dist/home.html").text()),
+  ...extractScriptHashes(await Bun.file("dist/bangs.html").text()),
   ...extractScriptHashes(await Bun.file("dist/bench.html").text()),
   ...extractScriptHashes(await Bun.file("dist/faq.html").text()),
   ...extractScriptHashes(await Bun.file("dist/instructions.html").text()),
@@ -173,6 +186,12 @@ await Bun.write(
     `  ${pageCspHeader}`,
     "",
     "/home.html",
+    `  ${pageCspHeader}`,
+    "",
+    "/bangs",
+    `  ${pageCspHeader}`,
+    "",
+    "/bangs.html",
     `  ${pageCspHeader}`,
     "",
     "/bench.html",

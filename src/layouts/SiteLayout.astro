@@ -8,7 +8,7 @@ interface Props {
   currentPath: string;
   description: string;
   title: string;
-  pageScript?: "app" | "bench";
+  pageScript?: "app" | "bench" | "bangs";
   showSettingsButton?: boolean;
   registerServiceWorker?: boolean;
   searchEntrypoint?: boolean;
@@ -23,6 +23,8 @@ const {
   registerServiceWorker = false,
   searchEntrypoint = false,
 } = Astro.props;
+
+const settingsHref = `${currentPath}#settings`;
 ---
 
 <!doctype html>
@@ -75,9 +77,10 @@ const {
       >
         <TopBar
           currentPath={currentPath}
+          settingsHref={settingsHref}
           showSettingsButton={showSettingsButton}
         />
-        <TrySearch />
+        <TrySearch settingsHref={settingsHref} />
         <main class="flex-1 pb-8">
           <slot />
         </main>
