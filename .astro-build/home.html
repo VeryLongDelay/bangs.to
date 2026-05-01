@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ban.gs</title><link rel="stylesheet" href="/styles.css"><link rel="icon" type="image/svg+xml" href="/icon.svg"><link rel="manifest" href="/manifest.json"><link rel="search" type="application/opensearchdescription+xml" title="ban.gs" href="/opensearch.xml"><meta name="description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker."><meta name="theme-color" content="#f4f8fc"><script>
+      "use strict";
+      (() => {
+        try {
+          const theme = localStorage.getItem("theme");
+          if (theme === "dark" || theme === "light") {
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+          }
+        } catch {
+          // ignore storage failures before app boot
+        }
+      })();
+    </script><script>
+      "use strict";
+      fetch("/opensearch.xml");
+    </script></head> <body> <div class="relative min-h-screen px-5 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 lg:px-8"> <div class="mx-auto flex min-h-[calc(100vh-3rem)] max-w-[1180px] flex-col"> <header class="card mb-6 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"> <div class="flex items-center gap-3"> <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary-100 via-white to-primary-50 text-[1.35rem] font-800 text-primary-700 shadow-[0_12px_24px_rgba(37,99,235,0.14)]">
+!
+</div> <div> <p class="font-display text-lg font-700 tracking-tight text-text">
+ban.gs
+</p> <p class="text-sm text-text-secondary">
+Search shortcuts that stay local-first.
+</p> </div> </div> <nav class="flex flex-wrap items-center gap-2 text-sm"> <label class="theme-switch btn px-3 py-2.5" data-theme-toggle aria-label="Dark mode"> <span class="theme-switch-label text-sm font-600 text-text">Dark mode</span> <input type="checkbox" class="theme-switch-input" data-theme-toggle-input aria-label="Dark mode"> <span class="theme-switch-track" aria-hidden="true"> <span class="theme-switch-thumb"></span> </span> </label> <a href="/" class="btn no-underline border-primary-300 bg-primary-50/80 text-primary-700" aria-current="page"> Home </a><a href="/instructions" class="btn no-underline "> Instructions </a><a href="/faq" class="btn no-underline "> FAQ </a><a href="/bench" class="btn no-underline "> Bench </a> <button type="button" id="gear-btn" class="btn flex items-center gap-2" aria-label="Open settings"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path> <circle cx="12" cy="12" r="3"></circle> </svg>
+Settings
+</button> </nav> </header> <section class="card mb-6 overflow-hidden p-0"> <div class="grid gap-5 border-b border-white/70 bg-linear-to-br from-primary-50 via-white to-sky-50 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)] lg:items-center"> <div> <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-xs font-700 uppercase tracking-[0.22em] text-primary-700">
+Try a search
+<span class="h-1 w-1 rounded-full bg-primary-300"></span>
+Private flow
+</div> <h2 class="font-display text-[1.9rem] font-700 leading-tight tracking-[-0.04em] text-text sm:text-[2.25rem]">
+Search from any page without losing context.
+</h2> <p class="mt-3 max-w-[58ch] text-sm leading-7 text-text-secondary sm:text-[0.98rem]">
+Use a bang to jump to a destination, or type a normal query and let
+        your default engine take over. The same <code>?q=</code> flow powers
+        browser search engine integration.
+</p> </div> <div class="rounded-[24px] border border-white/80 bg-white/86 p-4"> <p class="text-sm font-700 text-text">Quick examples</p> <div class="mt-3 flex flex-wrap gap-2 text-sm"> <a href="/?q=!gh%20react" class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"> !gh react </a><a href="/?q=!w%20service%20worker" class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"> !w service worker </a><a href="/?q=weather%20vancouver" class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"> weather vancouver </a> </div> </div> </div> <div class="px-5 py-5 sm:px-6"> <form action="/" method="get" class="rounded-[28px] border border-white/80 bg-white/88 p-3 shadow-[0_18px_40px_rgba(15,39,64,0.08)]"> <label for="try-query" class="sr-only">Try a search</label> <div class="flex flex-col gap-3 sm:flex-row sm:items-center"> <input type="text" id="try-query" name="q" autocomplete="off" spellcheck="false" placeholder="Try: !gh react, !w saturn, or plain search" aria-label="Try a search" class="input-field min-w-0 flex-1"> <button type="submit" class="btn-primary w-full sm:w-auto sm:min-w-[7rem]">
+Search
+</button> </div> </form> </div> </section> <main class="flex-1 pb-8">  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]"> <section> <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-100 bg-white/80 px-3 py-1 text-xs font-600 uppercase tracking-[0.22em] text-primary-700 shadow-[0_8px_18px_rgba(37,99,235,0.08)]">
+Local-first
+<span class="h-1 w-1 rounded-full bg-primary-300"></span>
+Private by design
+</div> <h1 class="max-w-[11ch] font-display text-[3rem] font-800 leading-[0.92] tracking-[-0.05em] text-text sm:text-[4.35rem]">
+Fast search routing that feels reliable.
+</h1> <p class="mt-5 max-w-[60ch] text-[1.05rem] leading-8 text-text-secondary sm:text-[1.1rem]">
+ban.gs lets your browser turn shortcuts like <code>!gh react</code> or
+<code>!w saturn</code> into the right destination without shipping every
+        query through a remote redirect page.
+</p> <div class="mt-7 grid gap-3 sm:grid-cols-3"> <div class="card p-4"> <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">
+Trust signal
+</p> <p class="mt-2 text-lg font-700 text-text">Runs on your device</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+Service Worker routing keeps the redirect logic in the browser, not
+            on someone else’s server.
+</p> </div> <div class="card p-4"> <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">
+Setup
+</p> <p class="mt-2 text-lg font-700 text-text">
+Works with the address bar
+</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+Add one search URL and your normal browser search field becomes the
+            control surface.
+</p> </div> <div class="card p-4"> <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">
+Speed
+</p> <p class="mt-2 text-lg font-700 text-text">Zero extra page loads</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+Queries jump to the destination directly, so the experience stays
+            quick and predictable.
+</p> </div> </div> </section> <section class="grid gap-4"> <div class="card"> <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">
+Why it feels fast
+</p> <h2 class="mt-2 font-display text-2xl font-700 tracking-tight text-text">
+No extra redirect page in the middle.
+</h2> <p class="mt-3 text-sm leading-7 text-text-secondary">
+ban.gs resolves the route before a normal page load has to happen, so
+          the interaction feels closer to a built-in browser feature than a web
+          app detour.
+</p> </div> <div class="card"> <p class="text-sm font-700 text-text">What to expect</p> <div class="mt-4 grid gap-3"> <div class="rounded-[22px] bg-bg-soft p-4"> <p class="text-sm font-700 text-text">No analytics layer</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+No account, no hosted dashboard, and no tracking layer required to
+              start using it.
+</p> </div> <div class="rounded-[22px] bg-bg-soft p-4"> <p class="text-sm font-700 text-text">Browser install link</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+Open Settings to copy the custom search engine URL and tune
+              defaults, suggestions, and custom shortcuts.
+</p> </div> <div class="rounded-[22px] bg-bg-soft p-4"> <p class="text-sm font-700 text-text">Benchmark included</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+The benchmark page measures redirect latency directly so you can
+              validate the overhead on your own machine.
+</p> </div> </div> </div> </section> </div>   </main> <footer class="card mt-2 flex flex-col gap-3 px-5 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between sm:px-6"> <div class="flex flex-wrap items-center gap-x-3 gap-y-1"> <span>
+Data stays on your device whenever the redirect can be resolved locally.
+</span> <span class="hidden opacity-40 sm:inline">&middot;</span> <span>No monitoring or tracking built in.</span> </div> <a href="https://github.com/ph1losof/flashbang" class="font-600">
+Source code
+</a> </footer> </div> </div>  <div id="settings-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-[#d8e4f3]/70 px-3 opacity-0 invisible" aria-hidden="true"> <div class="modal-card relative max-h-[calc(100vh-2rem)] w-full max-w-[760px] overflow-y-auto rounded-[30px] border border-white/85 bg-[rgba(248,251,255,0.96)] p-5 shadow-[0_30px_90px_rgba(15,39,64,0.18)] translate-y-2 sm:p-7" role="dialog" aria-label="Settings"> <button type="button" id="modal-close" class="btn absolute right-4 top-4 px-3 py-2 text-base leading-none" aria-label="Close">
+&times;
+</button> <div class="pr-12"> <p class="text-xs font-700 uppercase tracking-[0.24em] text-text-muted">
+Preferences
+</p> <h2 class="mt-2 font-display text-[1.8rem] font-700 tracking-tight text-text">
+Settings
+</h2> <p class="mt-2 max-w-[52ch] text-sm leading-6 text-text-secondary">
+Tune defaults, search providers, lucky behavior, and your personal
+        shortcut list without leaving the page.
+</p> </div> <div class="mt-6 grid gap-5 lg:grid-cols-2"> <section class="card"> <h3 class="section-title mb-2">Install Link</h3> <p class="label-text mb-3">
+Copy this URL into your browser’s custom search engine settings.
+</p> <div class="flex flex-col gap-2 sm:flex-row sm:items-center"> <input type="text" id="setup-url" readonly aria-label="Search engine URL" class="input-field min-w-0 flex-1 font-mono text-xs"> <button type="button" id="copy-btn" class="btn w-full sm:w-auto sm:min-w-[5.5rem]">
+Copy
+</button> </div> </section> <section class="card"> <h3 class="section-title mb-2">Default Search Engine</h3> <p class="label-text mb-3">
+Plain searches go here when you do not specify a bang.
+</p> <div class="flex flex-col gap-2 sm:flex-row sm:items-center"> <div class="flex items-center gap-2"> <span class="rounded-xl bg-bg-soft px-3 py-2 font-mono text-sm text-primary-700">
+!
+</span> <input type="text" id="default-bang" class="input-field w-full font-mono text-sm sm:w-24"> </div> <span id="bang-status" class="text-sm text-text-secondary"></span> </div> </section> <section class="card"> <h3 class="section-title mb-2">Feeling Lucky</h3> <p class="label-text mb-3">
+Use <code>\query</code>, <code>query !</code>, or <code>! query</code>
+to jump straight to the first result.
+</p> <select id="lucky-provider" class="input-field text-sm"> <option value="default">Default (match bang)</option> <option value="google">Google</option> <option value="ddg">DuckDuckGo</option> <option value="kagi">Kagi</option> <option value="custom">Custom</option> <option value="none">Disabled</option> </select> <input type="text" id="lucky-url" placeholder="URL with {} for query" class="input-field mt-2 hidden font-mono text-sm"> </section> <section class="card"> <h3 class="section-title mb-2">Search Suggestions</h3> <p class="label-text mb-3">
+Choose where address bar autocomplete suggestions come from.
+</p> <select id="suggest-provider" class="input-field text-sm"> <option value="default">Default (match bang)</option> <option value="google">Google</option> <option value="ddg">DuckDuckGo</option> <option value="bing">Bing</option> <option value="brave">Brave</option> <option value="yahoo">Yahoo</option> <option value="ecosia">Ecosia</option> <option value="kagi">Kagi</option> <option value="yandex">Yandex</option> <option value="baidu">Baidu</option> <option value="custom">Custom</option> <option value="none">None</option> </select> <input type="text" id="suggest-url" placeholder="URL with {} for query" class="input-field mt-2 hidden font-mono text-sm"> </section> <section class="card"> <h3 class="section-title mb-2">Search Bangs</h3> <p id="bang-count" class="label-text mb-3"></p> <input type="text" id="bang-search" placeholder="Search by name or shortcut..." class="input-field text-sm"> <div id="bang-results" class="mt-3 max-h-60 overflow-y-auto rounded-2xl pr-1 pt-1"></div> </section> <section class="card"> <h3 class="section-title mb-2">Custom Bangs</h3> <form id="add-bang-form" class="mb-4 space-y-2"> <div class="grid grid-cols-1 gap-2 sm:grid-cols-2"> <input type="text" name="shortcut" placeholder="Shortcut (e.g. gh)" class="input-field font-mono text-sm" required> <input type="text" name="name" placeholder="Name" class="input-field text-sm" required> </div> <input type="text" name="url" placeholder="URL with {} for query" class="input-field font-mono text-sm" required> <button type="submit" class="btn-primary w-full">Add Bang</button> </form> <div id="custom-list"></div> </section> <section class="card lg:col-span-2"> <h3 class="section-title mb-2">Import / Export</h3> <p class="label-text mb-3">
+Back up your current settings or restore them on another device.
+</p> <div class="flex flex-col gap-2 sm:flex-row"> <button type="button" id="export-btn" class="btn flex-1">
+Export
+</button> <label class="btn flex-1 cursor-pointer text-center">
+Import
+<input type="file" id="import-file" accept=".json" class="hidden"> </label> </div> <span id="import-status" class="mt-2 block text-sm"></span> </section> </div> </div> </div>  <script type="module" src="/theme.js"></script> <script type="module" src="/app.js"></script> <script>
+          "use strict";
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js").then((reg) => {
+              reg.addEventListener("updatefound", () => {
+                const sw = reg.installing;
+                if (!sw) {
+                  return;
+                }
+                sw.addEventListener("statechange", () => {
+                  if (sw.state === "activated") {
+                    location.reload();
+                  }
+                });
+              });
+            });
+          }
+        </script> </body> </html>

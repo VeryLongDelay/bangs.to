@@ -515,7 +515,9 @@ export default defineConfig({
 
         :root[data-theme="dark"] [class*="bg-white/80"],
         :root[data-theme="dark"] [class*="bg-white/85"],
-        :root[data-theme="dark"] [class*="bg-white/88"] {
+        :root[data-theme="dark"] [class*="bg-white/86"],
+        :root[data-theme="dark"] [class*="bg-white/88"],
+        :root[data-theme="dark"] [class*="bg-white/90"] {
           background: rgba(15, 23, 42, 0.82) !important;
         }
 

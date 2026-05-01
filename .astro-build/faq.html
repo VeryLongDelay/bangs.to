@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ban.gs FAQ</title><link rel="stylesheet" href="/styles.css"><link rel="icon" type="image/svg+xml" href="/icon.svg"><link rel="manifest" href="/manifest.json"><link rel="search" type="application/opensearchdescription+xml" title="ban.gs" href="/opensearch.xml"><meta name="description" content="Answers to common questions about ban.gs in plain language."><meta name="theme-color" content="#f4f8fc"><script>
+      "use strict";
+      (() => {
+        try {
+          const theme = localStorage.getItem("theme");
+          if (theme === "dark" || theme === "light") {
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+          }
+        } catch {
+          // ignore storage failures before app boot
+        }
+      })();
+    </script><script>
+      "use strict";
+      fetch("/opensearch.xml");
+    </script></head> <body> <div class="relative min-h-screen px-5 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 lg:px-8"> <div class="mx-auto flex min-h-[calc(100vh-3rem)] max-w-[1180px] flex-col"> <header class="card mb-6 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"> <div class="flex items-center gap-3"> <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary-100 via-white to-primary-50 text-[1.35rem] font-800 text-primary-700 shadow-[0_12px_24px_rgba(37,99,235,0.14)]">
+!
+</div> <div> <p class="font-display text-lg font-700 tracking-tight text-text">
+ban.gs
+</p> <p class="text-sm text-text-secondary">
+Search shortcuts that stay local-first.
+</p> </div> </div> <nav class="flex flex-wrap items-center gap-2 text-sm"> <label class="theme-switch btn px-3 py-2.5" data-theme-toggle aria-label="Dark mode"> <span class="theme-switch-label text-sm font-600 text-text">Dark mode</span> <input type="checkbox" class="theme-switch-input" data-theme-toggle-input aria-label="Dark mode"> <span class="theme-switch-track" aria-hidden="true"> <span class="theme-switch-thumb"></span> </span> </label> <a href="/" class="btn no-underline "> Home </a><a href="/instructions" class="btn no-underline "> Instructions </a><a href="/faq" class="btn no-underline border-primary-300 bg-primary-50/80 text-primary-700" aria-current="page"> FAQ </a><a href="/bench" class="btn no-underline "> Bench </a>  </nav> </header> <section class="card mb-6 overflow-hidden p-0"> <div class="grid gap-5 border-b border-white/70 bg-linear-to-br from-primary-50 via-white to-sky-50 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)] lg:items-center"> <div> <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-xs font-700 uppercase tracking-[0.22em] text-primary-700">
+Try a search
+<span class="h-1 w-1 rounded-full bg-primary-300"></span>
+Private flow
+</div> <h2 class="font-display text-[1.9rem] font-700 leading-tight tracking-[-0.04em] text-text sm:text-[2.25rem]">
+Search from any page without losing context.
+</h2> <p class="mt-3 max-w-[58ch] text-sm leading-7 text-text-secondary sm:text-[0.98rem]">
+Use a bang to jump to a destination, or type a normal query and let
+        your default engine take over. The same <code>?q=</code> flow powers
+        browser search engine integration.
+</p> </div> <div class="rounded-[24px] border border-white/80 bg-white/86 p-4"> <p class="text-sm font-700 text-text">Quick examples</p> <div class="mt-3 flex flex-wrap gap-2 text-sm"> <a href="/?q=!gh%20react" class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"> !gh react </a><a href="/?q=!w%20service%20worker" class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"> !w service worker </a><a href="/?q=weather%20vancouver" class="rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"> weather vancouver </a> </div> </div> </div> <div class="px-5 py-5 sm:px-6"> <form action="/" method="get" class="rounded-[28px] border border-white/80 bg-white/88 p-3 shadow-[0_18px_40px_rgba(15,39,64,0.08)]"> <label for="try-query" class="sr-only">Try a search</label> <div class="flex flex-col gap-3 sm:flex-row sm:items-center"> <input type="text" id="try-query" name="q" autocomplete="off" spellcheck="false" placeholder="Try: !gh react, !w saturn, or plain search" aria-label="Try a search" class="input-field min-w-0 flex-1"> <button type="submit" class="btn-primary w-full sm:w-auto sm:min-w-[7rem]">
+Search
+</button> </div> </form> </div> </section> <main class="flex-1 pb-8">  <div class="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]"> <aside class="card h-fit p-5 sm:p-6"> <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">
+Trust notes
+</p> <h1 class="mt-2 font-display text-[2.4rem] font-800 leading-tight tracking-[-0.04em] text-text sm:text-[2.8rem]">
+FAQ
+</h1> <p class="mt-3 text-sm leading-7 text-text-secondary">
+Short answers for people who want to know what ban.gs is, how it
+        behaves, and what privacy tradeoffs still remain.
+</p> <div class="mt-4 grid gap-3"> <div class="rounded-[20px] bg-bg-soft p-4"> <p class="text-sm font-700 text-text">Local redirect logic</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+The browser can often resolve the destination before a network
+            request leaves your device.
+</p> </div> <div class="rounded-[20px] bg-bg-soft p-4"> <p class="text-sm font-700 text-text">No extra account layer</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+There is no login or hosted dashboard between you and the redirect
+            flow.
+</p> </div> <div class="rounded-[20px] bg-bg-soft p-4"> <p class="text-sm font-700 text-text">Destination sites still matter</p> <p class="mt-2 text-sm leading-6 text-text-secondary">
+Your final search provider or destination still receives the search
+            you send there.
+</p> </div> </div> </aside> <div class="grid gap-4"> <section class="card"> <h2 class="section-title mb-2">What is ban.gs?</h2> <p class="text-text-secondary">
+ban.gs is a shortcut search tool. It lets you type things like
+<code>!gh react</code> to search GitHub, <code>!w cats</code> to
+          search Wikipedia, or just plain words for a normal web search.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">What is a bang?</h2> <p class="text-text-secondary">
+A bang is a short code that starts with <code>!</code>. It tells
+          ban.gs where to send your search. For example,
+<code>!yt ambient music</code> goes to YouTube and
+<code>!mdn fetch</code> goes to MDN.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">
+Does ban.gs see everything I search for?
+</h2> <p class="text-text-secondary">
+Normally, no. The redirect happens in your browser with a Service
+          Worker, so your query is usually turned into the final destination
+          before it ever reaches the network. The main exception is search
+          suggestions, because those come from a search suggestion provider.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">Do I need to install an extension?</h2> <p class="text-text-secondary">
+No browser extension is required. You visit the site once, then add it
+          as a custom search engine in your browser. After that, your address
+          bar can use it directly.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">
+What happens if I type a normal search?
+</h2> <p class="text-text-secondary">
+If you do not use a bang, ban.gs sends the search to your default
+          search engine. In this project, that default is DuckDuckGo unless you
+          change it in Settings.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">
+Can I change the default search engine?
+</h2> <p class="text-text-secondary">
+Yes. Open Settings and change the default bang. That decides where
+          plain searches go when you do not type a shortcut.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">What does “Feeling Lucky” mean?</h2> <p class="text-text-secondary">
+It means “take me straight to the first result instead of showing a
+          results page.” You can use <code>\query</code>, <code>query !</code>,
+          or <code>! query</code> for that.
+</p> </section> <section class="card"> <h2 class="section-title mb-2">Is this private?</h2> <p class="text-text-secondary">
+It is more private than sending every search through a remote redirect
+          page, because the redirect logic runs on your device. But the site you
+          end up using, like DuckDuckGo, Google, YouTube, or GitHub, still
+          receives the search you send to it.
+</p> </section> </div> </div>  </main> <footer class="card mt-2 flex flex-col gap-3 px-5 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between sm:px-6"> <div class="flex flex-wrap items-center gap-x-3 gap-y-1"> <span>
+Data stays on your device whenever the redirect can be resolved locally.
+</span> <span class="hidden opacity-40 sm:inline">&middot;</span> <span>No monitoring or tracking built in.</span> </div> <a href="https://github.com/ph1losof/flashbang" class="font-600">
+Source code
+</a> </footer> </div> </div>  <script type="module" src="/theme.js"></script>   </body> </html>

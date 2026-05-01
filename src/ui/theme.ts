@@ -61,5 +61,45 @@ function initThemeToggle() {
   }
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (target.isContentEditable) {
+    return true;
+  }
+
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+}
+
+function initSearchShortcut() {
+  document.addEventListener("keydown", (event) => {
+    const modK =
+      (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+    const slash =
+      !(event.metaKey || event.ctrlKey || event.altKey) && event.key === "/";
+
+    if (!(modK || slash)) {
+      return;
+    }
+
+    if (isEditableTarget(event.target)) {
+      return;
+    }
+
+    const search = document.querySelector<HTMLInputElement>("#try-query");
+    if (!search) {
+      return;
+    }
+
+    event.preventDefault();
+    search.focus();
+    search.select();
+  });
+}
+
 applyTheme(readStoredTheme() ?? getTheme());
 initThemeToggle();
+initSearchShortcut();
