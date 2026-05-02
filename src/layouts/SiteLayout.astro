@@ -83,7 +83,11 @@ const settingsHref = `${currentPath}#settings`;
           settingsHref={settingsHref}
           showSettingsButton={showSettingsButton}
         />
-        {showTrySearch && <TrySearch />}
+        {showTrySearch && (
+          <div class="mb-4 sm:mb-6">
+            <TrySearch />
+          </div>
+        )}
         <main class="flex-1 pb-8">
           <slot />
         </main>

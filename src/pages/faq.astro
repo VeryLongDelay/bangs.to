@@ -1,11 +1,11 @@
 ---
-import { SITE_TITLE } from "../config/site";
+import { SITE_TITLE } from '../config/site';
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
   title={`${SITE_TITLE} FAQ`}
-  description="Answers to common questions about ban.gs in plain language."
+  description="Answers to common questions about bangs.to in plain English."
   currentPath="/faq"
 >
   <div class="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
@@ -17,27 +17,33 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         FAQ
       </h1>
       <p class="mt-3 text-sm leading-7 text-text-secondary">
-        Short answers for people who want to know what ban.gs is, how it behaves, and what privacy
-        tradeoffs still remain.
+        Short answers to most of your common questions.
       </p>
       <div class="mt-4 grid gap-3">
         <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Local redirect logic</p>
+          <p class="text-sm font-700 text-text">What is this?</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            The browser can often resolve the destination before a network request leaves your
-            device.
+            Bangs.to is a search redirect tool, allowing you to search the web with !bangs, fast.
+            All redirection happens client-side, your search queries never leave your device and no
+            information passes through bangs.to.
           </p>
         </div>
         <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">No extra account layer</p>
+          <p class="text-sm font-700 text-text">How is this an improvement over DuckDuckGo?</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            There is no login or hosted dashboard between you and the redirect flow.
+            DuckDuckGo does their redirects server side. Their DNS is ... not always great. This
+            means that it often takes ages and ages to get to your results. Instead of the slow
+            round-trip to their servers, we do all the work client-side.
           </p>
         </div>
         <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Destination sites still matter</p>
+          <p class="text-sm font-700 text-text">Why does this exist?</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Your final search provider or destination still receives the search you send there.
+            Years of using DuckDuckGo and Kagi has conditioned me into a !bangs user. I admit I have
+            a bit of a problem, because I now cannot search the web without !bangs. <a
+              href="https://duckduckgo.com/"
+              target="_blank">DuckDuckGo</a
+            > resolves search results very very slowly, so I scratched my own itch.
           </p>
         </div>
       </div>
@@ -54,21 +60,25 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       </section>
 
       <section class="card">
-        <h2 class="section-title mb-2">What is a bang?</h2>
+        <h2 class="section-title mb-2">What is a !bang?</h2>
         <p class="text-text-secondary">
-          A bang is a short code that starts with <code>!</code>. It tells ban.gs where to send your
-          search. For example,
-          <code>!yt ambient music</code> goes to YouTube and
-          <code>!mdn fetch</code> goes to MDN.
+          A !bang is a short code that starts with <code>!</code>. It tells bangs.to where to send
+          your search. For example,
+          <code>!yt ambient music</code> searches <a
+            href="https://www.youtube.com/results?search_query=ambient%20music"
+            target="_blank">YouTube</a
+          > for <code>ambient music</code> and
+          <code>!mdn fetch</code> searches <a href="https://developer.mozilla.org/" target="_blank"
+            >MDN</a
+          > for <code>fetch</code>.
         </p>
       </section>
 
       <section class="card">
-        <h2 class="section-title mb-2">Does ban.gs see everything I search for?</h2>
+        <h2 class="section-title mb-2">Does bangs.to see everything I search for?</h2>
         <p class="text-text-secondary">
-          Normally, no. The redirect happens in your browser with a Service Worker, so your query is
-          usually turned into the final destination before it ever reaches the network. The main
-          exception is search suggestions, because those come from a search suggestion provider.
+          No. Your browser does the redirection and your queries never leave your device. There is
+          no analytics or tracking built into the site.
         </p>
       </section>
 
@@ -83,8 +93,9 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       <section class="card">
         <h2 class="section-title mb-2">What happens if I type a normal search?</h2>
         <p class="text-text-secondary">
-          If you do not use a bang, ban.gs sends the search to your default search engine. In this
-          project, that default is DuckDuckGo unless you change it in Settings.
+          If you do not use a !bang, bangs.to sends the search to your default search engine.
+          Normally this default is <a href="https://duckduckgo.com/" target="_blank">DuckDuckGo</a>,
+          but you can change it in <a href="#settings">Settings</a>.
         </p>
       </section>
 
@@ -93,14 +104,6 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <p class="text-text-secondary">
           Yes. Open Settings and change the default bang. That decides where plain searches go when
           you do not type a shortcut.
-        </p>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title mb-2">What does “Feeling Lucky” mean?</h2>
-        <p class="text-text-secondary">
-          It means “take me straight to the first result instead of showing a results page.” You can
-          use <code>\query</code>, <code>query !</code>, or <code>! query</code> for that.
         </p>
       </section>
 
