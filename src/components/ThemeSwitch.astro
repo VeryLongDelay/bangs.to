@@ -1,6 +1,7 @@
 <label class="switch" data-theme-toggle aria-label="Dark mode" role="switch">
   <span class="sr-only" data-theme-toggle-label>Dark mode</span>
   <input
+    id="theme-toggle-input"
     type="checkbox"
     class="theme-switch-input"
     data-theme-toggle-input
@@ -19,3 +20,19 @@
     </svg>
   </span>
 </label>
+<script is:inline>
+  "use strict";
+  (() => {
+    const input = document.getElementById("theme-toggle-input");
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+    const dark = document.documentElement.dataset.theme === "dark";
+    input.checked = dark;
+    const toggle = input.closest("[data-theme-toggle]");
+    if (toggle) {
+      toggle.setAttribute("aria-checked", String(dark));
+      toggle.dataset.theme = dark ? "dark" : "light";
+    }
+  })();
+</script>
