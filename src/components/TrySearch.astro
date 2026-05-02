@@ -106,16 +106,44 @@ const examples = [
     >
       <label for="try-query" class="sr-only">Try a search</label>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input
-          type="text"
-          id="try-query"
-          name="q"
-          autocomplete="off"
-          spellcheck="false"
-          placeholder="Try: !gh react, !w saturn, or plain search"
-          aria-label="Try a search"
-          class="input-field min-w-0 flex-1"
-        />
+        <div class="relative min-w-0 flex-1">
+          <input
+            type="text"
+            id="try-query"
+            name="q"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Try: !gh react, !w saturn, or plain keywords search"
+            aria-label="Try a search"
+            class="input-field min-w-0 flex-1 pr-4 sm:pr-32"
+          />
+          <div
+            class="pointer-events-none absolute inset-y-0 right-4 hidden items-center gap-1 text-[0.72rem] text-text-muted sm:flex"
+            aria-hidden="true"
+          >
+            <span class="font-600">Focus:</span>
+            <kbd
+              data-shortcut-chip="slash"
+              class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
+            >
+              /
+            </kbd>
+            <span>or</span>
+            <kbd
+              data-shortcut-chip="modifier"
+              data-shortcut-modifier
+              class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
+            >
+              ⌘
+            </kbd>
+            <kbd
+              data-shortcut-chip="k"
+              class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
+            >
+              K
+            </kbd>
+          </div>
+        </div>
         <button type="submit" class="btn-primary w-full sm:w-auto sm:min-w-[7rem]"> Search </button>
       </div>
     </form>

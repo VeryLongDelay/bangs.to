@@ -68,9 +68,22 @@
         <div class="rounded-[22px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Browser install link</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Open Settings to copy the custom search engine URL and tune defaults, suggestions, and
-            custom shortcuts.
+            Install directly in browsers that support OpenSearch, or use
+            Settings to copy the manual search URL and tune defaults.
           </p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <a
+              href="/opensearch.xml"
+              rel="search"
+              type="application/opensearchdescription+xml"
+              class="btn inline-flex items-center gap-2 no-underline"
+            >
+              One-click install
+            </a>
+            <a href="/#settings" class="btn inline-flex items-center gap-2 no-underline">
+              Manual setup
+            </a>
+          </div>
         </div>
         <div class="rounded-[22px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Benchmark included</p>

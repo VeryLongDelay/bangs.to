@@ -5,94 +5,44 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 
 <SiteLayout
   title={`${SITE_TITLE} Contact`}
-  description="How to reach the project and where to report bugs, questions, or launch feedback."
+  description="Contact form for bangs.to."
   currentPath="/contact"
 >
-  <div class="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
-    <aside class="card h-fit p-5 sm:p-6">
-      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Contact</p>
-      <h1
-        class="mt-2 font-display text-[2.4rem] font-800 leading-tight tracking-[-0.04em] text-text sm:text-[2.8rem]"
-      >
-        Get in touch
-      </h1>
-      <p class="mt-3 text-sm leading-7 text-text-secondary">
-        The most reliable way to reach this project today is through the GitHub repository. Use the
-        path that matches what you need.
-      </p>
-      <div class="mt-4 grid gap-3">
-        <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Bug reports</p>
-          <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Open an issue if redirects, settings, or browser integration are not behaving as
-            expected.
-          </p>
-        </div>
-        <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Launch feedback</p>
-          <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Share product feedback, browser compatibility notes, or setup friction you hit while
-            trying the site.
-          </p>
-        </div>
-        <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Code and context</p>
-          <p class="mt-2 text-sm leading-6 text-text-secondary">
-            The repository is the source of truth for current behavior, implementation details, and
-            release history.
-          </p>
-        </div>
-      </div>
-    </aside>
-
-    <div class="grid gap-4">
-      <section class="card">
-        <h2 class="section-title mb-3">Project links</h2>
-        <div class="grid gap-3">
-          <a
-            href="https://github.com/ph1losof/flashbang/issues"
-            class="rounded-[20px] border border-primary-100 bg-primary-50/75 px-4 py-4 no-underline"
-          >
-            <p class="text-sm font-700 text-text">Open an issue</p>
-            <p class="mt-2 text-sm leading-6 text-text-secondary">
-              Report bugs, request features, or send launch feedback through the issue tracker.
-            </p>
-          </a>
-          <a
-            href="https://github.com/ph1losof/flashbang"
-            class="rounded-[20px] border border-white/80 bg-white/88 px-4 py-4 no-underline"
-          >
-            <p class="text-sm font-700 text-text">View the source code</p>
-            <p class="mt-2 text-sm leading-6 text-text-secondary">
-              Browse implementation details, release history, and project documentation.
-            </p>
-          </a>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title mb-3">What to include</h2>
-        <div class="grid gap-2 text-sm text-text-secondary">
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2">Your browser and version</div>
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2">
-            The query or bang pattern that failed
-          </div>
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2">
-            Whether the problem happened in the address bar, the home page, or the settings modal
-          </div>
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2">
-            Screenshots or exact error text when available
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title mb-3">Response expectations</h2>
-        <p class="text-text-secondary">
-          This project does not currently expose a dedicated support inbox in the repository. For
-          now, GitHub is the documented contact surface.
-        </p>
-      </section>
+  <section class="card overflow-hidden p-3 sm:p-4">
+    <div
+      class="rounded-[24px] border border-white/80 bg-white/88 p-3 shadow-[0_20px_44px_rgba(15,39,64,0.08)] dark:border-white/10 dark:bg-[rgba(15,23,42,0.72)]"
+    >
+      <iframe
+        src="https://tally.so/embed/lbVy65?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+        data-tally-src="https://tally.so/embed/lbVy65?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+        loading="lazy"
+        width="100%"
+        height="379"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        title="Contact Bangs.to"
+        class="block min-h-[379px] w-full rounded-[18px] bg-transparent"
+      ></iframe>
     </div>
-  </div>
+  </section>
+  <script is:inline>
+    var d = document,
+      w = 'https://tally.so/widgets/embed.js',
+      v = function () {
+        'undefined' != typeof Tally
+          ? Tally.loadEmbeds()
+          : d.querySelectorAll('iframe[data-tally-src]:not([src])').forEach(function (e) {
+              e.src = e.dataset.tallySrc;
+            });
+      };
+    if ('undefined' != typeof Tally) v();
+    else if (d.querySelector('script[src="' + w + '"]') == null) {
+      var s = d.createElement('script');
+      s.src = w;
+      s.onload = v;
+      s.onerror = v;
+      d.body.appendChild(s);
+    }
+  </script>
 </SiteLayout>

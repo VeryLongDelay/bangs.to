@@ -1,11 +1,14 @@
-import { watch } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
-import { join, normalize } from 'node:path';
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
-import { handleOpenSearchRequest, handleSuggestRequest } from '../src/server/handlers';
-import { pageHeaders, SW_HEADERS } from '../src/server/headers';
-import { readPathname } from '../src/shared/raw-url';
+import { watch } from "node:fs";
+import { mkdir } from "node:fs/promises";
+import { join, normalize } from "node:path";
+import { minify } from "@minify-html/node";
+import { $ } from "bun";
+import {
+  handleOpenSearchRequest,
+  handleSuggestRequest,
+} from "../src/server/handlers";
+import { pageHeaders, SW_HEADERS } from "../src/server/headers";
+import { readPathname } from "../src/shared/raw-url";
 
 const SECURITY_HEADERS = pageHeaders("'unsafe-inline'");
 
@@ -19,7 +22,7 @@ function broadcast() {
   const dead: SSEClient[] = [];
   for (const client of clients) {
     try {
-      client.enqueue('data: reload\n\n');
+      client.enqueue("data: reload\n\n");
     } catch {
       dead.push(client);
     }
@@ -42,135 +45,145 @@ __es.onmessage = async () => {
 addEventListener("beforeunload", () => __es.close());
 </script>`;
 
-const ASTRO_OUTDIR = '.astro-build';
+const ASTRO_OUTDIR = ".astro-build";
 
 async function build() {
   const t = performance.now();
-  await mkdir('dist', { recursive: true });
+  await mkdir("dist", { recursive: true });
 
   await Promise.all([
     Bun.build({
-      entrypoints: ['src/sw/sw.ts'],
-      outdir: 'dist',
-      naming: 'sw.js',
+      entrypoints: ["src/sw/sw.ts"],
+      outdir: "dist",
+      naming: "sw.js",
       minify: true,
-      target: 'browser',
-      format: 'esm',
+      target: "browser",
+      format: "esm",
       define: {
         __CACHE_VERSION__: '"flashbang-dev"',
-        __EXTRA_ASSETS__: '[]',
-        __IS_DEV__: JSON.stringify(true)
-      }
+        __EXTRA_ASSETS__: "[]",
+        __IS_DEV__: JSON.stringify(true),
+      },
     }),
     Bun.build({
-      entrypoints: ['src/ui/app.ts'],
-      outdir: 'dist',
-      naming: 'app.js',
+      entrypoints: ["src/ui/app.ts"],
+      outdir: "dist",
+      naming: "app.js",
       splitting: true,
       minify: true,
-      target: 'browser',
-      format: 'esm'
+      target: "browser",
+      format: "esm",
     }),
     Bun.build({
-      entrypoints: ['src/ui/bench.ts'],
-      outdir: 'dist',
-      naming: 'bench.js',
+      entrypoints: ["src/ui/bench.ts"],
+      outdir: "dist",
+      naming: "bench.js",
       minify: true,
-      target: 'browser',
-      format: 'esm'
+      target: "browser",
+      format: "esm",
     }),
     Bun.build({
-      entrypoints: ['src/ui/bangs.ts'],
-      outdir: 'dist',
-      naming: 'bangs.js',
+      entrypoints: ["src/ui/bangs.ts"],
+      outdir: "dist",
+      naming: "bangs.js",
       splitting: true,
       minify: true,
-      target: 'browser',
-      format: 'esm'
+      target: "browser",
+      format: "esm",
     }),
     Bun.build({
-      entrypoints: ['src/ui/theme.ts'],
-      outdir: 'dist',
-      naming: 'theme.js',
+      entrypoints: ["src/ui/theme.ts"],
+      outdir: "dist",
+      naming: "theme.js",
       minify: true,
-      target: 'browser',
-      format: 'esm'
-    })
+      target: "browser",
+      format: "esm",
+    }),
   ]);
 
   await $`bunx unocss "src/**/*.astro" "src/ui/**/*.ts" -o dist/styles.css --minify`.quiet();
   await $`bunx astro build --outDir ${ASTRO_OUTDIR}`.quiet();
 
-  const css = await Bun.file('dist/styles.css').text();
+  const css = await Bun.file("dist/styles.css").text();
   const inlineCSS = (src: string) =>
-    src.replace('<link rel="stylesheet" href="/styles.css" />', `<style>${css}</style>`);
+    src.replace(
+      '<link rel="stylesheet" href="/styles.css" />',
+      `<style>${css}</style>`
+    );
 
   for (const file of [
-    'index.html',
-    'home.html',
-    'bangs.html',
-    'bench.html',
-    'faq.html',
-    'instructions.html'
+    "index.html",
+    "home.html",
+    "bangs.html",
+    "bench.html",
+    "contact.html",
+    "faq.html",
+    "instructions.html",
   ]) {
     const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
     await Bun.write(
-      join('dist', file),
+      join("dist", file),
       minify(Buffer.from(inlineCSS(astroHtml)), {
         minify_css: true,
-        minify_js: true
+        minify_js: true,
       })
     );
   }
 
-  await Bun.write('dist/robots.txt', 'User-agent: *\nAllow: /\n');
-  await Bun.write('dist/manifest.json', Bun.file('src/ui/manifest.json'));
-  await Bun.write('dist/icon.svg', Bun.file('src/ui/icon.svg'));
+  await Bun.write("dist/robots.txt", "User-agent: *\nAllow: /\n");
+  await Bun.write("dist/manifest.json", Bun.file("src/ui/manifest.json"));
+  await Bun.write("dist/icon.svg", Bun.file("src/ui/icon.svg"));
 
   console.log(`Build done in ${(performance.now() - t).toFixed(0)}ms`);
 }
 
-const generated = Bun.file('src/generated/bangs-min.js');
+const generated = Bun.file("src/generated/bangs-min.js");
 if (!(await generated.exists())) {
-  console.warn('Generated bang data not found. Running codegen...');
+  console.warn("Generated bang data not found. Running codegen...");
   await $`bun run codegen`;
 }
 
 await build();
 
 let timeout: Timer;
-watch('src', { recursive: true }, (_event, filename) => {
-  if (filename && (filename.endsWith('.test.ts') || filename.endsWith('.test.js'))) {
+watch("src", { recursive: true }, (_event, filename) => {
+  if (
+    filename &&
+    (filename.endsWith(".test.ts") || filename.endsWith(".test.js"))
+  ) {
     return;
   }
   clearTimeout(timeout);
   timeout = setTimeout(async () => {
-    console.log('File change detected, rebuilding...');
+    console.log("File change detected, rebuilding...");
     try {
       await build();
       broadcast();
     } catch (e) {
-      console.error('Build failed:', e);
+      console.error("Build failed:", e);
     }
   }, 200);
 });
 
 function injectLiveReload(html: string): string {
-  const idx = html.lastIndexOf('</body>');
+  const idx = html.lastIndexOf("</body>");
   if (idx !== -1) {
     return html.slice(0, idx) + LIVE_RELOAD_SCRIPT + html.slice(idx);
   }
   return html + LIVE_RELOAD_SCRIPT;
 }
 
-function htmlResponse(file: string, headers?: Record<string, string>): Response {
+function htmlResponse(
+  file: string,
+  headers?: Record<string, string>
+): Response {
   const content = injectLiveReload(file);
   return new Response(content, {
     headers: {
-      'Content-Type': 'text/html; charset=utf-8',
+      "Content-Type": "text/html; charset=utf-8",
       ...SECURITY_HEADERS,
-      ...headers
-    }
+      ...headers,
+    },
   });
 }
 
@@ -183,31 +196,31 @@ Bun.serve({
   async fetch(req) {
     const pathname = readPathname(req.url);
 
-    if (pathname === '/__dev/events') {
+    if (pathname === "/__dev/events") {
       const stream = new ReadableStream({
         start(controller) {
           const encoder = new TextEncoder();
           const client: SSEClient = {
             enqueue: (data: string) => controller.enqueue(encoder.encode(data)),
-            close: () => controller.close()
+            close: () => controller.close(),
           };
           clients.add(client);
-          client.enqueue(': connected\n\n');
-          req.signal.addEventListener('abort', () => {
+          client.enqueue(": connected\n\n");
+          req.signal.addEventListener("abort", () => {
             clients.delete(client);
           });
-        }
+        },
       });
       return new Response(stream, {
         headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive'
-        }
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
       });
     }
 
-    if (pathname === '/suggest') {
+    if (pathname === "/suggest") {
       const res = await handleSuggestRequest(req);
       for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
         res.headers.set(k, v);
@@ -215,7 +228,7 @@ Bun.serve({
       return res;
     }
 
-    if (pathname === '/opensearch.xml') {
+    if (pathname === "/opensearch.xml") {
       const res = handleOpenSearchRequest(req);
       for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
         res.headers.set(k, v);
@@ -223,40 +236,40 @@ Bun.serve({
       return res;
     }
 
-    if (pathname === '/sw.js') {
-      return new Response(Bun.file('dist/sw.js'), { headers: SW_HEADERS });
+    if (pathname === "/sw.js") {
+      return new Response(Bun.file("dist/sw.js"), { headers: SW_HEADERS });
     }
 
-    if (pathname === '/bench') {
-      const text = await Bun.file('dist/bench.html').text();
+    if (pathname === "/bench") {
+      const text = await Bun.file("dist/bench.html").text();
       return htmlResponse(text, {
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'credentialless'
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "credentialless",
       });
     }
 
-    const path = pathname === '/' ? '/index.html' : pathname;
+    const path = pathname === "/" ? "/index.html" : pathname;
     const normalized = normalize(`dist${path}`);
-    if (!normalized.startsWith('dist/')) {
-      return new Response('Not found', {
+    if (!normalized.startsWith("dist/")) {
+      return new Response("Not found", {
         status: 404,
-        headers: SECURITY_HEADERS
+        headers: SECURITY_HEADERS,
       });
     }
     const file = Bun.file(normalized);
     if (await file.exists()) {
-      if (path.endsWith('.html')) {
+      if (path.endsWith(".html")) {
         return htmlResponse(await file.text());
       }
       return new Response(file, { headers: SECURITY_HEADERS });
     }
     const htmlNormalized = normalize(`dist${path}.html`);
-    if (htmlNormalized.startsWith('dist/')) {
+    if (htmlNormalized.startsWith("dist/")) {
       const htmlFile = Bun.file(htmlNormalized);
       if (await htmlFile.exists()) {
         return htmlResponse(await htmlFile.text());
       }
     }
-    return htmlResponse(await Bun.file('dist/index.html').text());
-  }
+    return htmlResponse(await Bun.file("dist/index.html").text());
+  },
 });
