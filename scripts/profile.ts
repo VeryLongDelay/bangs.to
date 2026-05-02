@@ -5,8 +5,8 @@
  * Run: bun scripts/profile.ts
  */
 
-import { readPathname } from "../src/shared/raw-url";
-import { ensureGeneratedBangData, GENERATED_BANG_DATA_FILES } from "./codegen";
+import { readPathname } from '../src/shared/raw-url';
+import { ensureGeneratedBangData, GENERATED_BANG_DATA_FILES } from './codegen';
 
 const [minPath, metaPath, triePath] = GENERATED_BANG_DATA_FILES;
 
@@ -66,7 +66,7 @@ function summarizeRuns(arr: number[]): RunStats {
     min: sorted[0] ?? 0,
     max: sorted[sorted.length - 1] ?? 0,
     mean: avg,
-    cvPct: avg > 0 ? (stdev / avg) * 100 : 0,
+    cvPct: avg > 0 ? (stdev / avg) * 100 : 0
   };
 }
 
@@ -91,9 +91,9 @@ function fmtBytes(b: number): string {
 }
 
 function separator(title: string) {
-  console.log(`\n${"=".repeat(70)}`);
+  console.log(`\n${'='.repeat(70)}`);
   console.log(`  ${title}`);
-  console.log("=".repeat(70));
+  console.log('='.repeat(70));
 }
 
 function fmtBytesExact(b: number): string {
@@ -109,15 +109,15 @@ const [
   { bangSuggestions },
   { parseCookie, parseSettingsFromRawUrl },
   { buildTopFrecency, serializeTopFrecency, updateTopFrecencyOnIncrement },
-  { readQueryParam, readTwoQueryParams },
+  { readQueryParam, readTwoQueryParams }
 ] = await Promise.all([
-  import("../src/generated/bangs-min.js"),
-  import("../src/generated/bangs-trie.js"),
-  import("../src/server/handlers"),
-  import("../src/suggest-bang"),
-  import("../src/suggest"),
-  import("../src/sw/frecency"),
-  import("../src/shared/raw-query"),
+  import('../src/generated/bangs-min.js'),
+  import('../src/generated/bangs-trie.js'),
+  import('../src/server/handlers'),
+  import('../src/suggest-bang'),
+  import('../src/suggest'),
+  import('../src/sw/frecency'),
+  import('../src/shared/raw-query')
 ]);
 
 const NODE_EDGE_START = 0;
@@ -134,18 +134,14 @@ const EDGE_STRIDE = 3;
 const RUNS = 12;
 const COLD_RUNS = 5;
 
-console.log(
-  `\nMethod: per-iteration means across ${RUNS} runs (p90/spread are run-level).`
-);
-console.log(
-  "Low single-digit nanosecond results should be treated as directional only."
-);
+console.log(`\nMethod: per-iteration means across ${RUNS} runs (p90/spread are run-level).`);
+console.log('Low single-digit nanosecond results should be treated as directional only.');
 
 // ---------------------------------------------------------------------------
 // 1. FILE SIZES & DATA STATS
 // ---------------------------------------------------------------------------
 
-separator("1. DATA SIZE & STRUCTURE ANALYSIS");
+separator('1. DATA SIZE & STRUCTURE ANALYSIS');
 
 const minBytes = Bun.file(minPath).size;
 const metaBytes = Bun.file(metaPath).size;
@@ -153,17 +149,11 @@ const trieBytes = Bun.file(triePath).size;
 const totalGeneratedBytes = minBytes + metaBytes + trieBytes;
 
 console.log(`\nBang count: ${BANG_COUNT.toLocaleString()}`);
-console.log(
-  `bangs-min.js:  ${fmtBytesExact(minBytes)}  (trigger→URL parts, used by SW)`
-);
-console.log(
-  `bangs-meta.js: ${fmtBytesExact(metaBytes)}  (trigger→{s,d}, used by UI)`
-);
+console.log(`bangs-min.js:  ${fmtBytesExact(minBytes)}  (trigger→URL parts, used by SW)`);
+console.log(`bangs-meta.js: ${fmtBytesExact(metaBytes)}  (trigger→{s,d}, used by UI)`);
 
 const trieFile = await Bun.file(triePath).text();
-console.log(
-  `bangs-trie.js: ${fmtBytesExact(trieBytes)}  (radix trie, used by suggest)`
-);
+console.log(`bangs-trie.js: ${fmtBytesExact(trieBytes)}  (radix trie, used by suggest)`);
 console.log(`Total generated: ${fmtBytesExact(totalGeneratedBytes)}`);
 console.log(
   `Avg bytes per bang: ${Math.round(totalGeneratedBytes / BANG_COUNT).toLocaleString()}B`
@@ -173,7 +163,7 @@ console.log(
 // 2. TRIE STRUCTURE ANALYSIS
 // ---------------------------------------------------------------------------
 
-separator("2. TRIE STRUCTURE ANALYSIS");
+separator('2. TRIE STRUCTURE ANALYSIS');
 
 function trieStats(root: number): {
   nodes: number;
@@ -210,36 +200,27 @@ function trieStats(root: number): {
     nodes: nodeCount,
     terminals,
     edges: Math.floor(EDGES.length / EDGE_STRIDE),
-    maxDepth,
+    maxDepth
   };
 }
 
 const ts = trieStats(ROOT);
-console.log("\nFlat radix trie structure:");
+console.log('\nFlat radix trie structure:');
 console.log(`  Nodes:     ${ts.nodes.toLocaleString()}`);
 console.log(`  Terminals: ${ts.terminals.toLocaleString()}`);
 console.log(`  Edges:     ${ts.edges.toLocaleString()}`);
 console.log(`  Max depth: ${ts.maxDepth}`);
 console.log(`  Root children: ${NODES[ROOT * NODE_STRIDE + NODE_EDGE_COUNT]}`);
-console.log(
-  `  Max relevance: ${NODES[ROOT * NODE_STRIDE + NODE_MAX_RELEVANCE]}`
-);
+console.log(`  Max relevance: ${NODES[ROOT * NODE_STRIDE + NODE_MAX_RELEVANCE]}`);
 
 // ---------------------------------------------------------------------------
 // 3. BANG LOOKUP PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("3. BANG LOOKUP PERFORMANCE");
+separator('3. BANG LOOKUP PERFORMANCE');
 
-const sampleHits = ["g", "gh", "yt", "w", "a", "ddg", "so", "mdn", "npm"];
-const sampleMisses = [
-  "zzzzz",
-  "notabang",
-  "xyz123",
-  "fakebang",
-  "qqqq",
-  "!!!!!",
-];
+const sampleHits = ['g', 'gh', 'yt', 'w', 'a', 'ddg', 'so', 'mdn', 'npm'];
+const sampleMisses = ['zzzzz', 'notabang', 'xyz123', 'fakebang', 'qqqq', '!!!!!'];
 const allSamples = [...sampleHits, ...sampleMisses];
 
 for (let i = 0; i < 10_000; i++) {
@@ -266,9 +247,7 @@ for (let run = 0; run < RUNS; run++) {
   t0 = Bun.nanoseconds();
   let hitCount = 0;
   for (let i = 0; i < LOOKUP_ITERS; i++) {
-    if (
-      lookupBang(allSamples[(i + offset + baselineLen) % allSamples.length])
-    ) {
+    if (lookupBang(allSamples[(i + offset + baselineLen) % allSamples.length])) {
       hitCount++;
     }
   }
@@ -283,7 +262,7 @@ const lookupNetMedian = Math.max(0, lookupRawMedian - lookupBaselineMedian);
 const lookupHitRatioPct = (median(lookupHitCounts) / LOOKUP_ITERS) * 100;
 const lookupStats = summarizeRuns(lookupTimes);
 
-console.log("\nPacked lookup (lookupBang):");
+console.log('\nPacked lookup (lookupBang):');
 console.log(`  ${LOOKUP_ITERS.toLocaleString()} iterations × ${RUNS} runs`);
 console.log(`  Median (raw):      ${fmt(lookupRawMedian)}/lookup`);
 console.log(`  p90 (run):         ${fmt(lookupStats.p90)}/lookup`);
@@ -298,7 +277,7 @@ console.log(`  Sample hit ratio:  ${lookupHitRatioPct.toFixed(1)}%`);
 // 4. TRIE-BASED SUGGESTION PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("4. TRIE-BASED SUGGESTION PERFORMANCE");
+separator('4. TRIE-BASED SUGGESTION PERFORMANCE');
 
 function walkPrefix(partial: string): [number, string] | null {
   let node = ROOT;
@@ -318,8 +297,7 @@ function walkPrefix(partial: string): [number, string] | null {
       let match = 0;
       while (
         match < limit &&
-        partial.charCodeAt(pos + match) ===
-          LABELS.charCodeAt(edgeLabelStart + match)
+        partial.charCodeAt(pos + match) === LABELS.charCodeAt(edgeLabelStart + match)
       ) {
         match++;
       }
@@ -330,13 +308,7 @@ function walkPrefix(partial: string): [number, string] | null {
         if (match < partial.length - pos) {
           return null;
         }
-        return [
-          child,
-          LABELS.substring(
-            edgeLabelStart + match,
-            edgeLabelStart + edgeLabelLen
-          ),
-        ];
+        return [child, LABELS.substring(edgeLabelStart + match, edgeLabelStart + edgeLabelLen)];
       }
       node = child;
       pos += match;
@@ -348,7 +320,7 @@ function walkPrefix(partial: string): [number, string] | null {
     }
   }
 
-  return [node, ""];
+  return [node, ''];
 }
 
 function countTerminals(node: number): number {
@@ -363,7 +335,7 @@ function countTerminals(node: number): number {
   return c;
 }
 
-const suggestPartials = ["g", "gh", "gi", "yt", "a", "s"];
+const suggestPartials = ['g', 'gh', 'gi', 'yt', 'a', 's'];
 const SUGGEST_ITERS = 100_000;
 const SUGGEST_PREFIX_ITERS = 20_000;
 const emptyFrecency: Record<string, number> = Object.create(null);
@@ -372,7 +344,7 @@ const emptyCustom: string[] = [];
 // Warm up
 for (let i = 0; i < 1_000; i++) {
   const p = suggestPartials[i % suggestPartials.length];
-  void bangSuggestions(`!${p}`, "", p, emptyFrecency, emptyCustom);
+  void bangSuggestions(`!${p}`, '', p, emptyFrecency, emptyCustom);
 }
 
 const trieSuggestTimes: number[] = [];
@@ -380,7 +352,7 @@ for (let run = 0; run < RUNS; run++) {
   const t0 = Bun.nanoseconds();
   for (let i = 0; i < SUGGEST_ITERS; i++) {
     const p = suggestPartials[i % suggestPartials.length];
-    void bangSuggestions(`!${p}`, "", p, emptyFrecency, emptyCustom);
+    void bangSuggestions(`!${p}`, '', p, emptyFrecency, emptyCustom);
   }
   const elapsed = Bun.nanoseconds() - t0;
   trieSuggestTimes.push(elapsed / SUGGEST_ITERS);
@@ -388,7 +360,7 @@ for (let run = 0; run < RUNS; run++) {
 
 const trieSuggestRunStats = summarizeRuns(trieSuggestTimes);
 
-console.log("\nbangSuggestions() pipeline (production function):");
+console.log('\nbangSuggestions() pipeline (production function):');
 console.log(`  ${SUGGEST_ITERS.toLocaleString()} iterations × ${RUNS} runs`);
 console.log(`  Median: ${fmt(trieSuggestRunStats.p50)}/suggest`);
 console.log(`  p90:    ${fmt(trieSuggestRunStats.p90)}/suggest`);
@@ -397,13 +369,13 @@ console.log(
 );
 
 // Per-prefix breakdown
-console.log("\n  Per-prefix timings:");
+console.log('\n  Per-prefix timings:');
 for (const p of suggestPartials) {
   const times: number[] = [];
   for (let run = 0; run < RUNS; run++) {
     const t0 = Bun.nanoseconds();
     for (let i = 0; i < SUGGEST_PREFIX_ITERS; i++) {
-      void bangSuggestions(`!${p}`, "", p, emptyFrecency, emptyCustom);
+      void bangSuggestions(`!${p}`, '', p, emptyFrecency, emptyCustom);
     }
     const elapsed = Bun.nanoseconds() - t0;
     times.push(elapsed / SUGGEST_PREFIX_ITERS);
@@ -411,9 +383,8 @@ for (const p of suggestPartials) {
 
   const result = walkPrefix(p);
   const matchCount = result ? countTerminals(result[0]) : 0;
-  const payloadBytes = (
-    await bangSuggestions(`!${p}`, "", p, emptyFrecency, emptyCustom).text()
-  ).length;
+  const payloadBytes = (await bangSuggestions(`!${p}`, '', p, emptyFrecency, emptyCustom).text())
+    .length;
   const prefixStats = summarizeRuns(times);
   console.log(
     `    "${p}": ${fmt(prefixStats.p50)} median, ${fmt(prefixStats.p90)} p90 (${matchCount} subtree matches, ${payloadBytes}B payload)`
@@ -424,34 +395,29 @@ for (const p of suggestPartials) {
 // 5. REDIRECT PIPELINE PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("5. FULL REDIRECT PIPELINE");
+separator('5. FULL REDIRECT PIPELINE');
 
-const { redirect, redirectRaw, redirectUrl } = await import(
-  "../src/sw/redirect"
-);
+const { redirect, redirectRaw, redirectUrl } = await import('../src/sw/redirect');
 
 const settings = {
-  defaultUrl: ["https://www.google.com/search?q=", ""] as const,
-  luckyUrl: ["https://duckduckgo.com/?q=\\", ""] as const,
+  defaultUrl: ['https://www.google.com/search?q=', ''] as const,
+  luckyUrl: ['https://duckduckgo.com/?q=\\', ''] as const,
   hasCustom: false,
-  custom: Object.create(null) as Record<
-    string,
-    readonly [string, string | null]
-  >,
+  custom: Object.create(null) as Record<string, readonly [string, string | null]>
 };
 
 const queries = [
-  { label: "Prefix bang", raw: "!g+kittens" },
-  { label: "Suffix bang", raw: "kittens+g!" },
-  { label: "Trailing !bang", raw: "kittens+!g" },
-  { label: "Prefix suffix-bang", raw: "g!+kittens" },
-  { label: "No bang (default)", raw: "kittens" },
-  { label: "Feeling lucky (\\)", raw: "\\kittens" },
-  { label: "Bang only", raw: "!g" },
-  { label: "Lucky bare (! q)", raw: "!+kittens" },
-  { label: "Unknown bang", raw: "!zzzzz+cats" },
-  { label: "Long query", raw: `!g+${"a".repeat(200)}` },
-  { label: "Encoded spaces", raw: "!g%20kittens%20are%20cute" },
+  { label: 'Prefix bang', raw: '!g+kittens' },
+  { label: 'Suffix bang', raw: 'kittens+g!' },
+  { label: 'Trailing !bang', raw: 'kittens+!g' },
+  { label: 'Prefix suffix-bang', raw: 'g!+kittens' },
+  { label: 'No bang (default)', raw: 'kittens' },
+  { label: 'Feeling lucky (\\)', raw: '\\kittens' },
+  { label: 'Bang only', raw: '!g' },
+  { label: 'Lucky bare (! q)', raw: '!+kittens' },
+  { label: 'Unknown bang', raw: '!zzzzz+cats' },
+  { label: 'Long query', raw: `!g+${'a'.repeat(200)}` },
+  { label: 'Encoded spaces', raw: '!g%20kittens%20are%20cute' }
 ];
 
 const REDIRECT_ITERS = 500_000;
@@ -461,13 +427,9 @@ for (let i = 0; i < 10_000; i++) {
   redirectRaw(queries[i % queries.length].raw, settings);
 }
 
-console.log(
-  `\nredirectRaw() — ${REDIRECT_ITERS.toLocaleString()} iterations × ${RUNS} runs:`
-);
-console.log(
-  `${"Query type".padEnd(24)} ${"Median".padStart(10)} ${"p90".padStart(10)}`
-);
-console.log("-".repeat(46));
+console.log(`\nredirectRaw() — ${REDIRECT_ITERS.toLocaleString()} iterations × ${RUNS} runs:`);
+console.log(`${'Query type'.padEnd(24)} ${'Median'.padStart(10)} ${'p90'.padStart(10)}`);
+console.log('-'.repeat(46));
 
 for (const q of queries) {
   const times: number[] = [];
@@ -486,11 +448,11 @@ for (const q of queries) {
   );
 }
 
-const bangRedirect = redirectStats.get("Prefix bang");
-const nonBangRedirect = redirectStats.get("No bang (default)");
+const bangRedirect = redirectStats.get('Prefix bang');
+const nonBangRedirect = redirectStats.get('No bang (default)');
 if (!(bangRedirect && nonBangRedirect)) {
   throw new Error(
-    "redirect profile samples missing expected labels: Prefix bang / No bang (default)"
+    'redirect profile samples missing expected labels: Prefix bang / No bang (default)'
   );
 }
 
@@ -508,13 +470,7 @@ console.log(
   `\nMixed redirect workload (${queries.length} query shapes): ${fmt(redirectMixedStats.p50)} median, ${fmt(redirectMixedStats.p90)} p90`
 );
 
-const messageQueries = [
-  "!g kittens",
-  "kittens",
-  "\\kittens",
-  "cats g!",
-  "!zzzzz cats",
-];
+const messageQueries = ['!g kittens', 'kittens', '\\kittens', 'cats g!', '!zzzzz cats'];
 const MESSAGE_ITERS = 500_000;
 const messageOldTimes: number[] = [];
 const messageNewTimes: number[] = [];
@@ -522,7 +478,7 @@ let messageSink = 0;
 
 for (let i = 0; i < 20_000; i++) {
   const q = messageQueries[i % messageQueries.length];
-  messageSink += redirect(q, settings).headers.get("Location")?.length ?? 0;
+  messageSink += redirect(q, settings).headers.get('Location')?.length ?? 0;
   messageSink += redirectUrl(q, settings).length;
 }
 
@@ -530,7 +486,7 @@ for (let run = 0; run < RUNS; run++) {
   let t0 = Bun.nanoseconds();
   for (let i = 0; i < MESSAGE_ITERS; i++) {
     const q = messageQueries[(i + run) % messageQueries.length];
-    messageSink += redirect(q, settings).headers.get("Location")?.length ?? 0;
+    messageSink += redirect(q, settings).headers.get('Location')?.length ?? 0;
   }
   messageOldTimes.push((Bun.nanoseconds() - t0) / MESSAGE_ITERS);
 
@@ -546,7 +502,7 @@ const messageOldStats = summarizeRuns(messageOldTimes);
 const messageNewStats = summarizeRuns(messageNewTimes);
 const messageSavings = messageOldStats.p50 - messageNewStats.p50;
 if (messageSink === -1) {
-  console.log("");
+  console.log('');
 }
 
 console.log(
@@ -557,9 +513,9 @@ console.log(
 // 6. SERVER ROUTE PATH PARSE PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("6. SERVER ROUTE PATH PARSE PERFORMANCE");
+separator('6. SERVER ROUTE PATH PARSE PERFORMANCE');
 
-const RAW_URL = "https://flashbang.local/suggest?q=%21g&sp=none#x";
+const RAW_URL = 'https://flashbang.local/suggest?q=%21g&sp=none#x';
 const PATH_ITERS = 500_000;
 const pathViaUrlTimes: number[] = [];
 const pathViaRawTimes: number[] = [];
@@ -586,9 +542,7 @@ for (let run = 0; run < RUNS; run++) {
 const pathViaUrlStats = summarizeRuns(pathViaUrlTimes);
 const pathViaRawStats = summarizeRuns(pathViaRawTimes);
 
-console.log(
-  `\nPath parse benchmark — ${PATH_ITERS.toLocaleString()} iterations × ${RUNS} runs:`
-);
+console.log(`\nPath parse benchmark — ${PATH_ITERS.toLocaleString()} iterations × ${RUNS} runs:`);
 console.log(
   `  new URL(url).pathname: ${fmt(pathViaUrlStats.p50)} median, ${fmt(pathViaUrlStats.p90)} p90`
 );
@@ -600,35 +554,35 @@ console.log(
 // 7. QUERY & COOKIE PARSING PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("7. QUERY & COOKIE PARSING PERFORMANCE");
+separator('7. QUERY & COOKIE PARSING PERFORMANCE');
 
 const PARAM_URL =
-  "https://flashbang.local/suggest?x=1&q=%21g%20kittens%20and%20cats&sp=none&src=prof#x";
+  'https://flashbang.local/suggest?x=1&q=%21g%20kittens%20and%20cats&sp=none&src=prof#x';
 const PARAM_ITERS = 500_000;
 const queryDualScanTimes: number[] = [];
 const querySingleScanTimes: number[] = [];
 let parseSink = 0;
 
 for (let i = 0; i < 20_000; i++) {
-  const q = readQueryParam(PARAM_URL, "q");
-  const sp = readQueryParam(PARAM_URL, "sp");
+  const q = readQueryParam(PARAM_URL, 'q');
+  const sp = readQueryParam(PARAM_URL, 'sp');
   parseSink += (q?.length ?? 0) + (sp?.length ?? 0);
-  const both = readTwoQueryParams(PARAM_URL, "q", "sp");
+  const both = readTwoQueryParams(PARAM_URL, 'q', 'sp');
   parseSink += (both[0]?.length ?? 0) + (both[1]?.length ?? 0);
 }
 
 for (let run = 0; run < RUNS; run++) {
   let t0 = Bun.nanoseconds();
   for (let i = 0; i < PARAM_ITERS; i++) {
-    const q = readQueryParam(PARAM_URL, "q");
-    const sp = readQueryParam(PARAM_URL, "sp");
+    const q = readQueryParam(PARAM_URL, 'q');
+    const sp = readQueryParam(PARAM_URL, 'sp');
     parseSink += (q?.length ?? 0) + (sp?.length ?? 0);
   }
   queryDualScanTimes.push((Bun.nanoseconds() - t0) / PARAM_ITERS);
 
   t0 = Bun.nanoseconds();
   for (let i = 0; i < PARAM_ITERS; i++) {
-    const [q, sp] = readTwoQueryParams(PARAM_URL, "q", "sp");
+    const [q, sp] = readTwoQueryParams(PARAM_URL, 'q', 'sp');
     parseSink += (q?.length ?? 0) + (sp?.length ?? 0);
   }
   querySingleScanTimes.push((Bun.nanoseconds() - t0) / PARAM_ITERS);
@@ -649,22 +603,22 @@ console.log(
 );
 console.log(`  Single-scan speedup: ${queryScanSpeedup.toFixed(2)}x`);
 
-const reqNoCookie = new Request("http://localhost/suggest?q=x");
-const reqLightCookie = new Request("http://localhost/suggest?q=x", {
+const reqNoCookie = new Request('http://localhost/suggest?q=x');
+const reqLightCookie = new Request('http://localhost/suggest?q=x', {
   headers: {
-    Cookie: "suggest=default,g,|meta|gh.mdn; sf=g:10.yt:4",
-  },
+    Cookie: 'suggest=default,g,|meta|gh.mdn; sf=g:10.yt:4'
+  }
 });
-const reqHeavyCookie = new Request("http://localhost/suggest?q=x", {
+const reqHeavyCookie = new Request('http://localhost/suggest?q=x', {
   headers: {
     Cookie:
-      "session=abc123; theme=dark; lang=en-US; exp=beta-on; tracking=xyz;" +
-      " suggest=custom,g,https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%7B%7D,|meta|gh.mdn.npm.rs.w;" +
-      " sf=g:50.yt:30.w:20.ddg:10.gh:8.npm:6.rs:4;" +
-      " misc1=1; misc2=2; misc3=3; misc4=4",
-  },
+      'session=abc123; theme=dark; lang=en-US; exp=beta-on; tracking=xyz;' +
+      ' suggest=custom,g,https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%7B%7D,|meta|gh.mdn.npm.rs.w;' +
+      ' sf=g:50.yt:30.w:20.ddg:10.gh:8.npm:6.rs:4;' +
+      ' misc1=1; misc2=2; misc3=3; misc4=4'
+  }
 });
-const SETTINGS_PARSE_URL = "http://localhost/suggest?q=flashbang";
+const SETTINGS_PARSE_URL = 'http://localhost/suggest?q=flashbang';
 
 const COOKIE_ITERS = 300_000;
 const cookieNoneTimes: number[] = [];
@@ -677,18 +631,10 @@ for (let i = 0; i < 10_000; i++) {
   parseSink += parseCookie(reqNoCookie).provider.length;
   parseSink += parseCookie(reqLightCookie).provider.length;
   parseSink += parseCookie(reqHeavyCookie).provider.length;
-  parseSink += parseSettingsFromRawUrl(
-    SETTINGS_PARSE_URL,
-    reqHeavyCookie,
-    "none",
-    true
-  ).provider.length;
-  parseSink += parseSettingsFromRawUrl(
-    SETTINGS_PARSE_URL,
-    reqHeavyCookie,
-    "none",
-    false
-  ).provider.length;
+  parseSink += parseSettingsFromRawUrl(SETTINGS_PARSE_URL, reqHeavyCookie, 'none', true).provider
+    .length;
+  parseSink += parseSettingsFromRawUrl(SETTINGS_PARSE_URL, reqHeavyCookie, 'none', false).provider
+    .length;
 }
 
 for (let run = 0; run < RUNS; run++) {
@@ -715,24 +661,14 @@ for (let run = 0; run < RUNS; run++) {
 
   t0 = Bun.nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
-    const s = parseSettingsFromRawUrl(
-      SETTINGS_PARSE_URL,
-      reqHeavyCookie,
-      "none",
-      true
-    );
+    const s = parseSettingsFromRawUrl(SETTINGS_PARSE_URL, reqHeavyCookie, 'none', true);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
   settingsFullContextTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
 
   t0 = Bun.nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
-    const s = parseSettingsFromRawUrl(
-      SETTINGS_PARSE_URL,
-      reqHeavyCookie,
-      "none",
-      false
-    );
+    const s = parseSettingsFromRawUrl(SETTINGS_PARSE_URL, reqHeavyCookie, 'none', false);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
   settingsPlainContextTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
@@ -743,18 +679,13 @@ const cookieLightStats = summarizeRuns(cookieLightTimes);
 const cookieHeavyStats = summarizeRuns(cookieHeavyTimes);
 const settingsFullContextStats = summarizeRuns(settingsFullContextTimes);
 const settingsPlainContextStats = summarizeRuns(settingsPlainContextTimes);
-const settingsPlainSpeedup =
-  settingsFullContextStats.p50 / settingsPlainContextStats.p50;
+const settingsPlainSpeedup = settingsFullContextStats.p50 / settingsPlainContextStats.p50;
 if (parseSink === -1) {
-  console.log("");
+  console.log('');
 }
 
-console.log(
-  `\nCookie parsing — ${COOKIE_ITERS.toLocaleString()} iterations × ${RUNS} runs:`
-);
-console.log(
-  `  No cookie:    ${fmt(cookieNoneStats.p50)} median, ${fmt(cookieNoneStats.p90)} p90`
-);
+console.log(`\nCookie parsing — ${COOKIE_ITERS.toLocaleString()} iterations × ${RUNS} runs:`);
+console.log(`  No cookie:    ${fmt(cookieNoneStats.p50)} median, ${fmt(cookieNoneStats.p90)} p90`);
 console.log(
   `  Light cookie: ${fmt(cookieLightStats.p50)} median, ${fmt(cookieLightStats.p90)} p90`
 );
@@ -773,26 +704,16 @@ console.log(`  Plain-only parse speedup: ${settingsPlainSpeedup.toFixed(2)}x`);
 // 8. FRECENCY HOT-PATH PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("8. FRECENCY HOT-PATH PERFORMANCE");
+separator('8. FRECENCY HOT-PATH PERFORMANCE');
 
 const FRECENCY_ITERS = 200_000;
-const FREQUENCY_TRIGGERS = [
-  "g",
-  "yt",
-  "ddg",
-  "gh",
-  "w",
-  "mdn",
-  "npm",
-  "rs",
-  "so",
-];
+const FREQUENCY_TRIGGERS = ['g', 'yt', 'ddg', 'gh', 'w', 'mdn', 'npm', 'rs', 'so'];
 const FRECENCY_LIMIT = 8;
 
 function legacyFrecencyCookie(counts: Record<string, number>): string {
   const keys = Object.keys(counts);
   if (keys.length === 0) {
-    return "";
+    return '';
   }
   keys.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
   const n = keys.length < FRECENCY_LIMIT ? keys.length : FRECENCY_LIMIT;
@@ -838,7 +759,7 @@ for (let run = 0; run < RUNS; run++) {
 }
 
 if (frecencySink === -1) {
-  console.log("");
+  console.log('');
 }
 
 const legacyFrecencyStats = summarizeRuns(legacyFrecencyTimes);
@@ -860,26 +781,23 @@ console.log(`  Incremental speedup: ${frecencySpeedup.toFixed(2)}x`);
 // 9. SUGGEST HANDLER PERFORMANCE
 // ---------------------------------------------------------------------------
 
-separator("9. SUGGEST HANDLER PERFORMANCE");
+separator('9. SUGGEST HANDLER PERFORMANCE');
 
-const reqBang = new Request("http://localhost/suggest?q=!gh", {
-  headers: { Cookie: "suggest=default,g," },
+const reqBang = new Request('http://localhost/suggest?q=!gh', {
+  headers: { Cookie: 'suggest=default,g,' }
 });
-const reqPlain = new Request("http://localhost/suggest?q=flashbang&sp=none", {
-  headers: { Cookie: "suggest=none,g," },
+const reqPlain = new Request('http://localhost/suggest?q=flashbang&sp=none', {
+  headers: { Cookie: 'suggest=none,g,' }
 });
-const reqPlainHeavy = new Request(
-  "http://localhost/suggest?q=flashbang&sp=none",
-  {
-    headers: {
-      Cookie:
-        "session=abc123; theme=dark; lang=en-US; exp=beta-on; tracking=xyz;" +
-        " suggest=custom,g,https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%7B%7D,|meta|gh.mdn.npm.rs.w;" +
-        " sf=g:50.yt:30.w:20.ddg:10.gh:8.npm:6.rs:4;" +
-        " misc1=1; misc2=2; misc3=3; misc4=4",
-    },
+const reqPlainHeavy = new Request('http://localhost/suggest?q=flashbang&sp=none', {
+  headers: {
+    Cookie:
+      'session=abc123; theme=dark; lang=en-US; exp=beta-on; tracking=xyz;' +
+      ' suggest=custom,g,https%3A%2F%2Fexample.com%2Fsearch%3Fq%3D%7B%7D,|meta|gh.mdn.npm.rs.w;' +
+      ' sf=g:50.yt:30.w:20.ddg:10.gh:8.npm:6.rs:4;' +
+      ' misc1=1; misc2=2; misc3=3; misc4=4'
   }
-);
+});
 
 const HANDLER_ITERS = 60_000;
 for (let i = 0; i < 1_000; i++) {
@@ -932,13 +850,13 @@ console.log(
 // 10. FIRST-HIT SUGGEST (ISOLATED PROCESS)
 // ---------------------------------------------------------------------------
 
-separator("10. FIRST-HIT SUGGEST (ISOLATED PROCESS)");
+separator('10. FIRST-HIT SUGGEST (ISOLATED PROCESS)');
 
 function runIsolatedNs(script: string, label: string): number {
   const proc = Bun.spawnSync({
-    cmd: ["bun", "-e", script],
-    stdout: "pipe",
-    stderr: "pipe",
+    cmd: ['bun', '-e', script],
+    stdout: 'pipe',
+    stderr: 'pipe'
   });
   if (proc.exitCode !== 0) {
     const err = new TextDecoder().decode(proc.stderr).trim();
@@ -957,7 +875,7 @@ const t0 = Bun.nanoseconds();
 await handleSuggestRequest(req);
 console.log(Bun.nanoseconds() - t0);
 `;
-  return runIsolatedNs(script, "isolatedFirstHitNs");
+  return runIsolatedNs(script, 'isolatedFirstHitNs');
 }
 
 function isolatedWarmThenBangNs(): number {
@@ -973,7 +891,7 @@ await handleSuggestRequest(new Request("http://localhost/suggest?q=!gh", {
 }));
 console.log(Bun.nanoseconds() - t0);
 `;
-  return runIsolatedNs(script, "isolatedWarmThenBangNs");
+  return runIsolatedNs(script, 'isolatedWarmThenBangNs');
 }
 
 const coldPlainSamples: number[] = [];
@@ -981,14 +899,9 @@ const coldBangSamples: number[] = [];
 const warmThenBangSamples: number[] = [];
 for (let i = 0; i < COLD_RUNS; i++) {
   coldPlainSamples.push(
-    isolatedFirstHitNs(
-      "http://localhost/suggest?q=flashbang&sp=none",
-      "suggest=none,g,"
-    )
+    isolatedFirstHitNs('http://localhost/suggest?q=flashbang&sp=none', 'suggest=none,g,')
   );
-  coldBangSamples.push(
-    isolatedFirstHitNs("http://localhost/suggest?q=!gh", "suggest=default,g,")
-  );
+  coldBangSamples.push(isolatedFirstHitNs('http://localhost/suggest?q=!gh', 'suggest=default,g,'));
   warmThenBangSamples.push(isolatedWarmThenBangNs());
 }
 
@@ -1017,20 +930,17 @@ console.log(
 // 11. MODULE PARSE/EVAL TIME
 // ---------------------------------------------------------------------------
 
-separator("11. MODULE PARSE/EVAL TIME");
+separator('11. MODULE PARSE/EVAL TIME');
 
 const minFile = await Bun.file(minPath).text();
 const fullFile = await Bun.file(metaPath).text();
 const minEvalCode = minFile
-  .replaceAll("export const ", "const ")
-  .replaceAll("export function ", "function ");
+  .replaceAll('export const ', 'const ')
+  .replaceAll('export function ', 'function ');
 const fullEvalCode = fullFile
-  .replace("export const BANGS=", "var __BANGS=")
-  .replace(
-    "Object.setPrototypeOf(BANGS,null)",
-    "Object.setPrototypeOf(__BANGS,null)"
-  );
-const trieEvalCode = trieFile.replace(/export const /g, "var ");
+  .replace('export const BANGS=', 'var __BANGS=')
+  .replace('Object.setPrototypeOf(BANGS,null)', 'Object.setPrototypeOf(__BANGS,null)');
+const trieEvalCode = trieFile.replace(/export const /g, 'var ');
 
 const EVAL_RUNS = 20;
 
@@ -1092,7 +1002,7 @@ console.log(
 // SUMMARY
 // ---------------------------------------------------------------------------
 
-separator("SUMMARY");
+separator('SUMMARY');
 
 console.log(`
 ┌─────────────────────────────────────┬────────────┬──────────────┐

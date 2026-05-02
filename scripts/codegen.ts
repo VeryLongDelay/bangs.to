@@ -1,12 +1,8 @@
-import { Buffer } from "node:buffer";
-import { mkdir } from "node:fs/promises";
-import {
-  type BrotliOptions,
-  brotliCompress,
-  constants as zlibConstants,
-} from "node:zlib";
-import { $ } from "bun";
-import { type BuildNode, buildRadixTrie } from "../src/shared/trie";
+import { Buffer } from 'node:buffer';
+import { mkdir } from 'node:fs/promises';
+import { type BrotliOptions, brotliCompress, constants as zlibConstants } from 'node:zlib';
+import { $ } from 'bun';
+import { type BuildNode, buildRadixTrie } from '../src/shared/trie';
 
 interface Bang {
   domain: string;
@@ -34,25 +30,22 @@ interface RawKagiEntry {
 }
 
 export const GENERATED_BANG_DATA_FILES = [
-  "src/generated/bangs-min.js",
-  "src/generated/bangs-meta.js",
-  "src/generated/bangs-trie.js",
+  'src/generated/bangs-min.js',
+  'src/generated/bangs-meta.js',
+  'src/generated/bangs-trie.js'
 ] as const;
 
-const DATA_DIR = "data";
+const DATA_DIR = 'data';
 const DDG_BANGS_PATH = `${DATA_DIR}/ddg.json`;
 const KAGI_BANGS_PATH = `${DATA_DIR}/kagi.json`;
 const CUSTOM_BANGS_PATH = `${DATA_DIR}/custom-bangs.json`;
 const MERGED_BANGS_PATH = `${DATA_DIR}/bangs.json`;
-const GENERATED_OUT_DIR = "src/generated";
+const GENERATED_OUT_DIR = 'src/generated';
 
-const DDG_SOURCE_URL = "https://duckduckgo.com/bang.js";
-const KAGI_SOURCE_URL =
-  "https://raw.githubusercontent.com/kagisearch/bangs/main/data/bangs.json";
+const DDG_SOURCE_URL = 'https://duckduckgo.com/bang.js';
+const KAGI_SOURCE_URL = 'https://raw.githubusercontent.com/kagisearch/bangs/main/data/bangs.json';
 
-export async function ensureGeneratedBangData(
-  fromMerged = true
-): Promise<void> {
+export async function ensureGeneratedBangData(fromMerged = true): Promise<void> {
   const missing: string[] = [];
   for (const file of GENERATED_BANG_DATA_FILES) {
     if (!(await Bun.file(file).exists())) {
@@ -64,10 +57,8 @@ export async function ensureGeneratedBangData(
     return;
   }
 
-  const mode = fromMerged ? " --from-merged" : "";
-  console.warn(
-    `Generated bang data missing (${missing.join(", ")}). Running codegen${mode}...`
-  );
+  const mode = fromMerged ? ' --from-merged' : '';
+  console.warn(`Generated bang data missing (${missing.join(', ')}). Running codegen${mode}...`);
 
   if (fromMerged) {
     await $`bun run codegen --from-merged`;
@@ -78,16 +69,16 @@ export async function ensureGeneratedBangData(
   for (const file of GENERATED_BANG_DATA_FILES) {
     if (!(await Bun.file(file).exists())) {
       throw new Error(
-        `Missing generated bang data after codegen: ${GENERATED_BANG_DATA_FILES.join(", ")}`
+        `Missing generated bang data after codegen: ${GENERATED_BANG_DATA_FILES.join(', ')}`
       );
     }
   }
 }
 
 function normalizeUrl(u: string, base: string): string {
-  let url = u.replaceAll("{{{s}}}", "{}");
-  if (!url.startsWith("http")) {
-    url = `${base}${url.startsWith("/") ? "" : "/"}${url}`;
+  let url = u.replaceAll('{{{s}}}', '{}');
+  if (!url.startsWith('http')) {
+    url = `${base}${url.startsWith('/') ? '' : '/'}${url}`;
   }
   return url;
 }
@@ -97,10 +88,7 @@ interface NamedBangSource {
   name: string;
 }
 
-type CustomBangMap = Record<
-  string,
-  { name: string; url: string; domain: string }
->;
+type CustomBangMap = Record<string, { name: string; url: string; domain: string }>;
 
 function appendBangWithAliases(
   out: Bang[],
@@ -118,7 +106,7 @@ function appendBangWithAliases(
     name: entry.name,
     domain: entry.domain,
     url: entry.url,
-    relevance: entry.relevance,
+    relevance: entry.relevance
   });
   if (!entry.aliases) {
     return;
@@ -129,7 +117,7 @@ function appendBangWithAliases(
       name: entry.name,
       domain: entry.domain,
       url: entry.url,
-      relevance: entry.relevance,
+      relevance: entry.relevance
     });
   }
 }
@@ -143,8 +131,8 @@ function parseDdg(raw: string): Bang[] {
       aliases: entry.ts,
       name: entry.s,
       domain: entry.d,
-      url: normalizeUrl(entry.u, "https://duckduckgo.com"),
-      relevance: entry.r ?? 0,
+      url: normalizeUrl(entry.u, 'https://duckduckgo.com'),
+      relevance: entry.r ?? 0
     });
   }
   return bangs;
@@ -159,8 +147,8 @@ function parseKagi(raw: string): Bang[] {
       aliases: entry.ts,
       name: entry.s,
       domain: entry.d,
-      url: normalizeUrl(entry.u, "https://kagi.com"),
-      relevance: 0,
+      url: normalizeUrl(entry.u, 'https://kagi.com'),
+      relevance: 0
     });
   }
   return bangs;
@@ -172,7 +160,7 @@ function parseCustom(data: CustomBangMap): Bang[] {
     name: b.name,
     domain: b.domain,
     url: b.url,
-    relevance: 0,
+    relevance: 0
   }));
 }
 
@@ -185,7 +173,7 @@ function mergeSources(sources: readonly NamedBangSource[]): Bang[] {
       if (existing) {
         map.set(bang.trigger, {
           ...bang,
-          relevance: Math.max(existing.relevance, bang.relevance),
+          relevance: Math.max(existing.relevance, bang.relevance)
         });
       } else {
         map.set(bang.trigger, bang);
@@ -197,11 +185,11 @@ function mergeSources(sources: readonly NamedBangSource[]): Bang[] {
 }
 
 function validateBangs(bangs: Bang[]): Bang[] {
-  return bangs.filter((b) => {
+  return bangs.filter(b => {
     if (!b.trigger) {
       return false;
     }
-    if (!b.url.includes("{}")) {
+    if (!b.url.includes('{}')) {
       console.error(`Warning: bang !${b.trigger} has no {} placeholder in URL`);
     }
     return true;
@@ -216,20 +204,20 @@ function validateBangs(bangs: Bang[]): Bang[] {
 
 /** Escape for embedding in a single-quoted JS string literal. */
 function jsEscape(s: string): string {
-  let out = "";
+  let out = '';
   for (const c of s) {
     switch (c) {
-      case "\\":
-        out += "\\\\";
+      case '\\':
+        out += '\\\\';
         break;
       case "'":
         out += "\\'";
         break;
-      case "\n":
-        out += "\\n";
+      case '\n':
+        out += '\\n';
         break;
-      case "\r":
-        out += "\\r";
+      case '\r':
+        out += '\\r';
         break;
       default:
         out += c;
@@ -240,20 +228,20 @@ function jsEscape(s: string): string {
 
 /** Escape for embedding in a double-quoted JSON string. */
 function jsonEscape(s: string): string {
-  let out = "";
+  let out = '';
   for (const c of s) {
     switch (c) {
       case '"':
         out += '\\"';
         break;
-      case "\\":
-        out += "\\\\";
+      case '\\':
+        out += '\\\\';
         break;
-      case "\n":
-        out += "\\n";
+      case '\n':
+        out += '\\n';
         break;
-      case "\r":
-        out += "\\r";
+      case '\r':
+        out += '\\r';
         break;
       default:
         out += c;
@@ -263,7 +251,7 @@ function jsonEscape(s: string): string {
 }
 
 function splitTemplate(url: string): [string, string | null] {
-  const idx = url.indexOf("{}");
+  const idx = url.indexOf('{}');
   if (idx === -1) {
     return [url, null];
   }
@@ -276,7 +264,7 @@ interface PackedBlob {
 }
 
 function packBlob(values: readonly string[]): PackedBlob {
-  let blob = "";
+  let blob = '';
   const lengths = new Array<number>(values.length);
   for (let i = 0; i < values.length; i++) {
     const v = values[i];
@@ -320,14 +308,12 @@ function hashFNV1a(s: string): number {
 }
 
 function toBase64U8(values: readonly number[]): string {
-  return Buffer.from(Uint8Array.from(values)).toString("base64");
+  return Buffer.from(Uint8Array.from(values)).toString('base64');
 }
 
 function toBase64U16(values: readonly number[]): string {
   const arr = Uint16Array.from(values);
-  return Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength).toString(
-    "base64"
-  );
+  return Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength).toString('base64');
 }
 
 function nextPow2(n: number): number {
@@ -343,7 +329,7 @@ interface PackedMinData {
   prefixIds: number[];
   suffixIdsPlusOne: number[];
   triggerBlob: ReturnType<typeof packBlob>;
-  triggerLensKind: "u8" | "u16";
+  triggerLensKind: 'u8' | 'u16';
   triggers: string[];
   uniquePrefixes: string[];
   uniqueSuffixes: string[];
@@ -354,9 +340,7 @@ interface PackedMinData {
 function packMinData(bangs: Bang[]): PackedMinData {
   const entryCount = bangs.length;
   if (entryCount > 0xffff) {
-    throw new Error(
-      `bangs-min packed format requires <= 65535 entries, got ${entryCount}`
-    );
+    throw new Error(`bangs-min packed format requires <= 65535 entries, got ${entryCount}`);
   }
 
   const triggers = new Array<string>(entryCount);
@@ -394,9 +378,7 @@ function packMinData(bangs: Bang[]): PackedMinData {
     }
     const id = uniqueSuffixes.length;
     if (id >= 0xffff) {
-      throw new Error(
-        `bangs-min packed format requires <= 65535 unique suffixes, got ${id + 1}`
-      );
+      throw new Error(`bangs-min packed format requires <= 65535 unique suffixes, got ${id + 1}`);
     }
     uniqueSuffixes.push(suffix);
     suffixMap.set(suffix, id);
@@ -407,23 +389,16 @@ function packMinData(bangs: Bang[]): PackedMinData {
   const prefixBlob = packBlob(uniquePrefixes);
   const suffixBlob = packBlob(uniqueSuffixes);
 
-  const triggerMaxLen = triggerBlob.lengths.reduce(
-    (max, len) => (len > max ? len : max),
-    0
-  );
-  const triggerLensKind = triggerMaxLen <= 0xff ? "u8" : "u16";
+  const triggerMaxLen = triggerBlob.lengths.reduce((max, len) => (len > max ? len : max), 0);
+  const triggerLensKind = triggerMaxLen <= 0xff ? 'u8' : 'u16';
   for (const len of prefixBlob.lengths) {
     if (len > 0xffff) {
-      throw new Error(
-        `bangs-min packed format requires prefix length <= 65535, got ${len}`
-      );
+      throw new Error(`bangs-min packed format requires prefix length <= 65535, got ${len}`);
     }
   }
   for (const len of suffixBlob.lengths) {
     if (len > 0xffff) {
-      throw new Error(
-        `bangs-min packed format requires suffix length <= 65535, got ${len}`
-      );
+      throw new Error(`bangs-min packed format requires suffix length <= 65535, got ${len}`);
     }
   }
 
@@ -437,7 +412,7 @@ function packMinData(bangs: Bang[]): PackedMinData {
     suffixIdsPlusOne,
     uniquePrefixes,
     uniqueSuffixes,
-    triggers,
+    triggers
   };
 }
 
@@ -452,17 +427,13 @@ function renderMinOpenAddress(packed: PackedMinData): string {
     suffixIdsPlusOne,
     uniquePrefixes,
     uniqueSuffixes,
-    triggers,
+    triggers
   } = packed;
 
   const HASH_TARGET_LOAD = 0.55;
-  const hashSize = nextPow2(
-    Math.max(2, Math.ceil(entryCount / HASH_TARGET_LOAD))
-  );
+  const hashSize = nextPow2(Math.max(2, Math.ceil(entryCount / HASH_TARGET_LOAD)));
   if (hashSize > 0xffff) {
-    throw new Error(
-      `bangs-min packed format requires hash table size <= 65535, got ${hashSize}`
-    );
+    throw new Error(`bangs-min packed format requires hash table size <= 65535, got ${hashSize}`);
   }
 
   const hashTable = new Uint16Array(hashSize);
@@ -476,33 +447,31 @@ function renderMinOpenAddress(packed: PackedMinData): string {
   }
 
   const triggerLensB64 =
-    triggerLensKind === "u8"
-      ? toBase64U8(triggerBlob.lengths)
-      : toBase64U16(triggerBlob.lengths);
+    triggerLensKind === 'u8' ? toBase64U8(triggerBlob.lengths) : toBase64U16(triggerBlob.lengths);
   const prefixLensB64 = toBase64U16(prefixBlob.lengths);
   const suffixLensB64 = toBase64U16(suffixBlob.lengths);
   const prefixIdsB64 = toBase64U16(prefixIds);
   const suffixIdsB64 = toBase64U16(suffixIdsPlusOne);
-  const hashTableB64 = Buffer.from(hashTable.buffer).toString("base64");
+  const hashTableB64 = Buffer.from(hashTable.buffer).toString('base64');
 
   const runtimeHelpers =
     "function _b64bytes(s){if(typeof atob==='function'){const b=atob(s);const n=b.length;const o=new Uint8Array(n);for(let i=0;i<n;i++){o[i]=b.charCodeAt(i)}return o}if(typeof Buffer!=='undefined'){const b=Buffer.from(s,'base64');return new Uint8Array(b.buffer,b.byteOffset,b.byteLength)}throw new Error('No base64 decoder available')}" +
-    "function _b64u8(s){return _b64bytes(s)}" +
-    "function _b64u16(s){const b=_b64bytes(s);if((b.byteOffset&1)===0){return new Uint16Array(b.buffer,b.byteOffset,b.byteLength>>>1)}const c=new Uint8Array(b.byteLength);c.set(b);return new Uint16Array(c.buffer)}" +
-    "function _off(lengths){const n=lengths.length;const o=new Uint32Array(n+1);let p=0;for(let i=0;i<n;i++){o[i]=p;p+=lengths[i]}o[n]=p;return o}" +
-    "function _hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}";
+    'function _b64u8(s){return _b64bytes(s)}' +
+    'function _b64u16(s){const b=_b64bytes(s);if((b.byteOffset&1)===0){return new Uint16Array(b.buffer,b.byteOffset,b.byteLength>>>1)}const c=new Uint8Array(b.byteLength);c.set(b);return new Uint16Array(c.buffer)}' +
+    'function _off(lengths){const n=lengths.length;const o=new Uint32Array(n+1);let p=0;for(let i=0;i<n;i++){o[i]=p;p+=lengths[i]}o[n]=p;return o}' +
+    'function _hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}';
 
   return (
     runtimeHelpers +
     `const _TB='${jsEscape(triggerBlob.blob)}';` +
-    `const _TL=${triggerLensKind === "u8" ? `_b64u8('${triggerLensB64}')` : `_b64u16('${triggerLensB64}')`};` +
-    "const _TO=_off(_TL);" +
+    `const _TL=${triggerLensKind === 'u8' ? `_b64u8('${triggerLensB64}')` : `_b64u16('${triggerLensB64}')`};` +
+    'const _TO=_off(_TL);' +
     `const _PB='${jsEscape(prefixBlob.blob)}';` +
     `const _PL=_b64u16('${prefixLensB64}');` +
-    "const _PO=_off(_PL);" +
+    'const _PO=_off(_PL);' +
     `const _SB='${jsEscape(suffixBlob.blob)}';` +
     `const _SL=_b64u16('${suffixLensB64}');` +
-    "const _SO=_off(_SL);" +
+    'const _SO=_off(_SL);' +
     `const _EP=_b64u16('${prefixIdsB64}');` +
     `const _ES=_b64u16('${suffixIdsB64}');` +
     `const _HT=_b64u16('${hashTableB64}');` +
@@ -510,21 +479,21 @@ function renderMinOpenAddress(packed: PackedMinData): string {
     `const _PC=new Array(${uniquePrefixes.length}).fill(null);` +
     `const _SC=new Array(${uniqueSuffixes.length}).fill(null);` +
     `const _TC=new Array(${entryCount}).fill(null);` +
-    "function _eq(i,s){const a=_TO[i];const b=_TO[i+1];const n=b-a;if(s.length!==n){return false}for(let j=0;j<n;j++){if(_TB.charCodeAt(a+j)!==s.charCodeAt(j)){return false}}return true}" +
-    "function _prefix(id){if(_PC[id]!==null){return _PC[id]}const s=_PB.substring(_PO[id],_PO[id+1]);_PC[id]=s;return s}" +
-    "function _suffix(id){if(_SC[id]!==null){return _SC[id]}const s=_SB.substring(_SO[id],_SO[id+1]);_SC[id]=s;return s}" +
+    'function _eq(i,s){const a=_TO[i];const b=_TO[i+1];const n=b-a;if(s.length!==n){return false}for(let j=0;j<n;j++){if(_TB.charCodeAt(a+j)!==s.charCodeAt(j)){return false}}return true}' +
+    'function _prefix(id){if(_PC[id]!==null){return _PC[id]}const s=_PB.substring(_PO[id],_PO[id+1]);_PC[id]=s;return s}' +
+    'function _suffix(id){if(_SC[id]!==null){return _SC[id]}const s=_SB.substring(_SO[id],_SO[id+1]);_SC[id]=s;return s}' +
     `export const BANG_COUNT=${entryCount};` +
-    "export function lookupBang(trigger){let slot=_hash(trigger)&_HM;for(let i=0;i<_HT.length;i++){const ep=_HT[slot];if(ep===0){return null}const idx=ep-1;if(_eq(idx,trigger)){let t=_TC[idx];if(t!==null){return t}const pid=_EP[idx];const sid=_ES[idx];t=sid===0?[_prefix(pid),null]:[_prefix(pid),_suffix(sid-1)];_TC[idx]=t;return t}slot=(slot+1)&_HM}return null}"
+    'export function lookupBang(trigger){let slot=_hash(trigger)&_HM;for(let i=0;i<_HT.length;i++){const ep=_HT[slot];if(ep===0){return null}const idx=ep-1;if(_eq(idx,trigger)){let t=_TC[idx];if(t!==null){return t}const pid=_EP[idx];const sid=_ES[idx];t=sid===0?[_prefix(pid),null]:[_prefix(pid),_suffix(sid-1)];_TC[idx]=t;return t}slot=(slot+1)&_HM}return null}'
   );
 }
 
-type StringOrderMode = "lex" | "lenlex";
-type MinCandidateLabel = "insertion" | StringOrderMode;
+type StringOrderMode = 'lex' | 'lenlex';
+type MinCandidateLabel = 'insertion' | StringOrderMode;
 
-const BROTLI_SORT_ORDERS: readonly StringOrderMode[] = ["lex", "lenlex"];
+const BROTLI_SORT_ORDERS: readonly StringOrderMode[] = ['lex', 'lenlex'];
 const BROTLI_EVAL_RUNS = 9;
-const BROTLI_MAX_QUALITY_PARAMS: BrotliOptions["params"] = {
-  [zlibConstants.BROTLI_PARAM_QUALITY]: zlibConstants.BROTLI_MAX_QUALITY,
+const BROTLI_MAX_QUALITY_PARAMS: BrotliOptions['params'] = {
+  [zlibConstants.BROTLI_PARAM_QUALITY]: zlibConstants.BROTLI_MAX_QUALITY
 };
 
 interface ReorderMap {
@@ -532,12 +501,9 @@ interface ReorderMap {
   oldToNew: number[];
 }
 
-function reorderUniqueStrings(
-  values: readonly string[],
-  mode: StringOrderMode
-): ReorderMap {
+function reorderUniqueStrings(values: readonly string[], mode: StringOrderMode): ReorderMap {
   const order = values.map((_, i) => i);
-  if (mode === "lex") {
+  if (mode === 'lex') {
     order.sort((a, b) => values[a].localeCompare(values[b]));
   } else {
     order.sort((a, b) => {
@@ -559,10 +525,7 @@ function reorderUniqueStrings(
   return { newStrings, oldToNew };
 }
 
-function reorderPackedForBrotli(
-  packed: PackedMinData,
-  mode: StringOrderMode
-): PackedMinData {
+function reorderPackedForBrotli(packed: PackedMinData, mode: StringOrderMode): PackedMinData {
   const prefixRemap = reorderUniqueStrings(packed.uniquePrefixes, mode);
   const suffixRemap = reorderUniqueStrings(packed.uniqueSuffixes, mode);
   const prefixIds = new Array<number>(packed.prefixIds.length);
@@ -581,7 +544,7 @@ function reorderPackedForBrotli(
     uniquePrefixes: prefixRemap.newStrings,
     uniqueSuffixes: suffixRemap.newStrings,
     prefixBlob: packBlob(prefixRemap.newStrings),
-    suffixBlob: packBlob(suffixRemap.newStrings),
+    suffixBlob: packBlob(suffixRemap.newStrings)
   };
 }
 
@@ -592,8 +555,8 @@ function medianNs(values: readonly number[]): number {
 
 function estimateEvalNs(source: string, runs = BROTLI_EVAL_RUNS): number {
   const evalCode = source
-    .replaceAll("export const ", "const ")
-    .replaceAll("export function ", "function ");
+    .replaceAll('export const ', 'const ')
+    .replaceAll('export function ', 'function ');
   const times = new Array<number>(runs);
   for (let i = 0; i < runs; i++) {
     const t0 = Bun.nanoseconds();
@@ -624,12 +587,8 @@ interface BrotliCandidateInput {
   label: MinCandidateLabel;
 }
 
-function createBrotliCandidateInputs(
-  base: PackedMinData
-): BrotliCandidateInput[] {
-  const inputs: BrotliCandidateInput[] = [
-    { label: "insertion", js: renderMinOpenAddress(base) },
-  ];
+function createBrotliCandidateInputs(base: PackedMinData): BrotliCandidateInput[] {
+  const inputs: BrotliCandidateInput[] = [{ label: 'insertion', js: renderMinOpenAddress(base) }];
   for (const mode of BROTLI_SORT_ORDERS) {
     const packed = reorderPackedForBrotli(base, mode);
     inputs.push({ label: mode, js: renderMinOpenAddress(packed) });
@@ -639,51 +598,35 @@ function createBrotliCandidateInputs(
 
 function brotliSizeBytes(source: string): Promise<number> {
   return new Promise((resolve, reject) => {
-    brotliCompress(
-      Buffer.from(source),
-      { params: BROTLI_MAX_QUALITY_PARAMS },
-      (error, output) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(output.byteLength);
+    brotliCompress(Buffer.from(source), { params: BROTLI_MAX_QUALITY_PARAMS }, (error, output) => {
+      if (error) {
+        reject(error);
+        return;
       }
-    );
+      resolve(output.byteLength);
+    });
   });
 }
 
-async function buildBrotliCandidates(
-  base: PackedMinData
-): Promise<BrotliCandidate[]> {
+async function buildBrotliCandidates(base: PackedMinData): Promise<BrotliCandidate[]> {
   const inputs = createBrotliCandidateInputs(base);
-  const compressedSizes = await Promise.all(
-    inputs.map((input) => brotliSizeBytes(input.js))
-  );
+  const compressedSizes = await Promise.all(inputs.map(input => brotliSizeBytes(input.js)));
   const candidates = new Array<BrotliCandidate>(inputs.length);
   for (let i = 0; i < inputs.length; i++) {
     const input = inputs[i];
-    candidates[i] = buildBrotliCandidate(
-      input.label,
-      input.js,
-      compressedSizes[i]
-    );
+    candidates[i] = buildBrotliCandidate(input.label, input.js, compressedSizes[i]);
   }
   return candidates;
 }
 
-function selectBestCandidate(
-  candidates: readonly BrotliCandidate[]
-): BrotliCandidate {
+function selectBestCandidate(candidates: readonly BrotliCandidate[]): BrotliCandidate {
   let bestBrBytes = candidates[0].brBytes;
   for (let i = 1; i < candidates.length; i++) {
     if (candidates[i].brBytes < bestBrBytes) {
       bestBrBytes = candidates[i].brBytes;
     }
   }
-  const finalists = candidates.filter(
-    (candidate) => candidate.brBytes === bestBrBytes
-  );
+  const finalists = candidates.filter(candidate => candidate.brBytes === bestBrBytes);
   if (finalists.length === 1) {
     return finalists[0];
   }
@@ -692,10 +635,7 @@ function selectBestCandidate(
   for (let i = 1; i < finalists.length; i++) {
     const candidate = finalists[i];
     candidate.evalNs = estimateEvalNs(candidate.js);
-    if (
-      (candidate.evalNs ?? Number.MAX_SAFE_INTEGER) <
-      (best.evalNs ?? Number.MAX_SAFE_INTEGER)
-    ) {
+    if ((candidate.evalNs ?? Number.MAX_SAFE_INTEGER) < (best.evalNs ?? Number.MAX_SAFE_INTEGER)) {
       best = candidate;
     }
   }
@@ -715,15 +655,15 @@ async function generateMin(bangs: Bang[]): Promise<string> {
 }
 
 function generateMeta(bangs: Bang[]): string {
-  let json = "{";
+  let json = '{';
   for (let i = 0; i < bangs.length; i++) {
     if (i > 0) {
-      json += ",";
+      json += ',';
     }
     const b = bangs[i];
     json += `"${jsonEscape(b.trigger)}":{"s":"${jsonEscape(b.name)}","d":"${jsonEscape(b.domain)}"}`;
   }
-  json += "}";
+  json += '}';
   // NOTE: Null prototype improves miss performance why not add it for meta bangs
   return `export const BANGS=${json};Object.setPrototypeOf(BANGS,null);`;
 }
@@ -791,7 +731,7 @@ function _b64i32(s: string): Int32Array {
 function flattenTrie(root: TrieNode): FlatTrieData {
   const nodes: number[] = [];
   const edges: number[] = [];
-  let labels = "";
+  let labels = '';
   const termK: string[] = [];
   const termS: string[] = [];
   const termD: string[] = [];
@@ -859,7 +799,7 @@ function packStrings(items: string[]): PackedStringData {
     cursor += items[i].length;
     offsets[i + 1] = cursor;
   }
-  return { blob: items.join(""), offsets };
+  return { blob: items.join(''), offsets };
 }
 
 function packI32Sections(sections: number[][]): PackedI32Data {
@@ -875,21 +815,21 @@ function packI32Sections(sections: number[][]): PackedI32Data {
   }
 
   return {
-    base64: Buffer.from(new Uint8Array(merged.buffer)).toString("base64"),
-    offsets,
+    base64: Buffer.from(new Uint8Array(merged.buffer)).toString('base64'),
+    offsets
   };
 }
 
 function buildMinifiedTrieRuntimeHelpers(): string {
   // Keep this path in-memory for Docker/CI and Bun 1.2.x compatibility.
   const transpiler = new Bun.Transpiler({
-    loader: "ts",
-    target: "browser",
-    minifyWhitespace: true,
+    loader: 'ts',
+    target: 'browser',
+    minifyWhitespace: true
   });
   const minified = transpiler.transformSync(TRIE_RUNTIME_HELPERS_SOURCE).trim();
-  if (!minified.includes("function _b64i32(")) {
-    throw new Error("Failed to build trie runtime helpers");
+  if (!minified.includes('function _b64i32(')) {
+    throw new Error('Failed to build trie runtime helpers');
   }
   return minified;
 }
@@ -904,10 +844,9 @@ function generateTrie(data: FlatTrieData, trieRuntimeHelpers: string): string {
     data.termR,
     termK.offsets,
     termS.offsets,
-    termD.offsets,
+    termD.offsets
   ]);
-  const [nodesStart, nodesEnd, edgesEnd, termREnd, termKOffEnd, termSOffEnd] =
-    i32.offsets;
+  const [nodesStart, nodesEnd, edgesEnd, termREnd, termKOffEnd, termSOffEnd] = i32.offsets;
 
   return (
     // NOTE: base64-decoded typed arrays avoid tokenizing huge numeric literals.
@@ -924,7 +863,7 @@ function generateTrie(data: FlatTrieData, trieRuntimeHelpers: string): string {
     `export const TERM_S_OFF=_I32.subarray(${termKOffEnd},${termSOffEnd});` +
     `export const TERM_D_BLOB='${jsEscape(termD.blob)}';` +
     `export const TERM_D_OFF=_I32.subarray(${termSOffEnd},${i32.offsets[6]});` +
-    "export const ROOT=0;"
+    'export const ROOT=0;'
   );
 }
 
@@ -934,42 +873,34 @@ interface CodegenOptions {
 }
 
 async function fetchBangSources(): Promise<void> {
-  console.log("=== Fetch bang sources ===");
+  console.log('=== Fetch bang sources ===');
   await mkdir(DATA_DIR, { recursive: true });
-  const [kagiRes, ddgRes] = await Promise.all([
-    fetch(KAGI_SOURCE_URL),
-    fetch(DDG_SOURCE_URL),
-  ]);
-  await Promise.all([
-    Bun.write(KAGI_BANGS_PATH, kagiRes),
-    Bun.write(DDG_BANGS_PATH, ddgRes),
-  ]);
+  const [kagiRes, ddgRes] = await Promise.all([fetch(KAGI_SOURCE_URL), fetch(DDG_SOURCE_URL)]);
+  await Promise.all([Bun.write(KAGI_BANGS_PATH, kagiRes), Bun.write(DDG_BANGS_PATH, ddgRes)]);
 }
 
 async function parseBangSourcesFromDisk(): Promise<NamedBangSource[]> {
-  console.log("=== Parse sources ===");
+  console.log('=== Parse sources ===');
   const [ddgRaw, kagiRaw, customData] = await Promise.all([
     Bun.file(DDG_BANGS_PATH).text(),
     Bun.file(KAGI_BANGS_PATH).text(),
-    Bun.file(CUSTOM_BANGS_PATH).json(),
+    Bun.file(CUSTOM_BANGS_PATH).json()
   ]);
 
   const sources: NamedBangSource[] = [
-    { name: "ddg", bangs: parseDdg(ddgRaw) },
-    { name: "kagi", bangs: parseKagi(kagiRaw) },
-    { name: "custom", bangs: parseCustom(customData as CustomBangMap) },
+    { name: 'ddg', bangs: parseDdg(ddgRaw) },
+    { name: 'kagi', bangs: parseKagi(kagiRaw) },
+    { name: 'custom', bangs: parseCustom(customData as CustomBangMap) }
   ];
 
   for (const source of sources) {
-    console.log(
-      `${source.name.toUpperCase()}: ${source.bangs.length} bangs parsed`
-    );
+    console.log(`${source.name.toUpperCase()}: ${source.bangs.length} bangs parsed`);
   }
   return sources;
 }
 
 function mergeAndValidateSources(sources: readonly NamedBangSource[]): Bang[] {
-  console.log("=== Merge + validate ===");
+  console.log('=== Merge + validate ===');
   const merged = mergeSources(sources);
   console.log(`Merged: ${merged.length} unique bangs`);
   const valid = validateBangs(merged);
@@ -978,7 +909,7 @@ function mergeAndValidateSources(sources: readonly NamedBangSource[]): Bang[] {
 }
 
 async function saveMergedBangs(bangs: readonly Bang[]): Promise<void> {
-  console.log("=== Save merged bangs ===");
+  console.log('=== Save merged bangs ===');
   await Bun.write(MERGED_BANGS_PATH, JSON.stringify(bangs));
   console.log(`  ${MERGED_BANGS_PATH}: ${bangs.length} bangs`);
 }
@@ -986,7 +917,7 @@ async function saveMergedBangs(bangs: readonly Bang[]): Promise<void> {
 async function loadBangs(options: CodegenOptions): Promise<Bang[]> {
   const { fromMerged = false, noFetch = false } = options;
   if (fromMerged) {
-    console.log("=== Read merged bangs ===");
+    console.log('=== Read merged bangs ===');
     const merged = await Bun.file(MERGED_BANGS_PATH).json();
     const bangs = merged as Bang[];
     console.log(`Loaded ${bangs.length} bangs from ${MERGED_BANGS_PATH}`);
@@ -1008,14 +939,12 @@ interface GeneratedArtifacts {
   trieJs: string;
 }
 
-async function buildGeneratedArtifacts(
-  bangs: Bang[]
-): Promise<GeneratedArtifacts> {
+async function buildGeneratedArtifacts(bangs: Bang[]): Promise<GeneratedArtifacts> {
   const minJsPromise = generateMin(bangs);
   const trieRoot = buildRadixTrie(
     bangs,
-    (b) => b.trigger,
-    (b) => b.relevance
+    b => b.trigger,
+    b => b.relevance
   );
   const trieData = flattenTrie(trieRoot);
   const trieRuntimeHelpers = buildMinifiedTrieRuntimeHelpers();
@@ -1023,7 +952,7 @@ async function buildGeneratedArtifacts(
   return {
     minJs,
     metaJs: generateMeta(bangs),
-    trieJs: generateTrie(trieData, trieRuntimeHelpers),
+    trieJs: generateTrie(trieData, trieRuntimeHelpers)
   };
 }
 
@@ -1034,7 +963,7 @@ async function writeGeneratedArtifacts(
   await Promise.all([
     Bun.write(`${outDir}/bangs-min.js`, artifacts.minJs),
     Bun.write(`${outDir}/bangs-meta.js`, artifacts.metaJs),
-    Bun.write(`${outDir}/bangs-trie.js`, artifacts.trieJs),
+    Bun.write(`${outDir}/bangs-trie.js`, artifacts.trieJs)
   ]);
   console.log(`  bangs-min.js: ${artifacts.minJs.length} bytes`);
   console.log(`  bangs-meta.js: ${artifacts.metaJs.length} bytes`);
@@ -1046,39 +975,39 @@ async function writeGeneratedDeclarations(outDir: string): Promise<void> {
     Bun.write(
       `${outDir}/bangs-min.d.ts`,
       [
-        "export declare const BANG_COUNT: number;",
-        "export declare function lookupBang(trigger: string): readonly [string, string | null] | null;",
-        "",
-      ].join("\n")
+        'export declare const BANG_COUNT: number;',
+        'export declare function lookupBang(trigger: string): readonly [string, string | null] | null;',
+        ''
+      ].join('\n')
     ),
     Bun.write(
       `${outDir}/bangs-meta.d.ts`,
-      "export declare const BANGS: Record<string, { s: string; d: string }>;\n"
+      'export declare const BANGS: Record<string, { s: string; d: string }>;\n'
     ),
     Bun.write(
       `${outDir}/bangs-trie.d.ts`,
       [
-        "export declare const LABELS: string;",
-        "export declare const NODES: Int32Array;",
-        "export declare const EDGES: Int32Array;",
-        "export declare const TERM_R: Int32Array;",
-        "export declare const TERM_K_BLOB: string;",
-        "export declare const TERM_K_OFF: Int32Array;",
-        "export declare const TERM_S_BLOB: string;",
-        "export declare const TERM_S_OFF: Int32Array;",
-        "export declare const TERM_D_BLOB: string;",
-        "export declare const TERM_D_OFF: Int32Array;",
-        "export declare const ROOT: number;",
-        "",
-      ].join("\n")
-    ),
+        'export declare const LABELS: string;',
+        'export declare const NODES: Int32Array;',
+        'export declare const EDGES: Int32Array;',
+        'export declare const TERM_R: Int32Array;',
+        'export declare const TERM_K_BLOB: string;',
+        'export declare const TERM_K_OFF: Int32Array;',
+        'export declare const TERM_S_BLOB: string;',
+        'export declare const TERM_S_OFF: Int32Array;',
+        'export declare const TERM_D_BLOB: string;',
+        'export declare const TERM_D_OFF: Int32Array;',
+        'export declare const ROOT: number;',
+        ''
+      ].join('\n')
+    )
   ]);
 }
 
 export async function runCodegen(options: CodegenOptions = {}): Promise<void> {
   const bangs = await loadBangs(options);
 
-  console.log("=== Generate ===");
+  console.log('=== Generate ===');
   await mkdir(GENERATED_OUT_DIR, { recursive: true });
   const artifacts = await buildGeneratedArtifacts(bangs);
   await writeGeneratedArtifacts(GENERATED_OUT_DIR, artifacts);
@@ -1087,8 +1016,8 @@ export async function runCodegen(options: CodegenOptions = {}): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const noFetch = process.argv.includes("--no-fetch");
-  const fromMerged = process.argv.includes("--from-merged");
+  const noFetch = process.argv.includes('--no-fetch');
+  const fromMerged = process.argv.includes('--from-merged');
   await runCodegen({ fromMerged, noFetch });
 }
 

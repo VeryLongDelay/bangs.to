@@ -9,15 +9,11 @@ import {
   TERM_K_OFF,
   TERM_R,
   TERM_S_BLOB,
-  TERM_S_OFF,
-} from "./generated/bangs-trie.js";
-import {
-  FRECENCY_BOOST_CAP,
-  FRECENCY_BOOST_MULTIPLIER,
-  TOP_K,
-} from "./shared/constants";
+  TERM_S_OFF
+} from './generated/bangs-trie.js';
+import { FRECENCY_BOOST_CAP, FRECENCY_BOOST_MULTIPLIER, TOP_K } from './shared/constants';
 
-const JSON_HEADERS = { "Content-Type": "application/json" };
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 interface Candidate {
   trigger: string;
@@ -65,9 +61,7 @@ function effectiveScore(
   if (!count) {
     return relevance;
   }
-  return (
-    relevance + Math.min(count * FRECENCY_BOOST_MULTIPLIER, FRECENCY_BOOST_CAP)
-  );
+  return relevance + Math.min(count * FRECENCY_BOOST_MULTIPLIER, FRECENCY_BOOST_CAP);
 }
 
 function walkPrefix(partial: string): [number, string] | null {
@@ -89,8 +83,7 @@ function walkPrefix(partial: string): [number, string] | null {
       let match = 0;
       while (
         match < limit &&
-        partial.charCodeAt(pos + match) ===
-          LABELS.charCodeAt(edgeLabelStart + match)
+        partial.charCodeAt(pos + match) === LABELS.charCodeAt(edgeLabelStart + match)
       ) {
         match++;
       }
@@ -103,13 +96,7 @@ function walkPrefix(partial: string): [number, string] | null {
         if (match < partial.length - pos) {
           return null;
         }
-        return [
-          child,
-          LABELS.substring(
-            edgeLabelStart + match,
-            edgeLabelStart + edgeLabelLen
-          ),
-        ];
+        return [child, LABELS.substring(edgeLabelStart + match, edgeLabelStart + edgeLabelLen)];
       }
 
       node = child;
@@ -123,7 +110,7 @@ function walkPrefix(partial: string): [number, string] | null {
     }
   }
 
-  return [node, ""];
+  return [node, ''];
 }
 
 // DFS with max-relevance pruning. Children are pre-sorted by m descending.
@@ -166,29 +153,14 @@ function topK(
     const nodeOff = node * NODE_STRIDE;
     const terminalIndex = NODES[nodeOff + NODE_TERMINAL_INDEX];
     if (terminalIndex >= 0) {
-      const trigger = readPackedStringCached(
-        TERM_K_BLOB,
-        TERM_K_OFF,
-        TERM_K_CACHE,
-        terminalIndex
-      );
+      const trigger = readPackedStringCached(TERM_K_BLOB, TERM_K_OFF, TERM_K_CACHE, terminalIndex);
       const score = effectiveScore(TERM_R[terminalIndex], frecent, trigger);
       if (results.length < TOP_K || score > threshold) {
         addCandidate({
           trigger,
-          name: readPackedStringCached(
-            TERM_S_BLOB,
-            TERM_S_OFF,
-            TERM_S_CACHE,
-            terminalIndex
-          ),
-          domain: readPackedStringCached(
-            TERM_D_BLOB,
-            TERM_D_OFF,
-            TERM_D_CACHE,
-            terminalIndex
-          ),
-          score,
+          name: readPackedStringCached(TERM_S_BLOB, TERM_S_OFF, TERM_S_CACHE, terminalIndex),
+          domain: readPackedStringCached(TERM_D_BLOB, TERM_D_OFF, TERM_D_CACHE, terminalIndex),
+          score
         });
       }
     }
@@ -199,10 +171,7 @@ function topK(
       const edgeOff = (edgeStart + i) * EDGE_STRIDE;
       const child = EDGES[edgeOff + EDGE_CHILD_INDEX];
       const childMaxRelevance = NODES[child * NODE_STRIDE + NODE_MAX_RELEVANCE];
-      if (
-        results.length >= TOP_K &&
-        childMaxRelevance + FRECENCY_BOOST_CAP <= threshold
-      ) {
+      if (results.length >= TOP_K && childMaxRelevance + FRECENCY_BOOST_CAP <= threshold) {
         continue;
       }
       dfs(child);
@@ -214,11 +183,7 @@ function topK(
   return results;
 }
 
-function responseFromCandidates(
-  query: string,
-  prefix: string,
-  candidates: Candidate[]
-): Response {
+function responseFromCandidates(query: string, prefix: string, candidates: Candidate[]): Response {
   const len = candidates.length;
   const completions = new Array<string>(len);
   const descriptions = new Array<string>(len);
@@ -235,20 +200,14 @@ function responseFromCandidates(
       urls[i] = base;
       details[i] = { a: label, i: `${base}/favicon.ico` };
     } else {
-      descriptions[i] = "";
-      urls[i] = "";
+      descriptions[i] = '';
+      urls[i] = '';
       details[i] = {};
     }
   }
 
   return new Response(
-    JSON.stringify([
-      query,
-      completions,
-      descriptions,
-      urls,
-      { "google:suggestdetail": details },
-    ]),
+    JSON.stringify([query, completions, descriptions, urls, { 'google:suggestdetail': details }]),
     { headers: JSON_HEADERS }
   );
 }
@@ -267,9 +226,9 @@ export function bangSuggestions(
     if (trigger.startsWith(partial)) {
       customMatches.push({
         trigger,
-        name: "",
-        domain: "",
-        score: effectiveScore(0, frecent, trigger),
+        name: '',
+        domain: '',
+        score: effectiveScore(0, frecent, trigger)
       });
     }
   }
@@ -277,7 +236,7 @@ export function bangSuggestions(
   if (!result) {
     if (customMatches.length === 0) {
       return new Response(JSON.stringify([query, []]), {
-        headers: JSON_HEADERS,
+        headers: JSON_HEADERS
       });
     }
     customMatches.sort((a, b) => b.score - a.score);

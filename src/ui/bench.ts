@@ -1,13 +1,13 @@
-import { $ } from "./dom";
+import { $ } from './dom';
 
 const QUERY_TYPES = [
-  { label: "Prefix bang", example: "!g kittens", query: "!g kittens" },
-  { label: "Suffix bang", example: "kittens g!", query: "kittens g!" },
-  { label: "Prefix, query first", example: "kittens !g", query: "kittens !g" },
-  { label: "Suffix, bang first", example: "g! kittens", query: "g! kittens" },
-  { label: "No bang (default)", example: "kittens", query: "kittens" },
-  { label: "Feeling Lucky", example: "\\kittens", query: "\\kittens" },
-  { label: "Bang only", example: "!g", query: "!g" },
+  { label: 'Prefix bang', example: '!g kittens', query: '!g kittens' },
+  { label: 'Suffix bang', example: 'kittens g!', query: 'kittens g!' },
+  { label: 'Prefix, query first', example: 'kittens !g', query: 'kittens !g' },
+  { label: 'Suffix, bang first', example: 'g! kittens', query: 'g! kittens' },
+  { label: 'No bang (default)', example: 'kittens', query: 'kittens' },
+  { label: 'Feeling Lucky', example: '\\kittens', query: '\\kittens' },
+  { label: 'Bang only', example: '!g', query: '!g' }
 ];
 
 async function ensureSW(): Promise<void> {
@@ -15,49 +15,45 @@ async function ensureSW(): Promise<void> {
     return;
   }
 
-  const reg = await navigator.serviceWorker.register("/sw.js");
+  const reg = await navigator.serviceWorker.register('/sw.js');
 
   if (reg.active) {
     if (!navigator.serviceWorker.controller) {
-      const claimed = new Promise<void>((r) => {
-        navigator.serviceWorker.addEventListener(
-          "controllerchange",
-          () => r(),
-          { once: true }
-        );
+      const claimed = new Promise<void>(r => {
+        navigator.serviceWorker.addEventListener('controllerchange', () => r(), { once: true });
       });
-      reg.active.postMessage({ type: "claim" });
+      reg.active.postMessage({ type: 'claim' });
       await claimed;
     }
     return;
   }
 
-  const status = $("#sw-status");
-  status.textContent = "Installing Service Worker…";
-  status.classList.remove("hidden");
+  const status = $('#sw-status');
+  status.textContent = 'Installing Service Worker…';
+  status.classList.remove('hidden');
 
   const sw = reg.installing ?? reg.waiting;
   if (!sw) {
-    throw new Error("SW registration failed");
+    throw new Error('SW registration failed');
   }
 
-  await new Promise<void>((resolve) => {
-    sw.addEventListener("statechange", () => {
-      if (sw.state === "activated") {
+  await new Promise<void>(resolve => {
+    sw.addEventListener('statechange', () => {
+      if (sw.state === 'activated') {
         resolve();
       }
     });
   });
   if (!navigator.serviceWorker.controller) {
-    await new Promise<void>((r) => {
-      navigator.serviceWorker.addEventListener("controllerchange", () => r(), {
-        once: true,
+    await new Promise<void>(r => {
+      navigator.serviceWorker.addEventListener('controllerchange', () => r(), {
+        once: true
       });
     });
   }
 
-  status.textContent = "Service Worker installed.";
-  setTimeout(() => status.classList.add("hidden"), 1500);
+  status.textContent = 'Service Worker installed.';
+  setTimeout(() => status.classList.add('hidden'), 1500);
 }
 
 interface Stats {
@@ -69,9 +65,7 @@ interface Stats {
   p99: number;
 }
 
-type BenchResult =
-  | ({ error: false } & Stats)
-  | { error: true; message: string };
+type BenchResult = ({ error: false } & Stats) | { error: true; message: string };
 
 function computeStats(times: number[]): Stats {
   const sorted = [...times].sort((a, b) => a - b);
@@ -82,13 +76,13 @@ function computeStats(times: number[]): Stats {
     p95: sorted[Math.floor(n * 0.95)],
     p99: sorted[Math.floor(n * 0.99)],
     min: sorted[0],
-    max: sorted[n - 1],
+    max: sorted[n - 1]
   };
 }
 
 function fmt(ms: number): string {
   if (ms < 0.1) {
-    return "<0.1ms";
+    return '<0.1ms';
   }
   if (ms < 1) {
     return `${ms.toFixed(2)}ms`;
@@ -108,7 +102,7 @@ async function benchQuery(
   onProgress: (done: number) => void
 ): Promise<BenchResult> {
   const url = `/?q=${encodeURIComponent(query)}`;
-  const opts: RequestInit = { redirect: "manual" };
+  const opts: RequestInit = { redirect: 'manual' };
 
   for (let i = 0; i < 50; i++) {
     try {
@@ -124,7 +118,7 @@ async function benchQuery(
     try {
       await fetch(url, opts);
     } catch (e: unknown) {
-      return { error: true, message: (e as Error).message || "Request failed" };
+      return { error: true, message: (e as Error).message || 'Request failed' };
     }
     times.push(performance.now() - t0);
     onProgress(i + 1);
@@ -134,31 +128,31 @@ async function benchQuery(
 }
 
 function renderResults(results: BenchResult[]) {
-  $("#results-section").classList.remove("hidden");
+  $('#results-section').classList.remove('hidden');
 
   const validMedians = results
     .filter((r): r is { error: false } & Stats => !r.error)
-    .map((r) => r.median);
+    .map(r => r.median);
   const minMedian = validMedians.length > 0 ? Math.min(...validMedians) : 0;
 
-  const tbody = $("#stats-body");
+  const tbody = $('#stats-body');
   tbody.replaceChildren();
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
     const qt = QUERY_TYPES[i];
-    const tr = document.createElement("tr");
+    const tr = document.createElement('tr');
 
     if (r.error) {
-      const label = document.createElement("td");
+      const label = document.createElement('td');
       label.textContent = qt.label;
-      const msg = document.createElement("td");
+      const msg = document.createElement('td');
       msg.colSpan = 6;
-      msg.style.color = "#8888a0";
-      msg.style.fontStyle = "italic";
+      msg.style.color = '#8888a0';
+      msg.style.fontStyle = 'italic';
       msg.textContent = r.message;
       tr.append(label, msg);
     } else {
-      const cls = r.median === minMedian ? "fastest" : "";
+      const cls = r.median === minMedian ? 'fastest' : '';
       for (const text of [
         qt.label,
         fmt(r.median),
@@ -166,9 +160,9 @@ function renderResults(results: BenchResult[]) {
         fmt(r.p95),
         fmt(r.p99),
         fmt(r.min),
-        fmt(r.max),
+        fmt(r.max)
       ]) {
-        const td = document.createElement("td");
+        const td = document.createElement('td');
         if (cls) {
           td.className = cls;
         }
@@ -182,30 +176,30 @@ function renderResults(results: BenchResult[]) {
   if (validMedians.length > 0) {
     const sorted = [...validMedians].sort((a, b) => a - b);
     const overallMedian = sorted[Math.floor(sorted.length * 0.5)];
-    const card = $("#summary-card");
-    card.classList.remove("hidden");
-    const summary = $("#summary");
-    summary.textContent = "";
+    const card = $('#summary-card');
+    card.classList.remove('hidden');
+    const summary = $('#summary');
+    summary.textContent = '';
     summary.append(
-      "Overall median: ",
-      Object.assign(document.createElement("span"), {
-        className: "summary-value",
-        textContent: fmt(overallMedian),
+      'Overall median: ',
+      Object.assign(document.createElement('span'), {
+        className: 'summary-value',
+        textContent: fmt(overallMedian)
       }),
-      " across all query types"
+      ' across all query types'
     );
   }
 }
 
-const runBtn = $<HTMLButtonElement>("#run-btn");
-const progressEl = $("#progress");
-const progressFill = $("#progress-fill");
-const progressText = $("#progress-text");
+const runBtn = $<HTMLButtonElement>('#run-btn');
+const progressEl = $('#progress');
+const progressFill = $('#progress-fill');
+const progressText = $('#progress-text');
 
-runBtn.addEventListener("click", async () => {
+runBtn.addEventListener('click', async () => {
   const iterations = Math.max(
     100,
-    Math.min(5000, +$<HTMLInputElement>("#iterations").value || 500)
+    Math.min(5000, +$<HTMLInputElement>('#iterations').value || 500)
   );
 
   runBtn.disabled = true;
@@ -213,13 +207,12 @@ runBtn.addEventListener("click", async () => {
   try {
     await ensureSW();
   } catch {
-    const status = $("#sw-status");
-    status.textContent =
-      "Could not install Service Worker. Results will measure server response.";
-    status.classList.remove("hidden");
+    const status = $('#sw-status');
+    status.textContent = 'Could not install Service Worker. Results will measure server response.';
+    status.classList.remove('hidden');
   }
 
-  progressEl.classList.remove("hidden");
+  progressEl.classList.remove('hidden');
 
   const results: BenchResult[] = [];
   const total = QUERY_TYPES.length;
@@ -229,17 +222,17 @@ runBtn.addEventListener("click", async () => {
     progressText.textContent = `Benchmarking: ${qt.label} (${qi + 1}/${total})…`;
     progressFill.style.width = `${(qi / total) * 100}%`;
 
-    const result = await benchQuery(qt.query, iterations, (done) => {
+    const result = await benchQuery(qt.query, iterations, done => {
       progressFill.style.width = `${((qi + done / iterations) / total) * 100}%`;
       progressText.textContent = `${qt.label}… ${done}/${iterations}`;
     });
 
     results.push(result);
     renderResults(results);
-    await new Promise((r) => setTimeout(r, 0));
+    await new Promise(r => setTimeout(r, 0));
   }
 
-  progressText.textContent = "Done";
-  progressFill.style.width = "100%";
+  progressText.textContent = 'Done';
+  progressFill.style.width = '100%';
   runBtn.disabled = false;
 });

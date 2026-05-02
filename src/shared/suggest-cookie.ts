@@ -1,6 +1,6 @@
-const SECTION_SEPARATOR = "|";
-const FREQUENCY_PREFIX = "f:";
-const CUSTOM_PREFIX = "c:";
+const SECTION_SEPARATOR = '|';
+const FREQUENCY_PREFIX = 'f:';
+const CUSTOM_PREFIX = 'c:';
 
 interface ParsedSuggestCookieCore {
   provider: string;
@@ -13,12 +13,10 @@ interface ParsedSuggestCookieContext {
   frecent: Record<string, number>;
 }
 
-export interface ParsedSuggestCookie
-  extends ParsedSuggestCookieCore,
-    ParsedSuggestCookieContext {}
+export interface ParsedSuggestCookie extends ParsedSuggestCookieCore, ParsedSuggestCookieContext {}
 
-const DEFAULT_PROVIDER = "default";
-const DEFAULT_TRIGGER = "g";
+const DEFAULT_PROVIDER = 'default';
+const DEFAULT_TRIGGER = 'g';
 
 interface ParsedSuggestCookieWithValidation {
   settings: ParsedSuggestCookie;
@@ -26,7 +24,7 @@ interface ParsedSuggestCookieWithValidation {
 }
 
 function safeDecodeURIComponent(value: string): string | null {
-  if (value.indexOf("%") === -1) {
+  if (value.indexOf('%') === -1) {
     return value;
   }
   try {
@@ -37,10 +35,10 @@ function safeDecodeURIComponent(value: string): string | null {
 }
 
 function parsePositiveInteger(value: unknown): number {
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return value > 0 && Number.isFinite(value) ? Math.floor(value) : 0;
   }
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     const parsed = parseInt(value, 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
   }
@@ -58,7 +56,7 @@ function parseModernFrecency(
 
   try {
     const parsed = JSON.parse(decoded);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { value: {}, valid: false };
     }
 
@@ -78,10 +76,7 @@ function parseModernFrecency(
   }
 }
 
-function parseCustomModern(
-  raw: string,
-  forCleanup: boolean
-): { value: string[]; valid: boolean } {
+function parseCustomModern(raw: string, forCleanup: boolean): { value: string[]; valid: boolean } {
   const decoded = safeDecodeURIComponent(raw);
   if (!decoded) {
     return { value: [], valid: !forCleanup };
@@ -95,7 +90,7 @@ function parseCustomModern(
 
     const out: string[] = [];
     for (const item of parsed) {
-      if (typeof item === "string") {
+      if (typeof item === 'string') {
         out.push(item);
         continue;
       }
@@ -114,8 +109,7 @@ export function parseSuggestCookieValue(
   raw: string,
   includeBangContext: boolean
 ): ParsedSuggestCookie {
-  return parseSuggestCookieValueWithValidation(raw, includeBangContext, false)
-    .settings;
+  return parseSuggestCookieValueWithValidation(raw, includeBangContext, false).settings;
 }
 
 export function parseSuggestCookieValueWithValidation(
@@ -126,16 +120,16 @@ export function parseSuggestCookieValueWithValidation(
   const firstPipe = raw.indexOf(SECTION_SEPARATOR);
   const firstSection = firstPipe === -1 ? raw : raw.substring(0, firstPipe);
 
-  let provider = "";
-  let trigger = "";
-  let customUrl = "";
+  let provider = '';
+  let trigger = '';
+  let customUrl = '';
 
-  const comma1 = firstSection.indexOf(",");
+  const comma1 = firstSection.indexOf(',');
   if (comma1 === -1) {
     provider = firstSection;
   } else {
     provider = firstSection.substring(0, comma1);
-    const comma2 = firstSection.indexOf(",", comma1 + 1);
+    const comma2 = firstSection.indexOf(',', comma1 + 1);
     if (comma2 === -1) {
       trigger = firstSection.substring(comma1 + 1);
     } else {
@@ -192,12 +186,12 @@ export function parseSuggestCookieValueWithValidation(
     trigger: trigger || DEFAULT_TRIGGER,
     customUrl: customUrl ? safeDecodeURIComponent(customUrl) : null,
     frecent,
-    custom,
+    custom
   };
 
   return {
     settings,
-    hasInvalidContext,
+    hasInvalidContext
   };
 }
 
@@ -217,9 +211,7 @@ export function encodeSuggestCookieValue(
   }
 
   if (custom.length > 0) {
-    value += `${SECTION_SEPARATOR}${CUSTOM_PREFIX}${encodeURIComponent(
-      JSON.stringify(custom)
-    )}`;
+    value += `${SECTION_SEPARATOR}${CUSTOM_PREFIX}${encodeURIComponent(JSON.stringify(custom))}`;
   }
 
   return value;

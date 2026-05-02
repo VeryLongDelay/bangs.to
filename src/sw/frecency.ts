@@ -3,14 +3,8 @@ export interface TopFrecencyEntry {
   trigger: string;
 }
 
-function isBetter(
-  trigger: string,
-  count: number,
-  other: TopFrecencyEntry
-): boolean {
-  return (
-    count > other.count || (count === other.count && trigger < other.trigger)
-  );
+function isBetter(trigger: string, count: number, other: TopFrecencyEntry): boolean {
+  return count > other.count || (count === other.count && trigger < other.trigger);
 }
 
 export function buildTopFrecency(
@@ -74,7 +68,7 @@ export function updateTopFrecencyOnIncrement(
 
 export function serializeTopFrecency(top: readonly TopFrecencyEntry[]): string {
   if (top.length === 0) {
-    return "";
+    return '';
   }
   let out = `${top[0].trigger}:${top[0].count}`;
   for (let i = 1; i < top.length; i++) {

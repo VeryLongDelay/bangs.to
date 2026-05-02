@@ -1,5 +1,5 @@
-import { COOKIE_MAX_AGE_S } from "../shared/constants";
-import { encodeSuggestCookieValue } from "../shared/suggest-cookie";
+import { COOKIE_MAX_AGE_S } from '../shared/constants';
+import { encodeSuggestCookieValue } from '../shared/suggest-cookie';
 
 export function setSuggestCookie(
   provider: string,

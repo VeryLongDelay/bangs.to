@@ -10,7 +10,7 @@ export function opensearch(origin: string): Response {
   <Url type="application/x-suggestions+json" template="${origin}/suggest?q={searchTerms}"/>
 </OpenSearchDescription>`,
     {
-      headers: { "Content-Type": "application/opensearchdescription+xml" },
+      headers: { 'Content-Type': 'application/opensearchdescription+xml' }
     }
   );
 }

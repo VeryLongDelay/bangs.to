@@ -14,16 +14,16 @@ Production bundles are produced by **Bun** scripts (`scripts/build.ts`), not onl
 
 ## Commands agents should use
 
-| Goal | Command |
-|------|---------|
-| Install deps | `bun install` |
-| Lint + format (must pass) | `bun run check` |
-| Auto-fix lint/format | `bun run fix` |
-| Typecheck | `bun run typecheck` |
-| Unit tests | `bun test` |
-| Full prod build (runs codegen from merged data if generated files missing) | `bun run build` |
-| Dev server (watch + live reload; codegen if needed) | `bun run dev` |
-| E2E (build + Playwright) | `bun run test:e2e` |
+| Goal                                                                       | Command             |
+| -------------------------------------------------------------------------- | ------------------- |
+| Install deps                                                               | `bun install`       |
+| Lint + format (must pass)                                                  | `bun run check`     |
+| Auto-fix lint/format                                                       | `bun run fix`       |
+| Typecheck                                                                  | `bun run typecheck` |
+| Unit tests                                                                 | `bun test`          |
+| Full prod build (runs codegen from merged data if generated files missing) | `bun run build`     |
+| Dev server (watch + live reload; codegen if needed)                        | `bun run dev`       |
+| E2E (build + Playwright)                                                   | `bun run test:e2e`  |
 
 After substantive edits, prefer **`bun run check`** and **`bun test`** at minimum; run **`bun run build`** when touching bundling, SW, headers, or codegen-related paths.
 

@@ -12,7 +12,7 @@ export function buildRadixTrie<T>(
   const root: BuildNode<T> = {
     children: new Map(),
     maxRelevance: 0,
-    terminal: null,
+    terminal: null
   };
 
   for (const item of items) {
@@ -25,10 +25,7 @@ export function buildRadixTrie<T>(
       for (const [edge, child] of node.children) {
         let common = 0;
         const limit = Math.min(key.length, edge.length);
-        while (
-          common < limit &&
-          key.charCodeAt(common) === edge.charCodeAt(common)
-        ) {
+        while (common < limit && key.charCodeAt(common) === edge.charCodeAt(common)) {
           common++;
         }
 
@@ -47,7 +44,7 @@ export function buildRadixTrie<T>(
         const splitNode: BuildNode<T> = {
           children: new Map(),
           maxRelevance: 0,
-          terminal: null,
+          terminal: null
         };
         node.children.delete(edge);
         node.children.set(edge.substring(0, common), splitNode);
@@ -62,7 +59,7 @@ export function buildRadixTrie<T>(
         const leaf: BuildNode<T> = {
           children: new Map(),
           maxRelevance: getRelevance(item),
-          terminal: item,
+          terminal: item
         };
         node.children.set(key, leaf);
         created = true;

@@ -7,17 +7,13 @@ interface Props {
   showSettingsButton?: boolean;
 }
 
-const {
-  currentPath,
-  settingsHref = "/#settings",
-  showSettingsButton = false
-} = Astro.props;
+const { currentPath, settingsHref = '/#settings', showSettingsButton = false } = Astro.props;
 
 const links = [
   { href: '/', label: 'Home', match: ['/', '/home'] },
   { href: '/bangs', label: 'Bangs', match: ['/bangs'] },
   { href: '/instructions', label: 'Instructions', match: ['/instructions'] },
-  { href: '/faq', label: 'FAQ', match: ['/faq'] },
+  { href: '/faq', label: 'FAQ', match: ['/faq'] }
   // { href: '/bench', label: 'Bench', match: ['/bench'] }
 ];
 ---

@@ -1,25 +1,23 @@
-import { lookupBang } from "../generated/bangs-min.js";
+import { lookupBang } from '../generated/bangs-min.js';
 import {
   DEFAULT_LUCKY_URL,
   DEFAULT_URL,
   FRECENCY_HALF_LIFE_MS,
   LUCKY_URLS,
-  MAX_FRECENCY_ENTRIES,
-} from "../shared/constants";
-import { idbWrap, openDB, resetDB } from "../shared/idb";
+  MAX_FRECENCY_ENTRIES
+} from '../shared/constants';
+import { idbWrap, openDB, resetDB } from '../shared/idb';
 import {
   buildTopFrecency,
   serializeTopFrecency,
   type TopFrecencyEntry,
-  updateTopFrecencyOnIncrement,
-} from "./frecency";
-import type { RedirectSettings, UrlParts } from "./redirect";
+  updateTopFrecencyOnIncrement
+} from './frecency';
+import type { RedirectSettings, UrlParts } from './redirect';
 
 function splitUrl(url: string): UrlParts {
-  const idx = url.indexOf("{}");
-  return idx === -1
-    ? [url, null]
-    : [url.substring(0, idx), url.substring(idx + 2)];
+  const idx = url.indexOf('{}');
+  return idx === -1 ? [url, null] : [url.substring(0, idx), url.substring(idx + 2)];
 }
 
 const FRECENCY_COOKIE_ENTRIES = 8;
@@ -29,7 +27,7 @@ let cachedRedirect: RedirectSettings | null = null;
 let redirectSettingsPromise: Promise<RedirectSettings> | null = null;
 let frecencyCounts: Record<string, number> | null = null;
 let loadFrecencyPromise: Promise<void> | null = null;
-let frecencyCookie: string = "";
+let frecencyCookie: string = '';
 let topFrecency: TopFrecencyEntry[] = [];
 let lastDecayTs: number = 0;
 
@@ -46,40 +44,32 @@ export function readRedirectSettings(): Promise<RedirectSettings> {
     redirectSettingsPromise = (async () => {
       try {
         const db = await openDB();
-        const tx = db.transaction(["settings", "custom-bangs"], "readonly");
+        const tx = db.transaction(['settings', 'custom-bangs'], 'readonly');
         const [settings, all] = await Promise.all([
-          idbWrap<Array<{ key: string; value?: string }>>(
-            tx.objectStore("settings").getAll()
-          ),
-          idbWrap<Array<{ trigger: string; url: string }>>(
-            tx.objectStore("custom-bangs").getAll()
-          ),
+          idbWrap<Array<{ key: string; value?: string }>>(tx.objectStore('settings').getAll()),
+          idbWrap<Array<{ trigger: string; url: string }>>(tx.objectStore('custom-bangs').getAll())
         ]);
-        const settingsMap = Object.fromEntries(
-          settings.map((s) => [s.key, s.value])
-        );
-        const defaultBang = settingsMap["default-bang"] || "ddg";
+        const settingsMap = Object.fromEntries(settings.map(s => [s.key, s.value]));
+        const defaultBang = settingsMap['default-bang'] || 'ddg';
         const tpl = lookupBang(defaultBang);
         const defaultUrl: UrlParts = tpl || splitUrl(DEFAULT_URL);
-        const luckyProvider = settingsMap["lucky-provider"] ?? "default";
+        const luckyProvider = settingsMap['lucky-provider'] ?? 'default';
         let luckyUrl: UrlParts | null;
         switch (luckyProvider) {
-          case "none":
+          case 'none':
             luckyUrl = null;
             break;
-          case "google":
+          case 'google':
             luckyUrl = splitUrl(LUCKY_URLS.g);
             break;
-          case "ddg":
+          case 'ddg':
             luckyUrl = splitUrl(LUCKY_URLS.ddg);
             break;
-          case "kagi":
+          case 'kagi':
             luckyUrl = splitUrl(LUCKY_URLS.kagi);
             break;
-          case "custom":
-            luckyUrl = settingsMap["lucky-url"]
-              ? splitUrl(settingsMap["lucky-url"])
-              : null;
+          case 'custom':
+            luckyUrl = settingsMap['lucky-url'] ? splitUrl(settingsMap['lucky-url']) : null;
             break;
           default:
             luckyUrl = splitUrl(LUCKY_URLS[defaultBang] || DEFAULT_LUCKY_URL);
@@ -96,7 +86,7 @@ export function readRedirectSettings(): Promise<RedirectSettings> {
         cachedRedirect = {
           defaultUrl: splitUrl(DEFAULT_URL),
           custom: Object.create(null),
-          luckyUrl: splitUrl(DEFAULT_LUCKY_URL),
+          luckyUrl: splitUrl(DEFAULT_LUCKY_URL)
         };
       }
 
@@ -109,21 +99,18 @@ export function readRedirectSettings(): Promise<RedirectSettings> {
   return redirectSettingsPromise;
 }
 
-function persistFrecencySnapshot(
-  counts: Record<string, number> | null,
-  ts: number
-): void {
+function persistFrecencySnapshot(counts: Record<string, number> | null, ts: number): void {
   if (persistInFlight) {
     return;
   }
   persistInFlight = true;
   const value = JSON.stringify({ c: counts, t: ts });
   openDB()
-    .then((db) => {
+    .then(db => {
       persistInFlight = false;
-      const tx = db.transaction("settings", "readwrite");
-      const store = tx.objectStore("settings");
-      store.put({ key: "frecency", value });
+      const tx = db.transaction('settings', 'readwrite');
+      const store = tx.objectStore('settings');
+      store.put({ key: 'frecency', value });
     })
     .catch(() => {
       persistInFlight = false;
@@ -141,7 +128,7 @@ export function invalidateCache() {
   resetDB();
   frecencyCounts = null;
   topFrecency = [];
-  frecencyCookie = "";
+  frecencyCookie = '';
   lastDecayTs = 0;
 }
 
@@ -149,7 +136,7 @@ function rebuildFrecencyTopAndValue(): void {
   const counts = frecencyCounts;
   if (!counts) {
     topFrecency = [];
-    frecencyCookie = "";
+    frecencyCookie = '';
     return;
   }
   topFrecency = buildTopFrecency(counts, FRECENCY_COOKIE_ENTRIES);
@@ -204,15 +191,13 @@ export function loadFrecency(): Promise<void> {
     loadFrecencyPromise = (async () => {
       try {
         const db = await openDB();
-        const tx = db.transaction("settings", "readonly");
-        const store = tx.objectStore("settings");
-        const result = await idbWrap<{ value?: string } | undefined>(
-          store.get("frecency")
-        );
+        const tx = db.transaction('settings', 'readonly');
+        const store = tx.objectStore('settings');
+        const result = await idbWrap<{ value?: string } | undefined>(store.get('frecency'));
         const raw = result?.value ? JSON.parse(result.value) : {};
 
         // Migration: old format is plain counts, new format has {c, t}
-        if (raw.c && typeof raw.t === "number") {
+        if (raw.c && typeof raw.t === 'number') {
           frecencyCounts = raw.c;
           lastDecayTs = raw.t;
         } else {
@@ -227,7 +212,7 @@ export function loadFrecency(): Promise<void> {
       } catch {
         frecencyCounts = {};
         topFrecency = [];
-        frecencyCookie = "";
+        frecencyCookie = '';
         lastDecayTs = Date.now();
       }
     })().finally(() => {
@@ -245,12 +230,7 @@ export function trackBangUsage(trigger: string) {
   }
   const nextCount = (frecencyCounts[trigger] || 0) + 1;
   frecencyCounts[trigger] = nextCount;
-  updateTopFrecencyOnIncrement(
-    topFrecency,
-    trigger,
-    nextCount,
-    FRECENCY_COOKIE_ENTRIES
-  );
+  updateTopFrecencyOnIncrement(topFrecency, trigger, nextCount, FRECENCY_COOKIE_ENTRIES);
   frecencyCookie = serializeTopFrecency(topFrecency);
   persistFrecencySnapshot(frecencyCounts, lastDecayTs);
 }

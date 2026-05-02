@@ -1,21 +1,13 @@
-import {
-  CH_CR,
-  CH_EXCL,
-  CH_FF,
-  CH_NL,
-  CH_SPACE,
-  CH_TAB,
-  CH_VTAB,
-} from "./shared/chars";
-import { SUGGEST_URLS } from "./shared/constants";
-import { readQueryParam } from "./shared/raw-query";
+import { CH_CR, CH_EXCL, CH_FF, CH_NL, CH_SPACE, CH_TAB, CH_VTAB } from './shared/chars';
+import { SUGGEST_URLS } from './shared/constants';
+import { readQueryParam } from './shared/raw-query';
 import {
   encodeSuggestCookieValue,
   parseSuggestCookieValue,
-  parseSuggestCookieValueWithValidation,
-} from "./shared/suggest-cookie";
-import { resolveTemplateParts } from "./shared/template";
-import { bangSuggestions } from "./suggest-bang";
+  parseSuggestCookieValueWithValidation
+} from './shared/suggest-cookie';
+import { resolveTemplateParts } from './shared/template';
+import { bangSuggestions } from './suggest-bang';
 
 export interface SuggestCoreSettings {
   customUrl: string | null;
@@ -28,16 +20,14 @@ export interface SuggestBangContext {
   custom: string[];
 }
 
-export interface SuggestSettings
-  extends SuggestCoreSettings,
-    SuggestBangContext {}
+export interface SuggestSettings extends SuggestCoreSettings, SuggestBangContext {}
 
 export interface PartialBang {
   partial: string;
   prefix: string;
 }
 
-const JSON_HEADERS = { "Content-Type": "application/json" };
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 function isTrimWs(code: number): boolean {
   return (
@@ -82,7 +72,7 @@ export function parsePartialBang(q: string): PartialBang | null {
         return null;
       }
     }
-    return { prefix: "", partial: q.substring(start + 1, end).toLowerCase() };
+    return { prefix: '', partial: q.substring(start + 1, end).toLowerCase() };
   }
 
   for (let i = end - 2; i >= start; i--) {
@@ -97,7 +87,7 @@ export function parsePartialBang(q: string): PartialBang | null {
     }
     return {
       prefix: q.substring(start, i + 1),
-      partial: q.substring(bangStart, end).toLowerCase(),
+      partial: q.substring(bangStart, end).toLowerCase()
     };
   }
 
@@ -105,35 +95,33 @@ export function parsePartialBang(q: string): PartialBang | null {
 }
 
 const TRIGGER_ALIAS: Record<string, string> = {
-  g: "google",
-  google: "google",
-  ddg: "ddg",
-  duckduckgo: "ddg",
-  b: "bing",
-  bing: "bing",
-  brave: "brave",
-  y: "yahoo",
-  yahoo: "yahoo",
-  ec: "ecosia",
-  ecosia: "ecosia",
-  kagi: "kagi",
-  ya: "yandex",
-  yandex: "yandex",
-  bd: "baidu",
-  baidu: "baidu",
+  g: 'google',
+  google: 'google',
+  ddg: 'ddg',
+  duckduckgo: 'ddg',
+  b: 'bing',
+  bing: 'bing',
+  brave: 'brave',
+  y: 'yahoo',
+  yahoo: 'yahoo',
+  ec: 'ecosia',
+  ecosia: 'ecosia',
+  kagi: 'kagi',
+  ya: 'yandex',
+  yandex: 'yandex',
+  bd: 'baidu',
+  baidu: 'baidu'
 };
 
 function resolveEndpoint(provider: string, trigger: string): string | null {
   return (
     SUGGEST_URLS[provider] ??
-    (provider === "none"
-      ? null
-      : (SUGGEST_URLS[TRIGGER_ALIAS[trigger]] ?? null))
+    (provider === 'none' ? null : (SUGGEST_URLS[TRIGGER_ALIAS[trigger]] ?? null))
   );
 }
 
 export function parseCookie(request: Request): SuggestSettings {
-  const header = request.headers.get("Cookie") || "";
+  const header = request.headers.get('Cookie') || '';
   return parseCookieInternalWithRewrite(header, true, false).settings;
 }
 
@@ -147,18 +135,18 @@ function parseCookieInternalWithRewrite(
   includeBangContext: boolean,
   includeRewrite: boolean
 ): SuggestSettingsParseResult {
-  const suggestRaw = readCookieValue(header, "suggest");
+  const suggestRaw = readCookieValue(header, 'suggest');
   if (suggestRaw === null) {
     return {
       settings: defaultSettings(),
-      rewrittenSuggestCookie: null,
+      rewrittenSuggestCookie: null
     };
   }
 
   if (!(includeRewrite && includeBangContext)) {
     return {
       settings: parseSuggestCookieValue(suggestRaw, includeBangContext),
-      rewrittenSuggestCookie: null,
+      rewrittenSuggestCookie: null
     };
   }
 
@@ -174,14 +162,14 @@ function parseCookieInternalWithRewrite(
   const rewritten = encodeSuggestCookieValue(
     settings.provider,
     settings.trigger,
-    settings.customUrl || "",
+    settings.customUrl || '',
     [],
     {}
   );
 
   return {
     settings: { ...settings, frecent: {}, custom: [] },
-    rewrittenSuggestCookie: rewritten,
+    rewrittenSuggestCookie: rewritten
   };
 }
 
@@ -197,19 +185,19 @@ export function parseSettingsFromRawUrlWithCleanup(
   includeBangContext = true
 ): SuggestSettingsWithCleanup {
   const { settings, rewrittenSuggestCookie } = parseCookieInternalWithRewrite(
-    request.headers.get("Cookie") || "",
+    request.headers.get('Cookie') || '',
     includeBangContext,
     true
   );
 
-  const sp = spOverride ?? readQueryParam(rawUrl, "sp");
+  const sp = spOverride ?? readQueryParam(rawUrl, 'sp');
   if (sp) {
     settings.provider = sp;
   }
 
   return {
     settings,
-    rewrittenSuggestCookie,
+    rewrittenSuggestCookie
   };
 }
 
@@ -220,12 +208,12 @@ export function parseSettingsFromRawUrl(
   includeBangContext = true
 ): SuggestSettings {
   const settings = parseCookieInternalWithRewrite(
-    request.headers.get("Cookie") || "",
+    request.headers.get('Cookie') || '',
     includeBangContext,
     false
   ).settings;
 
-  const sp = spOverride ?? readQueryParam(rawUrl, "sp");
+  const sp = spOverride ?? readQueryParam(rawUrl, 'sp');
   if (sp) {
     settings.provider = sp;
   }
@@ -239,11 +227,11 @@ export function parseSettings(url: URL, request: Request): SuggestSettings {
 
 function defaultSettings(): SuggestSettings {
   return {
-    provider: "default",
-    trigger: "g",
+    provider: 'default',
+    trigger: 'g',
     customUrl: null,
     frecent: {},
-    custom: [],
+    custom: []
   };
 }
 
@@ -266,11 +254,11 @@ function readCookieValue(header: string, name: string): string | null {
       break;
     }
 
-    let end = header.indexOf(";", i);
+    let end = header.indexOf(';', i);
     if (end === -1) {
       end = len;
     }
-    const eq = header.indexOf("=", i);
+    const eq = header.indexOf('=', i);
 
     if (eq !== -1 && eq < end) {
       let keyEnd = eq;
@@ -295,18 +283,11 @@ export async function suggest(
 ): Promise<Response> {
   const bang = bangOverride ?? parsePartialBang(query);
   if (bang) {
-    return bangSuggestions(
-      query,
-      bang.prefix,
-      bang.partial,
-      settings.frecent,
-      settings.custom
-    );
+    return bangSuggestions(query, bang.prefix, bang.partial, settings.frecent, settings.custom);
   }
 
   const { provider, trigger, customUrl } = settings;
-  const endpoint =
-    provider === "custom" ? customUrl : resolveEndpoint(provider, trigger);
+  const endpoint = provider === 'custom' ? customUrl : resolveEndpoint(provider, trigger);
 
   if (!endpoint) {
     return empty(query);

@@ -1,5 +1,5 @@
 ---
-import SiteLayout from "../layouts/SiteLayout.astro";
+import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
@@ -8,24 +8,19 @@ import SiteLayout from "../layouts/SiteLayout.astro";
   currentPath="/bench"
   pageScript="bench"
 >
-  <div
-    id="sw-status"
-    class="warning hidden rounded-[20px] px-4 py-3 text-sm mb-4"
-  ></div>
+  <div id="sw-status" class="warning hidden rounded-[20px] px-4 py-3 text-sm mb-4"></div>
 
   <div class="grid gap-4 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
     <aside class="card h-fit p-5 sm:p-6">
-      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">
-        What this checks
-      </p>
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">What this checks</p>
       <h1
         class="mt-2 font-display text-[2.4rem] font-800 leading-tight tracking-[-0.04em] text-text sm:text-[2.8rem]"
       >
         Benchmark
       </h1>
       <p class="mt-3 text-sm leading-7 text-text-secondary">
-        The benchmark stops at the Service Worker redirect response. That
-        isolates routing overhead from the destination site’s network latency.
+        The benchmark stops at the Service Worker redirect response. That isolates routing overhead
+        from the destination site’s network latency.
       </p>
       <div class="mt-4 grid gap-3">
         <div class="rounded-[20px] bg-bg-soft p-4">
@@ -37,15 +32,13 @@ import SiteLayout from "../layouts/SiteLayout.astro";
         <div class="rounded-[20px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">High-resolution clock</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Results use <code>performance.now()</code> for per-iteration
-            timings.
+            Results use <code>performance.now()</code> for per-iteration timings.
           </p>
         </div>
         <div class="rounded-[20px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Compare spread</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Median, mean, p95, p99, min, and max make regressions easier to
-            spot.
+            Median, mean, p95, p99, min, and max make regressions easier to spot.
           </p>
         </div>
       </div>
@@ -55,9 +48,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
       <div class="card">
         <h2 class="section-title mb-3">Configuration</h2>
         <div class="flex flex-col gap-2">
-          <label for="iterations" class="label-text">
-            Iterations per query type
-          </label>
+          <label for="iterations" class="label-text"> Iterations per query type </label>
           <div class="flex flex-col gap-2 sm:flex-row">
             <input
               type="text"
@@ -66,11 +57,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
               inputmode="numeric"
               class="input-field w-full sm:!w-48"
             />
-            <button
-              type="button"
-              class="btn-primary whitespace-nowrap"
-              id="run-btn"
-            >
+            <button type="button" class="btn-primary whitespace-nowrap" id="run-btn">
               Run Benchmark
             </button>
           </div>
@@ -80,10 +67,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
           <div class="mt-4 h-[5px] overflow-hidden rounded-full bg-bg-strong">
             <div class="progress-fill" id="progress-fill"></div>
           </div>
-          <div
-            class="mt-2 text-[0.82rem] text-text-secondary"
-            id="progress-text"
-          ></div>
+          <div class="mt-2 text-[0.82rem] text-text-secondary" id="progress-text"></div>
         </div>
       </div>
 
@@ -121,9 +105,8 @@ import SiteLayout from "../layouts/SiteLayout.astro";
             <code class="font-mono text-[0.85em]">
               fetch('/?q=...', &#123; redirect: 'manual' &#125;)
             </code>
-            which stops at the Service Worker’s 302 redirect response without
-            following it. This measures the actual SW processing time with no
-            network overhead.
+            which stops at the Service Worker’s 302 redirect response without following it. This measures
+            the actual SW processing time with no network overhead.
           </p>
           <ul class="my-2 ml-5">
             <li class="mb-1">
@@ -143,8 +126,8 @@ import SiteLayout from "../layouts/SiteLayout.astro";
             </li>
           </ul>
           <p>
-            Run with DevTools <strong>closed</strong> because Chrome adds heavy
-            instrumentation overhead to Service Worker timing.
+            Run with DevTools <strong>closed</strong> because Chrome adds heavy instrumentation overhead
+            to Service Worker timing.
           </p>
         </div>
       </div>
@@ -184,8 +167,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
     }
     .stats-table td {
       padding: 0.6rem 0.7rem;
-      font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.8rem;
       border-bottom: 1px solid #e6eef8;
     }
@@ -198,32 +180,31 @@ import SiteLayout from "../layouts/SiteLayout.astro";
       color: #1d8f6d;
     }
     .summary-value {
-      font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       color: #1d8f6d;
     }
-    :root[data-theme="dark"] .warning {
+    :root[data-theme='dark'] .warning {
       color: #facc15;
       background: rgba(71, 47, 8, 0.76);
       border-color: rgba(250, 204, 21, 0.2);
       box-shadow: 0 12px 28px rgba(2, 6, 23, 0.28);
     }
-    :root[data-theme="dark"] .warning a {
+    :root[data-theme='dark'] .warning a {
       color: #fcd34d;
     }
-    :root[data-theme="dark"] .stats-table th {
+    :root[data-theme='dark'] .stats-table th {
       color: #8fa7c1;
       border-bottom-color: rgba(148, 163, 184, 0.16);
     }
-    :root[data-theme="dark"] .stats-table td {
+    :root[data-theme='dark'] .stats-table td {
       border-bottom-color: rgba(148, 163, 184, 0.12);
       color: #d9e6f5;
     }
-    :root[data-theme="dark"] .stats-table tr td:first-child {
+    :root[data-theme='dark'] .stats-table tr td:first-child {
       color: #eff6ff;
     }
-    :root[data-theme="dark"] .stats-table .fastest,
-    :root[data-theme="dark"] .summary-value {
+    :root[data-theme='dark'] .stats-table .fastest,
+    :root[data-theme='dark'] .summary-value {
       color: #34d399;
     }
   </style>

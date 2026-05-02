@@ -6,11 +6,8 @@ export function resolveTemplateParts(url: string): TemplateParts | null {
   if (cached !== undefined) {
     return cached;
   }
-  const idx = url.indexOf("{}");
-  const parts =
-    idx === -1
-      ? null
-      : ([url.substring(0, idx), url.substring(idx + 2)] as const);
+  const idx = url.indexOf('{}');
+  const parts = idx === -1 ? null : ([url.substring(0, idx), url.substring(idx + 2)] as const);
   TEMPLATE_CACHE.set(url, parts);
   return parts;
 }

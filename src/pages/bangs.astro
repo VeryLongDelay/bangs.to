@@ -1,5 +1,5 @@
 ---
-import SiteLayout from "../layouts/SiteLayout.astro";
+import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
@@ -10,40 +10,33 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 >
   <div class="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
     <aside class="card h-fit p-5 sm:p-6">
-      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">
-        Bang directory
-      </p>
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Bang directory</p>
       <h1
         class="mt-2 font-display text-[2.4rem] font-800 leading-tight tracking-[-0.04em] text-text sm:text-[2.8rem]"
       >
         Browse and edit bangs
       </h1>
       <p class="mt-3 text-sm leading-7 text-text-secondary">
-        Search the built-in bang catalog, then add or remove your own shortcuts
-        without opening the settings modal.
+        Search the built-in bang catalog, then add or remove your own shortcuts without opening the
+        settings modal.
       </p>
       <div class="mt-4 grid gap-3">
         <div class="rounded-[20px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Full catalog</p>
-          <p
-            id="page-bang-count"
-            class="mt-2 text-sm leading-6 text-text-secondary"
-          >
+          <p id="page-bang-count" class="mt-2 text-sm leading-6 text-text-secondary">
             Loading bangs...
           </p>
         </div>
         <div class="rounded-[20px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Fast lookup</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Search by trigger, site name, or destination to find the shortest
-            route quickly.
+            Search by trigger, site name, or destination to find the shortest route quickly.
           </p>
         </div>
         <div class="rounded-[20px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Local edits</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Custom bangs are stored in your browser and used by the redirect
-            engine immediately.
+            Custom bangs are stored in your browser and used by the redirect engine immediately.
           </p>
         </div>
       </div>
@@ -53,8 +46,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
       <section class="card">
         <h2 class="section-title mb-3">Search available bangs</h2>
         <p class="label-text mb-3">
-          Start typing to filter the built-in directory, or browse the first
-          set alphabetically.
+          Start typing to filter the built-in directory, or browse the first set alphabetically.
         </p>
         <input
           type="text"
@@ -62,10 +54,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
           placeholder="Search by bang, site name, or domain..."
           class="input-field text-sm"
         />
-        <div
-          id="page-bang-results"
-          class="mt-4 grid gap-2"
-        ></div>
+        <div id="page-bang-results" class="mt-4 grid gap-2"></div>
       </section>
 
       <section class="card">
@@ -97,17 +86,13 @@ import SiteLayout from "../layouts/SiteLayout.astro";
             class="input-field font-mono text-sm"
             required
           />
-          <button type="submit" class="btn-primary w-full sm:w-auto">
-            Add custom bang
-          </button>
+          <button type="submit" class="btn-primary w-full sm:w-auto"> Add custom bang </button>
         </form>
       </section>
 
       <section class="card">
         <h2 class="section-title mb-3">Your custom bangs</h2>
-        <p class="label-text mb-3">
-          Remove or review the shortcuts you have added on this device.
-        </p>
+        <p class="label-text mb-3">Remove or review the shortcuts you have added on this device.</p>
         <div id="page-custom-list" class="grid gap-2"></div>
       </section>
     </div>

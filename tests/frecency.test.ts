@@ -1,10 +1,10 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from 'bun:test';
 import {
   buildTopFrecency,
   serializeTopFrecency,
   type TopFrecencyEntry,
-  updateTopFrecencyOnIncrement,
-} from "../src/sw/frecency";
+  updateTopFrecencyOnIncrement
+} from '../src/sw/frecency';
 
 function baselineCookie(counts: Record<string, number>, limit: number): string {
   const sorted = Object.entries(counts)
@@ -12,7 +12,7 @@ function baselineCookie(counts: Record<string, number>, limit: number): string {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, limit);
   if (sorted.length === 0) {
-    return "";
+    return '';
   }
   let out = `${sorted[0][0]}:${sorted[0][1]}`;
   for (let i = 1; i < sorted.length; i++) {
@@ -21,48 +21,45 @@ function baselineCookie(counts: Record<string, number>, limit: number): string {
   return out;
 }
 
-describe("frecency top-k helpers", () => {
-  test("buildTopFrecency sorts by count desc then trigger asc and caps limit", () => {
-    const top = buildTopFrecency(
-      { yt: 5, g: 10, ddg: 10, npm: 3, z: 1, bad: 0 },
-      4
-    );
+describe('frecency top-k helpers', () => {
+  test('buildTopFrecency sorts by count desc then trigger asc and caps limit', () => {
+    const top = buildTopFrecency({ yt: 5, g: 10, ddg: 10, npm: 3, z: 1, bad: 0 }, 4);
     expect(top).toEqual([
-      { trigger: "ddg", count: 10 },
-      { trigger: "g", count: 10 },
-      { trigger: "yt", count: 5 },
-      { trigger: "npm", count: 3 },
+      { trigger: 'ddg', count: 10 },
+      { trigger: 'g', count: 10 },
+      { trigger: 'yt', count: 5 },
+      { trigger: 'npm', count: 3 }
     ]);
   });
 
-  test("updateTopFrecencyOnIncrement inserts and reorders incrementally", () => {
+  test('updateTopFrecencyOnIncrement inserts and reorders incrementally', () => {
     const top: TopFrecencyEntry[] = [];
 
-    updateTopFrecencyOnIncrement(top, "yt", 1, 3);
-    updateTopFrecencyOnIncrement(top, "g", 1, 3);
-    updateTopFrecencyOnIncrement(top, "g", 2, 3);
-    updateTopFrecencyOnIncrement(top, "ddg", 2, 3);
-    updateTopFrecencyOnIncrement(top, "npm", 1, 3);
+    updateTopFrecencyOnIncrement(top, 'yt', 1, 3);
+    updateTopFrecencyOnIncrement(top, 'g', 1, 3);
+    updateTopFrecencyOnIncrement(top, 'g', 2, 3);
+    updateTopFrecencyOnIncrement(top, 'ddg', 2, 3);
+    updateTopFrecencyOnIncrement(top, 'npm', 1, 3);
 
     expect(top).toEqual([
-      { trigger: "ddg", count: 2 },
-      { trigger: "g", count: 2 },
-      { trigger: "npm", count: 1 },
+      { trigger: 'ddg', count: 2 },
+      { trigger: 'g', count: 2 },
+      { trigger: 'npm', count: 1 }
     ]);
   });
 
-  test("serializeTopFrecency formats cookie value", () => {
+  test('serializeTopFrecency formats cookie value', () => {
     expect(
       serializeTopFrecency([
-        { trigger: "g", count: 10 },
-        { trigger: "yt", count: 3 },
+        { trigger: 'g', count: 10 },
+        { trigger: 'yt', count: 3 }
       ])
-    ).toBe("g:10.yt:3");
-    expect(serializeTopFrecency([])).toBe("");
+    ).toBe('g:10.yt:3');
+    expect(serializeTopFrecency([])).toBe('');
   });
 
-  test("incremental top-k matches baseline full sort for randomized updates", () => {
-    const triggers = ["g", "yt", "ddg", "gh", "npm", "w", "mdn", "so", "x"];
+  test('incremental top-k matches baseline full sort for randomized updates', () => {
+    const triggers = ['g', 'yt', 'ddg', 'gh', 'npm', 'w', 'mdn', 'so', 'x'];
     const counts: Record<string, number> = {};
     const top = buildTopFrecency(counts, 8);
 

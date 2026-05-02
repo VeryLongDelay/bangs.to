@@ -1,21 +1,20 @@
 const BASE_HEADERS: Record<string, string> = {
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
 };
 
 // SW runtime avoids eval; keep CSP strict.
-export const SW_CSP =
-  "default-src 'self'; script-src 'self'; connect-src 'self'";
+export const SW_CSP = "default-src 'self'; script-src 'self'; connect-src 'self'";
 
 export const SW_HEADERS: Record<string, string> = {
-  "Content-Security-Policy": SW_CSP,
-  ...BASE_HEADERS,
+  'Content-Security-Policy': SW_CSP,
+  ...BASE_HEADERS
 };
 
 export function pageHeaders(scriptSrc: string): Record<string, string> {
   return {
-    "Content-Security-Policy": [
+    'Content-Security-Policy': [
       "default-src 'self'",
       `script-src 'self' ${scriptSrc}`,
       "style-src 'self' 'unsafe-inline'",
@@ -26,8 +25,8 @@ export function pageHeaders(scriptSrc: string): Record<string, string> {
       "manifest-src 'self'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; "),
-    ...BASE_HEADERS,
+      "form-action 'self'"
+    ].join('; '),
+    ...BASE_HEADERS
   };
 }
