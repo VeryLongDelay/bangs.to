@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, spyOn, test } from 'bun:test';
-import { handleSuggestRequest } from '../src/server/handlers';
+import { handleOpenSearchRequest, handleSuggestRequest } from '../src/server/handlers';
 import { encodeSuggestCookieValue } from '../src/shared/suggest-cookie';
 
 const fetchSpy = spyOn(globalThis, 'fetch');
@@ -92,5 +92,20 @@ describe('handleSuggestRequest', () => {
     expect(response.status).toBe(200);
     const setCookie = response.headers.get('Set-Cookie') ?? '';
     expect(setCookie).toContain('suggest=custom,g,');
+  });
+});
+
+describe('handleOpenSearchRequest', () => {
+  test('returns a same-origin OpenSearch descriptor', async () => {
+    const response = handleOpenSearchRequest(req('https://bangs.to/opensearch.xml'));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('Content-Type')).toBe('application/opensearchdescription+xml');
+
+    const xml = await response.text();
+    expect(xml).toContain('<ShortName>Bangs.To</ShortName>');
+    expect(xml).toContain('template="https://bangs.to/?q={searchTerms}"');
+    expect(xml).toContain('template="https://bangs.to/suggest?q={searchTerms}"');
+    expect(xml).not.toContain('duckduckgo.com/ac/');
   });
 });
