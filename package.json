@@ -36,6 +36,7 @@
     "defu": "6.1.7",
     "picomatch": "4.0.4",
     "postcss": "8.5.13",
+    "prettier-plugin-astro": "0.14.1",
     "rollup": "4.60.2",
     "vite": "8.0.10"
   }

@@ -5,5 +5,14 @@
   "tabWidth": 2,
   "printWidth": 100,
   "arrowParens": "avoid",
-  "quoteProps": "consistent"
+  "quoteProps": "consistent",
+  "plugins": ["prettier-plugin-astro"],
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    }
+  ]
 }
