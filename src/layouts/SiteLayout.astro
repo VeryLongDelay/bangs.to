@@ -11,6 +11,7 @@ interface Props {
   title: string;
   pageScript?: "app" | "bench" | "bangs";
   showSettingsButton?: boolean;
+  showTrySearch?: boolean;
   registerServiceWorker?: boolean;
   searchEntrypoint?: boolean;
 }
@@ -21,6 +22,7 @@ const {
   title,
   pageScript,
   showSettingsButton = true,
+  showTrySearch = true,
   registerServiceWorker = false,
   searchEntrypoint = false,
 } = Astro.props;
@@ -81,7 +83,7 @@ const settingsHref = `${currentPath}#settings`;
           settingsHref={settingsHref}
           showSettingsButton={showSettingsButton}
         />
-        <TrySearch settingsHref={settingsHref} />
+        {showTrySearch && <TrySearch />}
         <main class="flex-1 pb-8">
           <slot />
         </main>

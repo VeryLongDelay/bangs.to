@@ -1,157 +1,49 @@
----
-const { settingsHref = '/#settings', exampleCount = 3, dailyRotation = true } = Astro.props;
-
-const examples = [
-  { href: '/?q=!gh%20react', label: '!gh react' },
-  { href: '/?q=!gh%20astro', label: '!gh astro' },
-  { href: '/?q=!gh%20cloudflare%20workers', label: '!gh cloudflare workers' },
-  { href: '/?q=!npm%20typescript', label: '!npm typescript' },
-  { href: '/?q=!npm%20astro', label: '!npm astro' },
-  { href: '/?q=!mdn%20fetch%20api', label: '!mdn fetch api' },
-  { href: '/?q=!mdn%20service%20worker', label: '!mdn service worker' },
-  { href: '/?q=!so%20astro%20props', label: '!so astro props' },
-  { href: '/?q=!cp%20aws%20lambda%20pricing', label: '!cp aws lambda pricing' },
-  { href: '/?q=!cf%20workers%20kv', label: '!cf workers kv' },
-
-  { href: '/?q=!w%20saturn', label: '!w saturn' },
-  { href: '/?q=!w%20cloudflare', label: '!w cloudflare' },
-  { href: '/?q=!w%20pokemon', label: '!w pokemon' },
-  { href: '/?q=!ddg%20privacy%20search', label: '!ddg privacy search' },
-  { href: '/?q=!g%20why%20is%20the%20sky%20blue', label: '!g why is the sky blue' },
-
-  { href: '/?q=!yt%20lofi%20coding', label: '!yt lofi coding' },
-  { href: '/?q=!yt%20astro%20tutorial', label: '!yt astro tutorial' },
-  { href: '/?q=!yt%20cat%20videos', label: '!yt cat videos' },
-  { href: '/?q=!imdb%20interstellar', label: '!imdb interstellar' },
-  { href: '/?q=!imdb%20oppenheimer', label: '!imdb oppenheimer' },
-
-  { href: '/?q=!maps%20vancouver%20coffee', label: '!maps vancouver coffee' },
-  { href: '/?q=!maps%20burnaby%20parks', label: '!maps burnaby parks' },
-  { href: '/?q=!maps%20sushi%20near%20me', label: '!maps sushi near me' },
-
-  { href: '/?q=!amz%20mechanical%20keyboard', label: '!amz mechanical keyboard' },
-  { href: '/?q=!amz%20usb%20c%20cable', label: '!amz usb c cable' },
-  { href: '/?q=!ebay%20pokemon%20cards', label: '!ebay pokemon cards' },
-
-  { href: '/?q=!r%20selfhosted', label: '!r selfhosted' },
-  { href: '/?q=!r%20webdev', label: '!r webdev' },
-  { href: '/?q=!r%20astrojs', label: '!r astrojs' },
-
-  { href: '/?q=weather%20vancouver', label: 'weather vancouver' },
-  { href: '/?q=best%20dns%20providers', label: 'best dns providers' },
-  { href: '/?q=how%20service%20workers%20cache', label: 'service worker cache' },
-  { href: '/?q=cheap%20cloud%20hosting', label: 'cheap cloud hosting' },
-  { href: '/?q=things%20to%20do%20in%20burnaby', label: 'things to do in burnaby' },
-  { href: '/?q=random%20trivia%20questions', label: 'random trivia questions' }
-];
----
-
-<section class="card mb-6 overflow-hidden p-0">
-  <div
-    class="grid gap-5 border-b border-white/70 bg-linear-to-br from-primary-50 via-white to-sky-50 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)] lg:items-center"
-  >
-    <div>
+<form
+  action="/"
+  method="get"
+  class="rounded-[28px] border border-white/80 bg-white/88 p-3 shadow-[0_18px_40px_rgba(15,39,64,0.08)]"
+>
+  <label for="try-query" class="sr-only">Try a search</label>
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div class="relative min-w-0 flex-1">
+      <input
+        type="text"
+        id="try-query"
+        name="q"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Try: !gh react, !w saturn, or plain keywords search"
+        aria-label="Try a search"
+        class="input-field min-w-0 flex-1 pr-4 sm:pr-32"
+      />
       <div
-        class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-xs font-700 uppercase tracking-[0.22em] text-primary-700"
+        data-shortcut-hint
+        class="pointer-events-none absolute inset-y-0 right-4 hidden items-center gap-1 text-[0.72rem] text-text-muted sm:flex"
+        aria-hidden="true"
       >
-        Try a bangs search
-        <span class="h-1 w-1 rounded-full bg-primary-300"></span>
-        Private by design
-      </div>
-      <h2
-        class="font-display text-[1.9rem] font-700 leading-tight tracking-[-0.04em] text-text sm:text-[2.25rem]"
-      >
-        Search from anywhere with <a
-          href="https://duckduckgo.com/bangs"
-          class="font-700 no-underline"
-          target="_blank">!bangs</a
+        <span class="font-600">Focus:</span>
+        <kbd
+          data-shortcut-chip="slash"
+          class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
         >
-      </h2>
-      <p class="mt-3 max-w-[58ch] text-sm leading-7 text-text-secondary sm:text-[0.98rem]">
-        Use a bang to jump to a destination, or type a normal query and let your default engine take
-        over. Change your default search engine in <a
-          href={settingsHref}
-          class="font-700 no-underline">Settings</a
-        >.
-      </p>
-    </div>
-
-    <div class="rounded-[24px] border border-white/80 bg-white/86 p-4">
-      <p class="text-sm font-700 text-text">Quick examples</p>
-      <div
-        id="example-list"
-        data-count={exampleCount}
-        data-daily-rotation={dailyRotation ? 'true' : 'false'}
-        class="mt-3 flex flex-wrap gap-2 text-sm"
-      >
-        {
-          examples.map(example => (
-            <a
-              href={example.href}
-              class="example-item hidden rounded-full border border-primary-100 bg-white/90 px-3 py-1.5 no-underline"
-            >
-              {example.label}
-            </a>
-          ))
-        }
+          /
+        </kbd>
+        <span>or</span>
+        <kbd
+          data-shortcut-chip="modifier"
+          data-shortcut-modifier
+          class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
+        >
+          ⌘
+        </kbd>
+        <kbd
+          data-shortcut-chip="k"
+          class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
+        >
+          K
+        </kbd>
       </div>
     </div>
+    <button type="submit" class="btn-primary w-full sm:w-auto sm:min-w-[7rem]"> Search </button>
   </div>
-
-  <div class="px-5 py-5 sm:px-6">
-    <form
-      action="/"
-      method="get"
-      class="rounded-[28px] border border-white/80 bg-white/88 p-3 shadow-[0_18px_40px_rgba(15,39,64,0.08)]"
-    >
-      <label for="try-query" class="sr-only">Try a search</label>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div class="relative min-w-0 flex-1">
-          <input
-            type="text"
-            id="try-query"
-            name="q"
-            autocomplete="off"
-            spellcheck="false"
-            placeholder="Try: !gh react, !w saturn, or plain keywords search"
-            aria-label="Try a search"
-            class="input-field min-w-0 flex-1 pr-4 sm:pr-32"
-          />
-          <div
-            data-shortcut-hint
-            class="pointer-events-none absolute inset-y-0 right-4 hidden items-center gap-1 text-[0.72rem] text-text-muted sm:flex"
-            aria-hidden="true"
-          >
-            <span class="font-600">Focus:</span>
-            <kbd
-              data-shortcut-chip="slash"
-              class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
-            >
-              /
-            </kbd>
-            <span>or</span>
-            <kbd
-              data-shortcut-chip="modifier"
-              data-shortcut-modifier
-              class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
-            >
-              ⌘
-            </kbd>
-            <kbd
-              data-shortcut-chip="k"
-              class="rounded-[0.7rem] border border-white/70 bg-white/88 px-2 py-1 font-mono text-[0.72rem] leading-none shadow-[0_6px_14px_rgba(15,39,64,0.08)] transition-colors duration-150"
-            >
-              K
-            </kbd>
-          </div>
-        </div>
-        <button type="submit" class="btn-primary w-full sm:w-auto sm:min-w-[7rem]"> Search </button>
-      </div>
-    </form>
-  </div>
-</section>
-
-<script>
-  import { showSearchExamples } from '../ui/try-search-examples';
-  showSearchExamples();
-</script>
+</form>

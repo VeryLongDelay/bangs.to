@@ -537,6 +537,10 @@ export default defineConfig({
           color: #e5eef9 !important;
         }
 
+        :root[data-theme="dark"] .section-title {
+          color: #f8fbff !important;
+        }
+
         :root[data-theme="dark"] .text-text-secondary {
           color: #94a9c3 !important;
         }
