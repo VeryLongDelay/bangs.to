@@ -1,68 +1,49 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "files": {
-    "ignoreUnknown": true,
-    "includes": ["**", "!!**/dist", "!!**/generated", "!!data/bangs.json"]
-  },
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true,
     "defaultBranch": "master"
   },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["**", "!!**/dist", "!!**/generated", "!!data/bangs.json"]
+  },
   "formatter": {
     "enabled": true,
+    "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
-    "lineWidth": 80,
-    "bracketSpacing": true
-  },
-  "javascript": {
-    "globals": ["Bun"],
-    "formatter": {
-      "arrowParentheses": "always",
-      "quoteProperties": "asNeeded",
-      "semicolons": "always",
-      "trailingCommas": "es5"
-    }
-  },
-  "json": {
-    "formatter": {
-      "trailingCommas": "none"
-    }
-  },
-  "html": {
-    "formatter": {
-      "enabled": true
-    }
-  },
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
+    "lineWidth": 100,
+    "attributePosition": "auto",
+    "bracketSameLine": false,
+    "bracketSpacing": true,
+    "expand": "auto",
+    "useEditorconfig": true,
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/*.geojson",
+      "!**/*.min.js"
+    ]
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-
       "a11y": {
         "noAutofocus": "off",
-        // Decorative SVGs don't need titles
         "noSvgWithoutTitle": "off",
         "useButtonType": "error"
       },
-
       "complexity": {
-        // Hot-path functions are optimized for speed, not readability
         "noExcessiveCognitiveComplexity": "off",
         "noForEach": "error",
         "noUselessStringConcat": "error",
         "noUselessUndefinedInitialization": "error",
-        // Fire-and-forget promise patterns use void
         "noVoid": "off",
         "useArrowFunction": "error",
         "useDateNow": "error",
@@ -71,39 +52,36 @@
         "useOptionalChain": "error",
         "useSimplifiedLogicExpression": "error"
       },
-
       "correctness": {
         "noUndeclaredVariables": "error",
         "noUnusedFunctionParameters": "error",
-        "noUnusedImports": { "fix": "safe", "level": "error" },
+        "noUnusedImports": { "level": "error", "fix": "safe", "options": {} },
         "noUnusedVariables": "error"
       },
-
       "performance": {
         "noAccumulatingSpread": "error",
         "noBarrelFile": "error",
         "noDelete": "error"
       },
-
-      "security": {
-        "noGlobalEval": "error"
-      },
-
+      "security": { "noGlobalEval": "error" },
       "style": {
         "noEnum": "error",
         "noNegationElse": "error",
         "noNestedTernary": "error",
-        // Non-null assertions are used intentionally throughout the codebase
         "noNonNullAssertion": "off",
         "noUnusedTemplateLiteral": "error",
         "noUselessElse": "error",
-        "useBlockStatements": { "fix": "safe", "level": "error" },
+        "useBlockStatements": {
+          "level": "error",
+          "fix": "safe",
+          "options": {}
+        },
         "useCollapsedElseIf": "error",
-        "useConst": "error",
         "useConsistentTypeDefinitions": {
           "level": "error",
           "options": { "style": "interface" }
         },
+        "useConst": "error",
         "useExportType": "error",
         "useFilenamingConvention": {
           "level": "error",
@@ -116,38 +94,53 @@
         "useShorthandAssign": "error",
         "useTemplate": "error"
       },
-
       "suspicious": {
-        // Intentional bitwise ops in suggestion scoring
         "noBitwiseOperators": "off",
         "noConsole": "off",
-        // Intentional cookie access for provider settings
         "noDocumentCookie": "off",
+        "noDoubleEquals": "error",
         "noEmptyBlockStatements": "error",
         "noExplicitAny": "error",
-        "noDoubleEquals": "error",
         "useAwait": "error",
         "useStaticResponseMethods": "error"
       }
     }
   },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "none",
+      "semicolons": "always",
+      "arrowParentheses": "asNeeded",
+      "bracketSameLine": false,
+      "quoteStyle": "single",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    },
+    "globals": ["Bun"]
+  },
+  "json": { "formatter": { "trailingCommas": "none" } },
+  "html": {
+    "formatter": {
+      "enabled": true,
+      "indentScriptAndStyle": false,
+      "selfCloseVoidElements": "always"
+    }
+  },
   "overrides": [
     {
       "includes": ["**/*.astro"],
-      "formatter": {
-        "enabled": false
-      },
-      "linter": {
-        "enabled": false
-      }
+      "formatter": { "enabled": false },
+      "linter": { "enabled": false }
     },
     {
       "includes": ["**/*.d.ts"],
       "linter": {
         "rules": {
           "correctness": {
-            "noUnusedVariables": "off",
-            "noUndeclaredVariables": "off"
+            "noUndeclaredVariables": "off",
+            "noUnusedVariables": "off"
           }
         }
       }
@@ -155,11 +148,13 @@
     {
       "includes": ["**/*.jsonc", "**/tsconfig.json", "**/tsconfig.*.json"],
       "json": {
-        "parser": {
-          "allowComments": true,
-          "allowTrailingCommas": true
-        }
+        "parser": { "allowComments": true, "allowTrailingCommas": true }
       }
-    }
-  ]
+    },
+    { "includes": ["*.astro"] }
+  ],
+  "assist": {
+    "enabled": null,
+    "actions": { "source": { "organizeImports": "on" } }
+  }
 }
