@@ -107,6 +107,16 @@ function setShortcutChipActive(
   chip.classList.toggle("border-primary-300", active);
 }
 
+function setShortcutHintVisible(visible: boolean) {
+  const hint = document.querySelector<HTMLElement>("[data-shortcut-hint]");
+  if (!hint) {
+    return;
+  }
+
+  hint.classList.toggle("sm:flex", visible);
+  hint.classList.toggle("sm:hidden", !visible);
+}
+
 function initSearchShortcut() {
   const resetShortcutChips = () => {
     setShortcutChipActive("slash", false);
@@ -115,6 +125,15 @@ function initSearchShortcut() {
   };
 
   updateShortcutModifierLabel();
+
+  const search = document.querySelector<HTMLInputElement>("#try-query");
+  search?.addEventListener("focus", () => {
+    setShortcutHintVisible(false);
+    resetShortcutChips();
+  });
+  search?.addEventListener("blur", () => {
+    setShortcutHintVisible(true);
+  });
 
   document.addEventListener("keydown", (event) => {
     setShortcutChipActive(
@@ -137,7 +156,6 @@ function initSearchShortcut() {
       return;
     }
 
-    const search = document.querySelector<HTMLInputElement>("#try-query");
     if (!search) {
       return;
     }
