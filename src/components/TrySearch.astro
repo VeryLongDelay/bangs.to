@@ -54,19 +54,24 @@ const examples = [
       <div
         class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-xs font-700 uppercase tracking-[0.22em] text-primary-700"
       >
-        Try a ban.gs search
+        Try a bangs search
         <span class="h-1 w-1 rounded-full bg-primary-300"></span>
         Private by design
       </div>
       <h2
         class="font-display text-[1.9rem] font-700 leading-tight tracking-[-0.04em] text-text sm:text-[2.25rem]"
       >
-        Search from anywhere with !bangs
+        Search from anywhere with <a
+          href="https://duckduckgo.com/bangs"
+          class="font-700 no-underline"
+          target="_blank">!bangs</a
+        >
       </h2>
       <p class="mt-3 max-w-[58ch] text-sm leading-7 text-text-secondary sm:text-[0.98rem]">
         Use a bang to jump to a destination, or type a normal query and let your default engine take
-        over. Change your default search engine in <a href={settingsHref} class="font-700"
-          >Settings</a
+        over. Change your default search engine in <a
+          href={settingsHref}
+          class="font-700 no-underline">Settings</a
         >.
       </p>
     </div>
@@ -118,6 +123,6 @@ const examples = [
 </section>
 
 <script>
-  import { initTrySearchExamples } from '../ui/try-search-examples';
-  initTrySearchExamples();
+  import { showSearchExamples } from '../ui/try-search-examples';
+  showSearchExamples();
 </script>

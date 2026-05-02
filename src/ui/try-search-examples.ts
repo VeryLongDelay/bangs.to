@@ -6,7 +6,7 @@ function scoreItem(item: HTMLElement): number {
   return Math.random() * lengthWeight;
 }
 
-export function initTrySearchExamples(): void {
+export function showSearchExamples(): void {
   const container = document.getElementById('example-list');
 
   if (!container) {
