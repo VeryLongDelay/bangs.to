@@ -1,5 +1,7 @@
 # Development
 
+High-level notes for AI-assisted work live in [`AGENTS.md`](AGENTS.md).
+
 ## Prerequisites
 
 - [Bun](https://bun.sh) (runtime and bundler)
@@ -11,14 +13,26 @@ bun install        # install dependencies
 bun run check      # format + lint check (fails on issues)
 bun run fix        # auto-fix format + lint issues
 bun run codegen    # fetch DDG/Kagi sources, merge, and generate bang maps
-bun run build      # bundle, minify + pre-compress with Brotli (auto-runs codegen --from-merged if generated bang files are missing)
-bun run dev        # bundle + dev server with file watching & live reload (auto-runs codegen if needed)
+bun run build      # full pipeline: JS bundles + Astro pages + CSS inline + Brotli (auto-runs codegen --from-merged if generated bang files are missing)
+bun run dev        # same artifacts as build, served with file watching & live reload (auto-runs codegen if needed)
 bun run start      # serve pre-built dist/ (run `bun run build` first)
 bun run typecheck  # type-check with tsc (no emit)
 bun run profile    # run performance profile benchmarks (auto-runs codegen --from-merged if generated bang files are missing)
 bun test           # run tests
 bun run test:e2e   # run Playwright end-to-end tests (build + browser run)
 bun run clean      # remove dist/
+
+# Cloudflare Pages (requires Wrangler login / project config)
+bun run deploy     # codegen --from-merged + build + wrangler pages deploy dist
+bun run preview    # codegen --from-merged + build + wrangler pages dev
+
+# Astro only (writes `.astro-build/`; production HTML still goes through `build` / `dev`)
+bun run build:astro
+
+# Lower-level bundling (normally invoked via `build`, not needed day-to-day)
+bun run build:sw
+bun run build:ui
+bun run build:css
 ```
 
 ## Project structure
@@ -40,18 +54,23 @@ flashbang/
 │   ├── ddg.json              # DuckDuckGo source (gitignored, fetched by codegen)
 │   └── kagi.json             # Kagi source (gitignored, fetched by codegen)
 ├── src/
-│   ├── suggest.ts            # Bang suggestions, search suggest proxy & cookie parsing
+│   ├── pages/                 # Astro routes → static HTML (index, home, bangs, faq, instructions, bench)
+│   ├── components/            # Astro components (layout chrome, try-search, settings modal, etc.)
+│   ├── layouts/               # Astro layouts (e.g. SiteLayout)
+│   ├── env.d.ts               # Astro / ambient typings
+│   ├── suggest.ts             # Bang suggestions, search suggest proxy & cookie parsing
 │   ├── suggest-bang.ts        # Bang suggestion matching and scoring
 │   ├── opensearch.ts          # OpenSearch XML generation
 │   ├── server/
-│   │   ├── handlers.ts       # Production server request handlers
-│   │   └── headers.ts        # CSP and security headers (shared across all targets)
+│   │   ├── handlers.ts        # Production server request handlers
+│   │   └── headers.ts         # CSP and security headers (shared across all targets)
 │   ├── shared/
 │   │   ├── chars.ts           # Character classification helpers
 │   │   ├── constants.ts       # Shared constants
 │   │   ├── idb.ts             # Shared IndexedDB open helper
 │   │   ├── raw-query.ts       # Raw query string parsing
 │   │   ├── raw-url.ts         # Raw URL pathname and origin parsing
+│   │   ├── suggest-cookie.ts  # Shared suggest cookie helpers
 │   │   ├── template.ts        # Bang URL template expansion
 │   │   └── trie.ts            # Radix trie lookup
 │   ├── generated/             # Output of codegen (gitignored, generated from data/bangs.json)
@@ -64,29 +83,32 @@ flashbang/
 │   │   ├── redirect.ts        # Bang parsing & redirect logic (zero-copy raw + decoded paths)
 │   │   ├── idb.ts             # IndexedDB access, settings cache & in-memory frecency
 │   │   └── frecency.ts        # Top-K frecency helpers used by SW
-│   └── ui/
-│       ├── index.html         # HTML template
-│       ├── home.html          # Home page partial
-│       ├── bench.html         # Benchmark page
+│   └── ui/                    # Client JS entrypoints + static assets (bundled by Bun)
+│       ├── app.ts             # Main app initialization & orchestration
+│       ├── bangs.ts           # Bang browser page script
 │       ├── bench.ts           # Benchmark script
-│       ├── app.ts             # Initialization & orchestration
+│       ├── theme.ts           # Theme toggle script
+│       ├── settings.ts        # Settings event wiring, bang search, import/export
+│       ├── modal.ts           # Settings modal behavior
+│       ├── custom-bangs.ts    # Custom bang list & add form
+│       ├── bang-browser.ts    # Bang listing UI helpers
+│       ├── cookie.ts          # Suggest cookie management (provider, custom bangs)
+│       ├── db.ts              # IndexedDB wrapper
 │       ├── dom.ts             # $() selector & el() factory
 │       ├── sw-bridge.ts       # notifySW() — postMessage to Service Worker
-│       ├── cookie.ts          # Suggest cookie management (provider, custom bangs)
 │       ├── animations.ts      # Flash & shake CSS animations
-│       ├── modal.ts           # Settings modal with focus trapping
-│       ├── settings.ts        # Settings event wiring, bang search, import/export
-│       ├── custom-bangs.ts    # Custom bang list & add form
-│       ├── db.ts              # IndexedDB wrapper
 │       ├── liquid-metal.ts    # WebGL2 shader effect
+│       ├── try-search-examples.ts  # Example queries for the home try-search UI
 │       ├── icon.svg           # App icon
-│       ├── _headers           # Static host header override (opensearch content-type)
 │       ├── manifest.json      # PWA manifest
-│       └── opensearch.xml     # OpenSearch descriptor
-├── .dockerignore             # Files excluded from Docker build context
-├── Dockerfile                # Multi-stage Docker build
+│       ├── opensearch.xml     # OpenSearch descriptor (copied/served per target)
+│       └── _headers           # Dev/static host header hints (opensearch content-type)
+├── astro.config.mjs           # Astro static site config
+├── biome.jsonc                # Biome lint + format config
+├── .dockerignore              # Files excluded from Docker build context
+├── Dockerfile                 # Multi-stage Docker build
 ├── package.json
-├── uno.config.ts             # UnoCSS theme
+├── uno.config.ts              # UnoCSS theme
 └── LICENSE
 ```
 
@@ -138,19 +160,22 @@ CSP headers are defined in `src/server/headers.ts` — the single source of trut
 - **Page CSP** — No `unsafe-eval`. The `script-src` value varies by target: `build.ts` uses inline script hashes, while `dev.ts`/`start.ts` use `'unsafe-inline'`
 - **SW CSP** — Strict: `default-src 'self'; script-src 'self'; connect-src 'self'`. No `unsafe-eval`; SW runtime avoids eval.
 
-On **Cloudflare Pages**, CSP is set per-path in `_headers` (not `/*`) to avoid CF Pages' additive header merging — `/*` would combine with `/sw.js`, and the browser enforces the intersection. Instead, CSP is set individually on `/`, `/index.html`, `/home.html`, `/bench.html`, and `/sw.js`.
+On **Cloudflare Pages**, CSP is set per-path in `_headers` (not `/*`) to avoid CF Pages' additive header merging — `/*` would combine with `/sw.js`, and the browser enforces the intersection. Instead, CSP is set individually on `/`, `/index.html`, `/home.html`, `/bangs`, `/bangs.html`, `/bench.html`, `/faq`, `/faq.html`, `/instructions`, `/instructions.html`, and `/sw.js`. Base security headers (without page CSP) still apply under `/*`.
 
 On **self-hosted** (Docker/Railway via `start.ts`), the Bun server sets headers per-request, serving `SW_HEADERS` for `/sw.js` and page headers for everything else.
 
 ## Build pipeline
 
-`bun run build` bundles the app:
+`bun run build` produces `dist/`:
 
-1. **Bundle Service Worker** — Bun bundles `src/sw/sw.ts` (including `bangs-min.js`) into `dist/sw.js`, with build-time cache constants injected for the precache list
-2. **Bundle UI + bench** — Bun bundles `src/ui/app.ts` (with code splitting) to `dist/app.js` plus small chunks, and bundles `src/ui/bench.ts` to `dist/bench.js`
-3. **Generate CSS** — UnoCSS scans `src/ui/**/*.ts` and HTML files, emitting atomic utility classes
-4. **Inline & minify HTML** — CSS is inlined into `<style>`, HTML is minified with `@minify-html/node`
-5. **Pre-compress** — All static assets are compressed with Brotli (max quality) and written as `.br` files alongside the originals. The production server serves these automatically when the client supports it, falling back to uncompressed
+1. **Bundle client scripts** — Bun bundles `src/ui/app.ts`, `src/ui/bench.ts`, `src/ui/bangs.ts`, and `src/ui/theme.ts` into `dist/` (`app.js`, `bench.js`, `bangs.js`, `theme.js`). Entry bundles may split into additional small chunks; chunk fingerprints feed a **`__CACHE_VERSION__`** hash used by the Service Worker precache list.
+2. **Bundle Service Worker** — Bun bundles `src/sw/sw.ts` (including `bangs-min.js`) into `dist/sw.js`, with `__CACHE_VERSION__`, `__EXTRA_ASSETS__` (small hashed chunks), and `__IS_DEV__: false` injected at build time.
+3. **Generate CSS** — UnoCSS scans `src/**/*.astro` and `src/ui/**/*.ts`, emitting `dist/styles.css`.
+4. **Build Astro pages** — `astro build --outDir .astro-build` compiles `src/pages/` and friends into static HTML (e.g. `index.html`, `home.html`, `bangs.html`, `bench.html`, `faq.html`, `instructions.html`).
+5. **Inline & minify HTML** — The Astro HTML files are run through a replace that inlines `dist/styles.css` into `<style>` (matching `<link rel="stylesheet" href="/styles.css">` from `SiteLayout`), then minified with `@minify-html/node` and written to `dist/`. The `.astro-build/` directory is removed afterward; `dist/styles.css` is deleted after inlining.
+6. **Static copies** — `manifest.json`, `icon.svg`, and a minimal `robots.txt` are written to `dist/`.
+7. **`dist/_headers`** — Regenerated with per-route CSP (script hashes from inline `<script>` blocks in the built HTML) plus `Content-Type` for `/opensearch.xml`.
+8. **Pre-compress** — Qualifying static assets get Brotli-compressed `.br` siblings. The production server serves `.br` when the client supports it, falling back to uncompressed.
 
 If generated bang artifacts are missing, both `bun run build` and `bun run profile` automatically run `bun run codegen --from-merged` first.
 
@@ -171,7 +196,7 @@ The in-memory cache (`frecencyCounts` + preformatted `frecencyCookie` string in 
 `bun run dev` runs the dev server with `bun --hot` for soft module reloading:
 
 - **Codegen guard** — If `src/generated/bangs-min.js` is missing, automatically runs `bun run codegen` before the first build
-- **Inline builds** — Uses `Bun.build()` API directly instead of shelling out to build scripts
+- **Inline builds** — Uses `Bun.build()` for the same four UI entrypoints plus the Service Worker as production, then UnoCSS + **`astro build`** into `.astro-build/`, then CSS inlining and HTML minification into `dist/` (same shape as `build.ts`, with `__IS_DEV__: true` for the SW)
 - **File watching** — Watches `src/` recursively via `fs.watch` with 200ms debounce. Any source change triggers a full rebuild
 - **Live reload** — SSE endpoint at `/__dev/events` pushes reload events to the browser. A small script is injected into HTML responses that unregisters the Service Worker, clears all caches, and reloads the page on each rebuild
 - **Hot reload** — `bun --hot` enables Bun's native hot module reloading for `Bun.serve()`, so the server's fetch handler updates without process restart
