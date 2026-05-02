@@ -1,9 +1,10 @@
 ---
+import { SITE_TITLE } from "../config/site";
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
-  title="ban.gs FAQ"
+  title={`${SITE_TITLE} FAQ`}
   description="Answers to common questions about ban.gs in plain language."
   currentPath="/faq"
 >

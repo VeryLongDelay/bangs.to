@@ -1,9 +1,10 @@
 ---
+import { SITE_TITLE } from "../config/site";
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
-  title="ban.gs Bangs"
+  title={`${SITE_TITLE} Bangs`}
   description="Search the full bang catalog and manage your custom shortcuts."
   currentPath="/bangs"
   pageScript="bangs"

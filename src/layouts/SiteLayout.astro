@@ -3,6 +3,7 @@ import SettingsModal from "../components/SettingsModal.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import TopBar from "../components/TopBar.astro";
 import TrySearch from "../components/TrySearch.astro";
+import { SITE_TITLE } from "../config/site";
 
 interface Props {
   currentPath: string;
@@ -39,7 +40,7 @@ const settingsHref = `${currentPath}#settings`;
     <link
       rel="search"
       type="application/opensearchdescription+xml"
-      title="ban.gs"
+      title={SITE_TITLE}
       href="/opensearch.xml"
     />
     <meta name="description" content={description} />

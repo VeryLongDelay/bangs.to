@@ -1,10 +1,11 @@
 ---
 import HomeContent from '../components/HomeContent.astro';
+import { SITE_TITLE } from "../config/site";
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
-  title="ban.gs"
+  title={SITE_TITLE}
   description="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker."
   currentPath="/home"
   registerServiceWorker={true}

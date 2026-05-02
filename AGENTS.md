@@ -4,7 +4,7 @@ Context for AI coding agents working in this repository.
 
 ## What this project is
 
-**Flashbang** (`ban.gs`) is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. Core behavior lives in a **Service Worker** (`src/sw/`), with UI and settings in `src/ui/` and optional **Astro** pages under `src/pages/` / `src/components/` / `src/layouts/`.
+**Flashbang** is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. The current public site title/brand is **`bangs.to`**, configured in [`src/config/site.ts`](src/config/site.ts). Core behavior lives in a **Service Worker** (`src/sw/`), with shared client/runtime code in `src/ui/` and the site shell/pages generated from **Astro** in `src/pages/`, `src/components/`, and `src/layouts/`.
 
 Production bundles are produced by **Bun** scripts (`scripts/build.ts`), not only Astro. Cloudflare Pages deploy uses `dist/` from that pipeline (`wrangler pages deploy dist`).
 
@@ -31,11 +31,17 @@ After substantive edits, prefer **`bun run check`** and **`bun test`** at minimu
 
 **Astro:** `bun run build:astro` builds static Astro output to `.astro-build/`. This is separate from the primary `bun run build` pipeline; confirm which surface you are changing.
 
+**Branding:** If a task asks to rename the site or change its visible title, update [`src/config/site.ts`](src/config/site.ts) first, then review metadata outputs such as the manifest and OpenSearch descriptors.
+
 ## Layout (where to look)
 
 - **`scripts/`** — `dev.ts`, `build.ts`, `codegen.ts`, `start.ts`, `profile.ts`
 - **`src/sw/`** — Service Worker: redirects, caching, frecency (`idb.ts`, `frecency.ts`)
-- **`src/ui/`** — Client app: `app.ts`, settings, suggest cookies, HTML templates, PWA assets
+- **`src/ui/`** — Client runtime: `app.ts`, settings, bang browser logic, suggest cookies, PWA assets
+- **`src/config/`** — Shared site-level config such as title and tagline
+- **`src/pages/`** — Astro routes (`/`, `/home`, `/bangs`, `/faq`, `/instructions`, `/bench`)
+- **`src/components/`** — Shared Astro UI (`TopBar`, `TrySearch`, `SettingsModal`, etc.)
+- **`src/layouts/`** — Shared Astro layout shell
 - **`src/shared/`** — Shared utilities (trie, templates, raw URL/query parsing)
 - **`src/server/`** — `handlers.ts`, **`headers.ts`** (CSP and security headers — single source of truth conceptually; see `DEVELOPMENT.md` for Pages vs Docker nuances)
 - **`src/suggest*.ts`**, **`src/opensearch.ts`** — Suggest behavior and OpenSearch XML generation
@@ -50,6 +56,7 @@ Long-form explanations (CSP, frecency, Docker, CI, release): **`DEVELOPMENT.md`*
 - **TypeScript:** `strict` enabled; respect existing patterns (imports, naming, minimal commenting).
 - **Lint/format:** **Biome** (`biome.jsonc`). Use `bun run check` / `bun run fix`.
 - **CSS:** UnoCSS (`uno.config.ts`); CLI scans Astro and TS/HTML as configured in scripts.
+- **Routing/UI:** The site uses a shared Astro top bar/footer and a shared settings modal. The settings modal is route-addressable via page-specific `#settings` URLs such as `/#settings` and `/faq#settings`.
 - **Scope:** Match the smallest change that satisfies the task; avoid unrelated refactors.
 
 ## CI expectations

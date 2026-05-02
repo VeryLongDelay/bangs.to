@@ -54,6 +54,8 @@ flashbang/
 │   ├── ddg.json              # DuckDuckGo source (gitignored, fetched by codegen)
 │   └── kagi.json             # Kagi source (gitignored, fetched by codegen)
 ├── src/
+│   ├── config/
+│   │   └── site.ts            # Centralized site title/tagline (current brand: bangs.to)
 │   ├── pages/                 # Astro routes → static HTML (index, home, bangs, faq, instructions, bench)
 │   ├── components/            # Astro components (layout chrome, try-search, settings modal, etc.)
 │   ├── layouts/               # Astro layouts (e.g. SiteLayout)
@@ -88,8 +90,8 @@ flashbang/
 │       ├── bangs.ts           # Bang browser page script
 │       ├── bench.ts           # Benchmark script
 │       ├── theme.ts           # Theme toggle script
-│       ├── settings.ts        # Settings event wiring, bang search, import/export
-│       ├── modal.ts           # Settings modal behavior
+│       ├── settings.ts        # Settings event wiring, shared bang search, import/export
+│       ├── modal.ts           # Shared settings modal behavior + #settings route handling
 │       ├── custom-bangs.ts    # Custom bang list & add form
 │       ├── bang-browser.ts    # Bang listing UI helpers
 │       ├── cookie.ts          # Suggest cookie management (provider, custom bangs)
@@ -98,7 +100,6 @@ flashbang/
 │       ├── sw-bridge.ts       # notifySW() — postMessage to Service Worker
 │       ├── animations.ts      # Flash & shake CSS animations
 │       ├── liquid-metal.ts    # WebGL2 shader effect
-│       ├── try-search-examples.ts  # Example queries for the home try-search UI
 │       ├── icon.svg           # App icon
 │       ├── manifest.json      # PWA manifest
 │       ├── opensearch.xml     # OpenSearch descriptor (copied/served per target)
@@ -204,6 +205,32 @@ The in-memory cache (`frecencyCounts` + preformatted `frecencyCookie` string in 
 ## Production server
 
 `bun run start` serves the pre-built `dist/` directory with no build step, file watching, or live reload injection. Useful for testing the production build locally. Requires `bun run build` to have been run first.
+
+## Site shell and settings routing
+
+The visible site shell is Astro-first now:
+
+- `SiteLayout.astro` owns the shared top bar, footer, settings modal, and common scripts
+- `TopBar.astro` and `TrySearch.astro` receive a page-specific `settingsHref`
+- settings are addressable from every page using `#settings`, for example `/#settings`, `/faq#settings`, and `/bangs#settings`
+- `src/ui/modal.ts` opens/closes the modal from the hash route and removes the hash on close
+
+The old `/settings` path is still normalized by the runtime for backward compatibility, but new links should target `#settings` on the current page.
+
+## Branding
+
+The current site title is configured in [`src/config/site.ts`](src/config/site.ts):
+
+- `SITE_TITLE` — currently `bangs.to`
+- `SITE_TAGLINE` — shared top-bar copy
+
+When changing the public brand/title, update `src/config/site.ts` first, then confirm browser-facing metadata:
+
+- `src/ui/manifest.json`
+- `src/ui/opensearch.xml`
+- `src/opensearch.ts`
+
+Some content pages may still intentionally mention the live domain directly and should be reviewed separately during rebrands.
 
 ## Docker
 

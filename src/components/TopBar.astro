@@ -1,4 +1,5 @@
 ---
+import { SITE_TAGLINE, SITE_TITLE } from "../config/site";
 import iconSvg from '../ui/icon.svg?raw';
 import ThemeSwitch from './ThemeSwitch.astro';
 
@@ -29,8 +30,8 @@ const links = [
       set:html={iconSvg}
     />
     <div>
-      <p class="font-display text-lg font-700 tracking-tight text-text">ban.gs</p>
-      <p class="text-sm text-text-secondary">Privacy-first search engine shortcuts.</p>
+      <p class="font-display text-lg font-700 tracking-tight text-text">{SITE_TITLE}</p>
+      <p class="text-sm text-text-secondary">{SITE_TAGLINE}</p>
     </div>
   </div>
 

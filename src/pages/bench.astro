@@ -1,9 +1,10 @@
 ---
+import { SITE_TITLE } from "../config/site";
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
 <SiteLayout
-  title="ban.gs — query type benchmark"
+  title={`${SITE_TITLE} — query type benchmark`}
   description="Measure redirect latency across query types and verify that the local-first route stays fast under repeated runs."
   currentPath="/bench"
   pageScript="bench"
