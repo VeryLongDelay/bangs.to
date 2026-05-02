@@ -9,7 +9,7 @@ export function opensearch(origin: string): Response {
   <InputEncoding>UTF-8</InputEncoding>
   <Image width="16" height="16" type="image/svg+xml">${origin}/icon.svg</Image>
   <Url type="text/html" template="${origin}/?q={searchTerms}"/>
-  <Url type="application/x-suggestions+json" template="${origin}/suggest?q={searchTerms}"/>
+  <Url type="application/x-suggestions+json" template="https://duckduckgo.com/ac/?q={searchTerms}&type=list"/>
 </OpenSearchDescription>`,
     {
       headers: { 'Content-Type': 'application/opensearchdescription+xml' }
