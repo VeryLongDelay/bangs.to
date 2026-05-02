@@ -12,83 +12,83 @@
     />
     <link rel="preload" as="script" href="/sw.js" />
     <style>
-      html {
-        background: #f4f8fc;
-      }
-      html[data-theme='dark'] {
-        background: #08111d;
-      }
+    html {
+      background: #f4f8fc;
+    }
+    html[data-theme="dark"] {
+      background: #08111d;
+    }
     </style>
     <script>
-      'use strict';
-      (() => {
-        try {
-          const theme = localStorage.getItem('theme');
-          if (theme === 'dark' || theme === 'light') {
-            document.documentElement.dataset.theme = theme;
-            document.documentElement.style.colorScheme = theme;
-          } else {
-            document.documentElement.dataset.theme = 'dark';
-            document.documentElement.style.colorScheme = 'dark';
-          }
-        } catch {
-          // ignore storage failures before app boot
+    'use strict';
+    (() => {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || theme === 'light') {
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } else {
           document.documentElement.dataset.theme = 'dark';
           document.documentElement.style.colorScheme = 'dark';
         }
-      })();
+      } catch {
+        // ignore storage failures before app boot
+        document.documentElement.dataset.theme = 'dark';
+        document.documentElement.style.colorScheme = 'dark';
+      }
+    })();
     </script>
     <script>
-      'use strict';
-      (() => {
-        const hasQuery = location.search.startsWith('?q=') || location.search.includes('&q=');
+    'use strict';
+    (() => {
+      const hasQuery = location.search.startsWith('?q=') || location.search.includes('&q=');
 
-        const query = hasQuery && new URLSearchParams(location.search).get('q');
+      const query = hasQuery && new URLSearchParams(location.search).get('q');
 
-        if ('serviceWorker' in navigator && query && !navigator.serviceWorker.controller) {
-          navigator.serviceWorker.addEventListener(
-            'message',
-            e => {
-              if (e.data?.url) {
-                location.replace(e.data.url);
-              }
-            },
-            { once: true }
-          );
-          navigator.serviceWorker.addEventListener(
-            'controllerchange',
-            () => {
-              navigator.serviceWorker.controller.postMessage({
-                type: 'redirect',
-                query
-              });
-            },
-            { once: true }
-          );
-          navigator.serviceWorker.register('/sw.js');
-        } else if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/sw.js');
-          Promise.all([
-            fetch('/opensearch.xml').catch(() => {
-              // pre-warm — ignore errors
-            }),
-            new Promise(resolve => {
-              if (navigator.serviceWorker.controller) {
-                resolve();
-              } else {
-                navigator.serviceWorker.addEventListener('controllerchange', resolve, {
-                  once: true
-                });
-              }
-            })
-          ]).then(() => {
-            const p = location.pathname;
-            if (p === '/' || p === '/index.html' || p === '/settings') {
-              location.replace(location.href);
+      if ('serviceWorker' in navigator && query && !navigator.serviceWorker.controller) {
+        navigator.serviceWorker.addEventListener(
+          'message',
+          e => {
+            if (e.data?.url) {
+              location.replace(e.data.url);
             }
-          });
-        }
-      })();
+          },
+          { once: true }
+        );
+        navigator.serviceWorker.addEventListener(
+          'controllerchange',
+          () => {
+            navigator.serviceWorker.controller.postMessage({
+              type: 'redirect',
+              query
+            });
+          },
+          { once: true }
+        );
+        navigator.serviceWorker.register('/sw.js');
+      } else if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+        Promise.all([
+          fetch('/opensearch.xml').catch(() => {
+            // pre-warm — ignore errors
+          }),
+          new Promise(resolve => {
+            if (navigator.serviceWorker.controller) {
+              resolve();
+            } else {
+              navigator.serviceWorker.addEventListener('controllerchange', resolve, {
+                once: true
+              });
+            }
+          })
+        ]).then(() => {
+          const p = location.pathname;
+          if (p === '/' || p === '/index.html' || p === '/settings') {
+            location.replace(location.href);
+          }
+        });
+      }
+    })();
     </script>
   </head>
   <body></body>

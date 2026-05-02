@@ -683,10 +683,8 @@ export default defineConfig({
     }
   ],
   shortcuts: {
-    'card':
-      'rounded-[24px] border border-white/70 bg-bg-secondary p-5 shadow-[0_22px_50px_rgba(15,39,64,0.08)] backdrop-blur-xl sm:p-6',
-    'btn':
-      'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
+    card: 'rounded-[24px] border border-white/70 bg-bg-secondary p-5 shadow-[0_22px_50px_rgba(15,39,64,0.08)] backdrop-blur-xl sm:p-6',
+    btn: 'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
     'btn-primary':
       'px-4 py-2.5 rounded-2xl text-sm font-600 transition-all duration-200 cursor-pointer border-none',
     'btn-danger':

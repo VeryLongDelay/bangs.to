@@ -8,7 +8,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!!**/dist", "!!**/generated", "!!data/bangs.json"]
+    "includes": [
+      "**",
+      "!!**/dist",
+      "!!**/generated",
+      "!!data/bangs.json",
+      "!!data/ddg.json",
+      "!!data/kagi.json"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -22,13 +29,7 @@
     "bracketSpacing": true,
     "expand": "auto",
     "useEditorconfig": true,
-    "includes": [
-      "**",
-      "!**/node_modules",
-      "!**/dist",
-      "!**/*.geojson",
-      "!**/*.min.js"
-    ]
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/*.geojson", "!**/*.min.js"]
   },
   "linter": {
     "enabled": true,
