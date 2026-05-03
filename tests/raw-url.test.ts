@@ -12,7 +12,7 @@ describe('readPathname', () => {
   });
 
   test('parses pathname from path-only URL', () => {
-    expect(readPathname('/bench?x=1')).toBe('/bench');
+    expect(readPathname('/home?x=1')).toBe('/home');
     expect(readPathname('/')).toBe('/');
   });
 

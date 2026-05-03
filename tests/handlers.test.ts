@@ -103,7 +103,7 @@ describe('handleOpenSearchRequest', () => {
     expect(response.headers.get('Content-Type')).toBe('application/opensearchdescription+xml');
 
     const xml = await response.text();
-    expect(xml).toContain('<ShortName>Bangs.To</ShortName>');
+    expect(xml).toContain('<ShortName>Bangs.to</ShortName>');
     expect(xml).toContain('template="https://bangs.to/?q={searchTerms}"');
     expect(xml).toContain('template="https://bangs.to/suggest?q={searchTerms}"');
     expect(xml).not.toContain('duckduckgo.com/ac/');

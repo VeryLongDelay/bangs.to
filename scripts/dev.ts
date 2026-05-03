@@ -72,14 +72,6 @@ async function build() {
       format: 'esm'
     }),
     Bun.build({
-      entrypoints: ['src/ui/bench.ts'],
-      outdir: 'dist',
-      naming: 'bench.js',
-      minify: true,
-      target: 'browser',
-      format: 'esm'
-    }),
-    Bun.build({
       entrypoints: ['src/ui/bangs.ts'],
       outdir: 'dist',
       naming: 'bangs.js',
@@ -109,7 +101,6 @@ async function build() {
     'index.html',
     'home.html',
     'bangs.html',
-    'bench.html',
     'contact.html',
     'faq.html',
     'instructions.html'
@@ -226,14 +217,6 @@ Bun.serve({
 
     if (pathname === '/sw.js') {
       return new Response(Bun.file('dist/sw.js'), { headers: SW_HEADERS });
-    }
-
-    if (pathname === '/bench') {
-      const text = await Bun.file('dist/bench.html').text();
-      return htmlResponse(text, {
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'credentialless'
-      });
     }
 
     const path = pathname === '/' ? '/index.html' : pathname;

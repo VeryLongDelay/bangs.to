@@ -19,8 +19,6 @@ declare const __IS_DEV__: boolean;
 const CACHE_NAME = __CACHE_VERSION__;
 const ASSETS = [
   '/home',
-  '/bench',
-  '/bench.js',
   '/app.js',
   '/theme.js',
   '/icon.svg',
@@ -228,21 +226,6 @@ self.addEventListener('fetch', (e: FetchEvent) => {
       }
       return;
     }
-  }
-
-  if (raw.endsWith('/bench')) {
-    e.respondWith(
-      caches
-        .match(new Request('/bench'))
-        .then(r => r || fetch('/bench').catch(() => new Response('Offline', { status: 503 })))
-        .then(r => {
-          const h = new Headers(r.headers);
-          h.set('Cross-Origin-Opener-Policy', 'same-origin');
-          h.set('Cross-Origin-Embedder-Policy', 'credentialless');
-          return new Response(r.body, { status: r.status, headers: h });
-        })
-    );
-    return;
   }
 
   if (raw.endsWith('/') || raw.endsWith('/index.html') || raw.endsWith('/settings')) {

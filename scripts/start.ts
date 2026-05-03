@@ -93,13 +93,6 @@ Bun.serve({
       return new Response(SW_FILE, { headers: SW_HEADERS });
     }
 
-    if (pathname === '/bench') {
-      return serveCompressed(req, '/bench.html', {
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'credentialless'
-      })!;
-    }
-
     const path = pathname === '/' ? '/index.html' : pathname;
     const normalized = normalize(`dist${path}`);
     if (!normalized.startsWith('dist/')) {
