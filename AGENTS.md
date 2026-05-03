@@ -4,7 +4,7 @@ Context for AI coding agents working in this repository.
 
 ## What this project is
 
-**Flashbang** is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. The current public site title/brand is **`bangs.to`**, configured in [`src/config/site.ts`](src/config/site.ts). Core behavior lives in a **Service Worker** (`src/sw/`), with shared client/runtime code in `src/ui/` and the site shell/pages generated from **Astro** in `src/pages/`, `src/components/`, and `src/layouts/`.
+**Flashbang** is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. The current public site title/brand is **`bangs.to`**, configured in [`src/config/site.ts`](src/config/site.ts). Core behavior lives in a **Service Worker** (`src/sw/`), with shared client/runtime code in `src/ui/` and the site shell/pages generated from **Astro** in `src/pages/`, `src/components/`, and `src/layouts/`. The app also includes a local stats dashboard (`/stats`) backed by browser storage and the frecency snapshot.
 
 Production bundles are produced by **Bun** scripts (`scripts/build.ts`), not only Astro. Cloudflare Pages deploy uses `dist/` from that pipeline (`wrangler pages deploy dist`).
 
@@ -38,15 +38,15 @@ After substantive edits, prefer **`bun run check`** and **`bun test`** at minimu
 
 - **`scripts/`** — `dev.ts`, `build.ts`, `codegen.ts`, `start.ts`, `profile.ts`
 - **`src/sw/`** — Service Worker: redirects, caching, frecency (`idb.ts`, `frecency.ts`)
-- **`src/ui/`** — Client runtime: `app.ts`, settings, bang browser logic, suggest cookies, PWA assets
+- **`src/ui/`** — Client runtime: `app.ts`, `stats.ts`, settings, bang browser logic, suggest cookies, PWA assets
 - **`src/config/`** — Shared site-level config such as title and tagline
-- **`src/pages/`** — Astro routes (`/`, `/home`, `/bangs`, `/contact`, `/faq`, `/instructions`)
+- **`src/pages/`** — Astro routes (`/`, `/home`, `/bangs`, `/stats`, `/contact`, `/faq`, `/instructions`)
 - **`src/components/`** — Shared Astro UI (`TopBar`, `TrySearch`, `SettingsModal`, etc.)
 - **`src/layouts/`** — Shared Astro layout shell
 - **`src/shared/`** — Shared utilities (trie, templates, raw URL/query parsing)
 - **`src/server/`** — `handlers.ts`, **`headers.ts`** (CSP and security headers — single source of truth conceptually; see `DEVELOPMENT.md` for Pages vs Docker nuances)
 - **`src/suggest*.ts`**, **`src/opensearch.ts`** — Suggest behavior and OpenSearch XML generation
-- **`functions/`** — Cloudflare Pages Functions (`suggest`, `opensearch.xml`)
+- **`functions/`** — Cloudflare Pages Functions (`suggest.ts`, `opensearch.xml.ts`)
 - **`data/`** — `bangs.json` (merged, committed), `custom-bangs.json`; fetched upstream JSON is gitignored
 - **`tests/`** — Unit tests; **`tests/e2e/`** — Playwright
 
@@ -58,6 +58,7 @@ Long-form explanations (CSP, frecency, Docker, CI, release): **`DEVELOPMENT.md`*
 - **Lint/format:** **Biome** (`biome.jsonc`). Use `bun run check` / `bun run fix`.
 - **CSS:** UnoCSS (`uno.config.ts`); CLI scans Astro and TS/HTML as configured in scripts.
 - **Routing/UI:** The site uses a shared Astro top bar/footer and a shared settings modal. The settings modal is route-addressable via page-specific `#settings` URLs such as `/#settings` and `/faq#settings`.
+- **Stats data:** The stats page is local-first and reads browser storage via the frecency snapshot in `src/sw/frecency.ts` / `src/sw/idb.ts`. Keep changes privacy-preserving and device-local unless the task explicitly says otherwise.
 - **Scope:** Match the smallest change that satisfies the task; avoid unrelated refactors.
 
 ## CI expectations
