@@ -81,6 +81,15 @@ async function build() {
       format: 'esm'
     }),
     Bun.build({
+      entrypoints: ['src/ui/stats.ts'],
+      outdir: 'dist',
+      naming: 'stats.js',
+      splitting: true,
+      minify: true,
+      target: 'browser',
+      format: 'esm'
+    }),
+    Bun.build({
       entrypoints: ['src/ui/theme.ts'],
       outdir: 'dist',
       naming: 'theme.js',
@@ -101,6 +110,7 @@ async function build() {
     'index.html',
     'home.html',
     'bangs.html',
+    'stats.html',
     'contact.html',
     'faq.html',
     'instructions.html'

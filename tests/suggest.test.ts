@@ -179,6 +179,10 @@ const defaultSettings = {
   custom: []
 };
 
+function frecentEntry(score: number, queries: string[] = [], count = score, lastUsedAt = 0) {
+  return { score, queries, count, lastUsedAt };
+}
+
 describe('parseCookie', () => {
   test('no cookie → defaults', () => {
     const s = parseCookie(req());
@@ -263,13 +267,16 @@ describe('parseCookie', () => {
 
   test('unified suggest format parses frecency and custom together', () => {
     const cookie = `suggest=custom,ddg,https%3A%2F%2Fapi.example.com%2Fsuggest%3Fq%3D%7B%7D|f:${encodeURIComponent(
-      JSON.stringify({ mdn: 20, gh: 3 })
+      JSON.stringify({ mdn: 20, gh: { score: 3, count: 2, queries: ['gh react'] } })
     )}|c:${encodeURIComponent(JSON.stringify(['my.site', 'repo']))}`;
     const s = parseCookie(req(cookie));
     expect(s.provider).toBe('custom');
     expect(s.trigger).toBe('ddg');
     expect(s.customUrl).toBe('https://api.example.com/suggest?q={}');
-    expect(s.frecent).toEqual({ mdn: 20, gh: 3 });
+    expect(s.frecent).toEqual({
+      mdn: frecentEntry(20),
+      gh: frecentEntry(3, ['gh react'], 2)
+    });
     expect(s.custom).toEqual(['my.site', 'repo']);
   });
 
@@ -307,7 +314,7 @@ describe('parseCookie', () => {
     const s = parseCookie(
       req('sf=ddg:100.g:80; suggest=brave,b,|f:%7B%22meta%22%3A9%7D|c:%5B%22mysite%22%5D')
     );
-    expect(s.frecent).toEqual({ meta: 9 });
+    expect(s.frecent).toEqual({ meta: frecentEntry(9) });
     expect(s.custom).toEqual(['mysite']);
     expect(s.provider).toBe('brave');
     expect(s.trigger).toBe('b');
@@ -559,7 +566,7 @@ describe('frecency boosts', () => {
     const settings = {
       ...defaultSettings,
       custom: [trigger],
-      frecent: { [trigger]: 200 }
+      frecent: { [trigger]: frecentEntry(200, [`${trigger} launch`]) }
     };
     const r = await suggest('!', settings);
     const [, completions] = await r.json();
@@ -573,14 +580,14 @@ describe('frecency boosts', () => {
     const boostedAtCap = await suggest('!', {
       ...defaultSettings,
       custom: [trigger],
-      frecent: { [trigger]: 200 }
+      frecent: { [trigger]: frecentEntry(200, [`${trigger} launch`]) }
     });
     const [, cappedCompletions] = await boostedAtCap.json();
 
     const settings = {
       ...defaultSettings,
       custom: [trigger],
-      frecent: { [trigger]: 9999 }
+      frecent: { [trigger]: frecentEntry(9999, [`${trigger} launch`]) }
     };
     const r = await suggest('!', settings);
     const [, maxCompletions] = await r.json();
@@ -602,13 +609,33 @@ describe('frecency boosts', () => {
     const settings = {
       ...defaultSettings,
       custom: ['ghtest'],
-      frecent: { ghtest: 200 }
+      frecent: { ghtest: frecentEntry(200, ['ghtest api']) }
     };
     const r = await suggest('!gh', settings);
     const [, completions] = await r.json();
     // ghtest: 0 + min(200*10, 2000) = 2000
     // gh: 500, ghi: 100, ghp: 50
     expect(completions[0]).toBe('!ghtest');
+  });
+
+  test('query similarity boosts bang with matching recent query patterns', async () => {
+    const baseline = await suggest('!gh', {
+      ...defaultSettings,
+      custom: ['ghtest']
+    });
+    const [, baselineCompletions] = await baseline.json();
+
+    const settings = {
+      ...defaultSettings,
+      custom: ['ghtest'],
+      frecent: {
+        ghtest: frecentEntry(45, ['ghtest api', 'ghtest react'])
+      }
+    };
+    const r = await suggest('!gh', settings);
+    const [, completions] = await r.json();
+    expect(completions).toContain('!ghtest');
+    expect(completions.indexOf('!ghtest')).toBeLessThan(baselineCompletions.indexOf('!ghtest'));
   });
 
   test('custom bang with no frecency has base score 0', async () => {

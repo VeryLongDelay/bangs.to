@@ -12,6 +12,7 @@ import {
   TERM_S_OFF
 } from './generated/bangs-trie.js';
 import { FRECENCY_BOOST_CAP, FRECENCY_BOOST_MULTIPLIER, TOP_K } from './shared/constants';
+import type { SuggestFrecency } from './sw/frecency';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
@@ -52,16 +53,52 @@ function readPackedStringCached(
   return value;
 }
 
+const QUERY_SIMILARITY_BOOST_CAP = 180;
+
+function querySimilarityBoost(partial: string, queries: readonly string[]): number {
+  if (!partial || queries.length === 0) {
+    return 0;
+  }
+
+  let best = 0;
+  for (const query of queries) {
+    let common = 0;
+    const limit = Math.min(partial.length, query.length);
+    while (common < limit && partial.charCodeAt(common) === query.charCodeAt(common)) {
+      common++;
+    }
+    if (!common) {
+      continue;
+    }
+
+    const prefixMatch = query === partial || query.startsWith(`${partial} `) ? 36 : 0;
+    const normalized =
+      common / Math.max(partial.length, Math.min(query.length, partial.length + 5));
+    const boost = Math.round(normalized * 88) + prefixMatch;
+    if (boost > best) {
+      best = boost;
+    }
+  }
+
+  return Math.min(best, QUERY_SIMILARITY_BOOST_CAP);
+}
+
 function effectiveScore(
   relevance: number,
-  frecent: Record<string, number>,
-  trigger: string
+  frecent: SuggestFrecency,
+  trigger: string,
+  partial: string
 ): number {
-  const count = frecent[trigger];
-  if (!count) {
+  const entry = frecent[trigger];
+  if (!entry) {
     return relevance;
   }
-  return relevance + Math.min(count * FRECENCY_BOOST_MULTIPLIER, FRECENCY_BOOST_CAP);
+
+  return (
+    relevance +
+    Math.min(entry.score * FRECENCY_BOOST_MULTIPLIER, FRECENCY_BOOST_CAP) +
+    querySimilarityBoost(partial, entry.queries)
+  );
 }
 
 function walkPrefix(partial: string): [number, string] | null {
@@ -116,8 +153,9 @@ function walkPrefix(partial: string): [number, string] | null {
 // DFS with max-relevance pruning. Children are pre-sorted by m descending.
 function topK(
   subtree: number,
-  frecent: Record<string, number>,
-  customMatches: Candidate[]
+  frecent: SuggestFrecency,
+  customMatches: Candidate[],
+  partial: string
 ): Candidate[] {
   const results: Candidate[] = [];
   let minIdx = -1;
@@ -154,7 +192,7 @@ function topK(
     const terminalIndex = NODES[nodeOff + NODE_TERMINAL_INDEX];
     if (terminalIndex >= 0) {
       const trigger = readPackedStringCached(TERM_K_BLOB, TERM_K_OFF, TERM_K_CACHE, terminalIndex);
-      const score = effectiveScore(TERM_R[terminalIndex], frecent, trigger);
+      const score = effectiveScore(TERM_R[terminalIndex], frecent, trigger, partial);
       if (results.length < TOP_K || score > threshold) {
         addCandidate({
           trigger,
@@ -216,7 +254,7 @@ export function bangSuggestions(
   query: string,
   prefix: string,
   partial: string,
-  frecent: Record<string, number>,
+  frecent: SuggestFrecency,
   custom: string[]
 ): Response {
   const result = walkPrefix(partial);
@@ -228,7 +266,7 @@ export function bangSuggestions(
         trigger,
         name: '',
         domain: '',
-        score: effectiveScore(0, frecent, trigger)
+        score: effectiveScore(0, frecent, trigger, partial)
       });
     }
   }
@@ -247,6 +285,6 @@ export function bangSuggestions(
   }
 
   const [subtree] = result;
-  const candidates = topK(subtree, frecent, customMatches);
+  const candidates = topK(subtree, frecent, customMatches, partial);
   return responseFromCandidates(query, prefix, candidates);
 }

@@ -23,6 +23,7 @@ Production bundles are produced by **Bun** scripts (`scripts/build.ts`), not onl
 | Unit tests                                                                 | `bun test`          |
 | Full prod build (runs codegen from merged data if generated files missing) | `bun run build`     |
 | Dev server (watch + live reload; codegen if needed)                        | `bun run dev`       |
+| Performance profiling                                                      | `bun run profile`   |
 | E2E (build + Playwright)                                                   | `bun run test:e2e`  |
 
 After substantive edits, prefer **`bun run check`** and **`bun test`** at minimum; run **`bun run build`** when touching bundling, SW, headers, or codegen-related paths.
@@ -39,7 +40,7 @@ After substantive edits, prefer **`bun run check`** and **`bun test`** at minimu
 - **`src/sw/`** — Service Worker: redirects, caching, frecency (`idb.ts`, `frecency.ts`)
 - **`src/ui/`** — Client runtime: `app.ts`, settings, bang browser logic, suggest cookies, PWA assets
 - **`src/config/`** — Shared site-level config such as title and tagline
-- **`src/pages/`** — Astro routes (`/`, `/home`, `/bangs`, `/faq`, `/instructions`, `/bench`)
+- **`src/pages/`** — Astro routes (`/`, `/home`, `/bangs`, `/contact`, `/faq`, `/instructions`)
 - **`src/components/`** — Shared Astro UI (`TopBar`, `TrySearch`, `SettingsModal`, etc.)
 - **`src/layouts/`** — Shared Astro layout shell
 - **`src/shared/`** — Shared utilities (trie, templates, raw URL/query parsing)

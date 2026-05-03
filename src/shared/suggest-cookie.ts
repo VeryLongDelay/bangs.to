@@ -1,3 +1,5 @@
+import type { SuggestFrecency } from '../sw/frecency';
+
 const SECTION_SEPARATOR = '|';
 const FREQUENCY_PREFIX = 'f:';
 const CUSTOM_PREFIX = 'c:';
@@ -10,7 +12,7 @@ interface ParsedSuggestCookieCore {
 
 interface ParsedSuggestCookieContext {
   custom: string[];
-  frecent: Record<string, number>;
+  frecent: SuggestFrecency;
 }
 
 export interface ParsedSuggestCookie extends ParsedSuggestCookieCore, ParsedSuggestCookieContext {}
@@ -48,7 +50,7 @@ function parsePositiveInteger(value: unknown): number {
 function parseModernFrecency(
   raw: string,
   forCleanup: boolean
-): { value: Record<string, number>; valid: boolean } {
+): { value: SuggestFrecency; valid: boolean } {
   const decoded = safeDecodeURIComponent(raw);
   if (!decoded) {
     return { value: {}, valid: !forCleanup };
@@ -60,12 +62,38 @@ function parseModernFrecency(
       return { value: {}, valid: false };
     }
 
-    const out: Record<string, number> = {};
+    const out: SuggestFrecency = {};
     for (const key in parsed) {
-      const count = parsePositiveInteger(parsed[key]);
-      if (count > 0) {
-        out[key] = count;
-      } else if (forCleanup) {
+      const rawEntry = parsed[key];
+      if (typeof rawEntry === 'number' || typeof rawEntry === 'string') {
+        const score = parsePositiveInteger(rawEntry);
+        if (score > 0) {
+          out[key] = { count: score, lastUsedAt: 0, queries: [], score };
+          continue;
+        }
+      } else if (rawEntry && typeof rawEntry === 'object' && !Array.isArray(rawEntry)) {
+        const score = parsePositiveInteger((rawEntry as { score?: unknown; s?: unknown }).score);
+        const compactScore = score || parsePositiveInteger((rawEntry as { s?: unknown }).s);
+        if (compactScore > 0) {
+          const count =
+            parsePositiveInteger((rawEntry as { count?: unknown; c?: unknown }).count) ||
+            parsePositiveInteger((rawEntry as { c?: unknown }).c) ||
+            1;
+          const lastUsedAt =
+            parsePositiveInteger((rawEntry as { lastUsedAt?: unknown; l?: unknown }).lastUsedAt) ||
+            parsePositiveInteger((rawEntry as { l?: unknown }).l);
+          const rawQueries =
+            (rawEntry as { queries?: unknown; q?: unknown }).queries ??
+            (rawEntry as { q?: unknown }).q;
+          const queries = Array.isArray(rawQueries)
+            ? rawQueries.filter((query): query is string => typeof query === 'string')
+            : [];
+          out[key] = { count, lastUsedAt, queries, score: compactScore };
+          continue;
+        }
+      }
+
+      if (forCleanup) {
         return { value: out, valid: false };
       }
     }
@@ -200,7 +228,7 @@ export function encodeSuggestCookieValue(
   trigger: string,
   customUrl: string,
   custom: string[] = [],
-  frecent: Record<string, number> | null = null
+  frecent: SuggestFrecency | null = null
 ): string {
   let value = `${provider},${trigger},${encodeURIComponent(customUrl)}`;
 

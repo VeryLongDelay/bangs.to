@@ -1,0 +1,181 @@
+---
+import { SITE_TITLE } from '../config/site';
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title={`${SITE_TITLE} Stats`}
+  description="Review your local bang usage, hot streaks, and recent search patterns."
+  currentPath="/stats"
+  pageScript="stats"
+>
+  <section class="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(300px,0.68fr)]">
+    <div class="card overflow-hidden p-0">
+      <div
+        class="relative overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-blue-950 px-5 py-6 text-white sm:px-6 sm:py-7"
+      >
+        <div class="absolute right-[-64px] top-[-72px] h-40 w-40 rounded-full bg-blue-400/18 blur-3xl"></div>
+        <div class="absolute bottom-[-48px] left-[18%] h-28 w-28 rounded-full bg-cyan-300/12 blur-3xl"></div>
+        <div class="relative">
+          <p class="text-xs font-700 uppercase tracking-[0.24em] text-blue-100/78">Local analytics</p>
+          <h1
+            class="mt-3 max-w-[12ch] font-display text-[2.35rem] font-800 leading-[0.95] tracking-[-0.05em] sm:text-[3rem]"
+          >
+            See which bangs you actually use
+          </h1>
+          <p class="mt-4 max-w-[60ch] text-sm leading-7 text-blue-50/82 sm:text-[0.98rem]">
+            Stats live in your browser. Recent activity counts more than stale history, frequent
+            bangs climb faster, and repeated query patterns help the suggestion engine rank what
+            you are likely reaching for next.
+          </p>
+          <div class="mt-5 flex flex-wrap gap-2 text-xs font-700 uppercase tracking-[0.16em]">
+            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-blue-50/86">
+              Time decay
+            </span>
+            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-blue-50/86">
+              Frequency
+            </span>
+            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-blue-50/86">
+              Query similarity
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="card p-5 sm:p-6">
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">How ranking works</p>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Recency stays hot</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            New activity gets the strongest weight, then decays over time so old habits stop
+            dominating.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Frequency builds momentum</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Repeated use compounds a bang&apos;s score, which makes your common shortcuts surface
+            earlier.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Queries leave a trail</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Recent search phrases are kept locally and used to nudge matching bang suggestions.
+          </p>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section id="stats-empty" class="card mt-4 hidden p-6 sm:p-7">
+    <div
+      class="rounded-[28px] border border-dashed border-white/70 bg-bg-soft px-5 py-8 text-center dark:border-white/12"
+    >
+      <p class="text-xs font-700 uppercase tracking-[0.22em] text-primary-700">No activity yet</p>
+      <h2
+        class="mt-3 font-display text-[2rem] font-800 tracking-[-0.04em] text-text sm:text-[2.35rem]"
+      >
+        Use a few bangs, then come back
+      </h2>
+      <p class="mx-auto mt-3 max-w-[50ch] text-sm leading-7 text-text-secondary">
+        Run searches like <code>!gh astro</code>, <code>!mdn fetch</code>, or
+        <code>!w saturn</code> and this page will start visualizing what you use most.
+      </p>
+    </div>
+  </section>
+
+  <section id="stats-dashboard" class="mt-4 grid gap-4">
+    <div id="stats-summary" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+
+    <section class="card overflow-hidden p-5 sm:p-6">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Weekly rhythm</p>
+          <h2 class="section-title mt-2">When you search most</h2>
+        </div>
+        <p class="text-xs text-text-secondary">Local time, device-only history</p>
+      </div>
+      <p id="stats-heatmap-summary" class="mt-2 max-w-[72ch] text-sm leading-7 text-text-secondary"></p>
+      <div class="mt-5 overflow-x-auto pb-1">
+        <div class="min-w-[780px]">
+          <div class="mb-2 flex items-center gap-2 sm:gap-3">
+            <div class="w-11 shrink-0"></div>
+            <div class="grid flex-1 gap-1.5" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
+              {
+                Array.from({ length: 24 }, (_, hour) => (
+                  <div class="text-center text-[10px] font-700 uppercase tracking-[0.14em] text-text-muted">
+                    {hour % 6 === 0 ? `${hour}` : ''}
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div
+            id="stats-heatmap-grid"
+            class="grid gap-1.5"
+            role="grid"
+            aria-label="Search activity heatmap by day of week and hour"
+          ></div>
+        </div>
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
+        <span>Lower activity</span>
+        <div class="flex items-center gap-1.5">
+          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.08)] dark:border-white/8"></span>
+          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.28)] dark:border-white/8"></span>
+          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.52)] dark:border-white/8"></span>
+          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(34,211,238,0.86)] dark:border-white/8"></span>
+        </div>
+        <span>Higher activity</span>
+      </div>
+    </section>
+
+    <div class="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)]">
+      <section class="card p-5 sm:p-6">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Leaderboard</p>
+            <h2 class="section-title mt-2">Top bangs by live score</h2>
+          </div>
+          <p class="text-xs text-text-secondary">Decayed score + use count</p>
+        </div>
+        <div id="stats-top-list" class="mt-5 grid gap-3"></div>
+      </section>
+
+      <section class="card p-5 sm:p-6">
+        <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Recent activity</p>
+        <h2 class="section-title mt-2">Freshest bangs</h2>
+        <div id="stats-recent-list" class="mt-5 grid gap-3"></div>
+      </section>
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(280px,0.68fr)]">
+      <section class="card p-5 sm:p-6">
+        <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Query memory</p>
+        <h2 class="section-title mt-2">Search patterns the ranker can see</h2>
+        <p class="mt-2 text-sm leading-7 text-text-secondary">
+          These recent local query samples are what power the query-similarity boost.
+        </p>
+        <div id="stats-query-groups" class="mt-5 grid gap-3"></div>
+      </section>
+
+      <section class="card p-5 sm:p-6">
+        <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Device scope</p>
+        <h2 class="section-title mt-2">What gets stored</h2>
+        <div class="mt-4 grid gap-3 text-sm leading-6 text-text-secondary">
+          <div class="rounded-[20px] bg-bg-soft p-4">
+            Bang trigger, total uses, recency-weighted score, last-used time, and a few recent
+            search phrases.
+          </div>
+          <div class="rounded-[20px] bg-bg-soft p-4">
+            Everything stays local in your browser storage. There is no account sync or remote
+            analytics endpoint behind this page.
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+</SiteLayout>

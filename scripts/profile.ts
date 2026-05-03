@@ -746,13 +746,21 @@ for (let run = 0; run < RUNS; run++) {
   }
   legacyFrecencyTimes.push((Bun.nanoseconds() - t0) / FRECENCY_ITERS);
 
-  const top = buildTopFrecency(incrementalCounts, FRECENCY_LIMIT);
+  const incrementalEntries = Object.fromEntries(
+    Object.entries(incrementalCounts).map(([trigger, count]) => [
+      trigger,
+      { count, lastUsedAt: count, queries: {}, score: count * 100 }
+    ])
+  );
+  const top = buildTopFrecency(incrementalEntries, FRECENCY_LIMIT);
   t0 = Bun.nanoseconds();
   for (let i = 0; i < FRECENCY_ITERS; i++) {
     const trigger = FREQUENCY_TRIGGERS[(i + run) % FREQUENCY_TRIGGERS.length];
     const next = (incrementalCounts[trigger] || 0) + 1;
     incrementalCounts[trigger] = next;
-    updateTopFrecencyOnIncrement(top, trigger, next, FRECENCY_LIMIT);
+    const nextEntry = { count: next, lastUsedAt: next, queries: {}, score: next * 100 };
+    incrementalEntries[trigger] = nextEntry;
+    updateTopFrecencyOnIncrement(top, trigger, nextEntry, FRECENCY_LIMIT);
     frecencySink += serializeTopFrecency(top).length;
   }
   incrementalFrecencyTimes.push((Bun.nanoseconds() - t0) / FRECENCY_ITERS);

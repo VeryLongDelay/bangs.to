@@ -15,8 +15,8 @@ await rm('dist', { recursive: true, force: true });
 await rm(ASTRO_OUTDIR, { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
 
-console.log('=== Bundle app + bangs + theme (to discover chunks) ===');
-const [appBuild, bangsBuild, themeBuild] = await Promise.all([
+console.log('=== Bundle app + bangs + stats + theme (to discover chunks) ===');
+const [appBuild, bangsBuild, statsBuild, themeBuild] = await Promise.all([
   Bun.build({
     entrypoints: ['src/ui/app.ts'],
     outdir: 'dist',
@@ -36,6 +36,15 @@ const [appBuild, bangsBuild, themeBuild] = await Promise.all([
     format: 'esm'
   }),
   Bun.build({
+    entrypoints: ['src/ui/stats.ts'],
+    outdir: 'dist',
+    naming: 'stats.js',
+    splitting: true,
+    minify: true,
+    target: 'browser',
+    format: 'esm'
+  }),
+  Bun.build({
     entrypoints: ['src/ui/theme.ts'],
     outdir: 'dist',
     naming: 'theme.js',
@@ -46,9 +55,15 @@ const [appBuild, bangsBuild, themeBuild] = await Promise.all([
 ]);
 
 const SIZE_THRESHOLD = 50 * 1024; // 50 KB
-const allOutputs = [...appBuild.outputs, ...bangsBuild.outputs, ...themeBuild.outputs];
+const allOutputs = [
+  ...appBuild.outputs,
+  ...bangsBuild.outputs,
+  ...statsBuild.outputs,
+  ...themeBuild.outputs
+];
+const uniqueOutputs = [...new Map(allOutputs.map(output => [output.path, output])).values()];
 const outputFingerprints: string[] = [];
-for (const out of allOutputs) {
+for (const out of uniqueOutputs) {
   const contentHash = createHash('sha256')
     .update(await Bun.file(out.path).bytes())
     .digest('hex');
@@ -57,12 +72,13 @@ for (const out of allOutputs) {
 outputFingerprints.sort();
 const cacheVersion = `fb-${createHash('sha256').update(outputFingerprints.join(',')).digest('hex').slice(0, 8)}`;
 
-const extraAssets = allOutputs
+const extraAssets = uniqueOutputs
   .filter(
     o =>
       !(
         o.path.endsWith('/app.js') ||
         o.path.endsWith('/bangs.js') ||
+        o.path.endsWith('/stats.js') ||
         o.path.endsWith('/theme.js')
       ) && o.size < SIZE_THRESHOLD
   )
@@ -103,6 +119,7 @@ for (const file of [
   'index.html',
   'home.html',
   'bangs.html',
+  'stats.html',
   'contact.html',
   'faq.html',
   'instructions.html'
@@ -137,6 +154,7 @@ const scriptHashes = [
   ...extractScriptHashes(await Bun.file('dist/index.html').text()),
   ...extractScriptHashes(await Bun.file('dist/home.html').text()),
   ...extractScriptHashes(await Bun.file('dist/bangs.html').text()),
+  ...extractScriptHashes(await Bun.file('dist/stats.html').text()),
   ...extractScriptHashes(await Bun.file('dist/contact.html').text()),
   ...extractScriptHashes(await Bun.file('dist/faq.html').text()),
   ...extractScriptHashes(await Bun.file('dist/instructions.html').text())
@@ -168,6 +186,12 @@ await Bun.write(
     `  ${pageCspHeader}`,
     '',
     '/bangs.html',
+    `  ${pageCspHeader}`,
+    '',
+    '/stats',
+    `  ${pageCspHeader}`,
+    '',
+    '/stats.html',
     `  ${pageCspHeader}`,
     '',
     '/contact',

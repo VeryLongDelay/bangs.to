@@ -8,6 +8,7 @@ import {
 } from './shared/suggest-cookie';
 import { resolveTemplateParts } from './shared/template';
 import { bangSuggestions } from './suggest-bang';
+import type { SuggestFrecency } from './sw/frecency';
 
 export interface SuggestCoreSettings {
   customUrl: string | null;
@@ -16,7 +17,7 @@ export interface SuggestCoreSettings {
 }
 
 export interface SuggestBangContext {
-  frecent: Record<string, number>;
+  frecent: SuggestFrecency;
   custom: string[];
 }
 

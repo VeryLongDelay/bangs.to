@@ -5,6 +5,7 @@ import { encodeSuggestCookieValue, parseSuggestCookieValue } from '../shared/sug
 import {
   getCachedSettings,
   getFrecencyValue,
+  getSuggestFrecencyValue,
   invalidateCache,
   loadFrecency,
   readRedirectSettings,
@@ -75,16 +76,16 @@ function ensureOptionalPrecache(): Promise<void> {
   return optionalPrecachePromise;
 }
 
-function queueBangSideEffects(e: FetchEvent, trigger: string): void {
+function queueBangSideEffects(e: FetchEvent, trigger: string, rawQuery: string): void {
   e.waitUntil(
     RESOLVED_PROMISE.then(() => {
-      trackBangUsage(trigger);
+      trackBangUsage(trigger, extractBangQuery(rawQuery, trigger));
       const val = getFrecencyValue();
       if (!val || typeof cookieStore === 'undefined') {
         return;
       }
 
-      const frecency = parseLegacyFrecency(val);
+      const frecency = getSuggestFrecencyValue();
       const updateSuggestCookie = cookieStore.get('suggest').then(cookie => {
         if (!cookie?.value) {
           return;
@@ -121,29 +122,42 @@ function queueBangSideEffects(e: FetchEvent, trigger: string): void {
   );
 }
 
-function parseLegacyFrecency(raw: string): Record<string, number> {
-  const out: Record<string, number> = {};
-  let i = 0;
+function decodeBangQuery(rawQuery: string): string {
+  try {
+    return decodeURIComponent(rawQuery.replace(/\+/g, ' ')).trim();
+  } catch {
+    return rawQuery.replace(/\+/g, ' ').trim();
+  }
+}
 
-  while (i <= raw.length) {
-    let dot = raw.indexOf('.', i);
-    if (dot === -1) {
-      dot = raw.length;
-    }
-    const sep = raw.lastIndexOf(':', dot - 1);
-    if (sep > i) {
-      const count = parseInt(raw.substring(sep + 1, dot), 10);
-      if (count > 0) {
-        out[raw.substring(i, sep)] = count;
-      }
-    }
-    if (dot === raw.length) {
-      break;
-    }
-    i = dot + 1;
+function extractBangQuery(rawQuery: string, trigger: string): string {
+  if (!rawQuery) {
+    return '';
   }
 
-  return out;
+  const decoded = decodeBangQuery(rawQuery);
+  const normalized = decoded.toLowerCase();
+  const bang = trigger.toLowerCase();
+  const prefix = `!${bang}`;
+  const suffix = `${bang}!`;
+
+  if (normalized === prefix || normalized === suffix) {
+    return '';
+  }
+  if (normalized.startsWith(`${prefix} `)) {
+    return decoded.substring(prefix.length + 1).trim();
+  }
+  if (normalized.startsWith(`${suffix} `)) {
+    return decoded.substring(suffix.length + 1).trim();
+  }
+  if (normalized.endsWith(` ${prefix}`)) {
+    return decoded.substring(0, decoded.length - prefix.length - 1).trim();
+  }
+  if (normalized.endsWith(` ${suffix}`)) {
+    return decoded.substring(0, decoded.length - suffix.length - 1).trim();
+  }
+
+  return '';
 }
 
 self.addEventListener('install', (e: ExtendableEvent) => {
@@ -210,7 +224,7 @@ self.addEventListener('fetch', (e: FetchEvent) => {
       if (cached) {
         const [resp, trigger] = redirectRaw(rawQ, cached);
         if (trigger) {
-          queueBangSideEffects(e, trigger);
+          queueBangSideEffects(e, trigger, rawQ);
         }
         e.respondWith(resp);
       } else {
@@ -218,7 +232,7 @@ self.addEventListener('fetch', (e: FetchEvent) => {
           readRedirectSettings().then(s => {
             const [resp, trigger] = redirectRaw(rawQ, s);
             if (trigger) {
-              queueBangSideEffects(e, trigger);
+              queueBangSideEffects(e, trigger, rawQ);
             }
             return resp;
           })
