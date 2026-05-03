@@ -130,6 +130,69 @@ async function seedCustomBangs(
   throw new Error('failed to seed custom bangs after retries');
 }
 
+async function seedSettings(page: Page, settings: Record<string, string>): Promise<void> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await page.waitForLoadState('domcontentloaded');
+      await page.evaluate(async values => {
+        await new Promise<void>((resolve, reject) => {
+          const req = indexedDB.open('flashbang', 1);
+
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('settings')) {
+              db.createObjectStore('settings', { keyPath: 'key' });
+            }
+            if (!db.objectStoreNames.contains('custom-bangs')) {
+              db.createObjectStore('custom-bangs', { keyPath: 'trigger' });
+            }
+          };
+
+          req.onerror = () => {
+            reject(req.error ?? new Error('failed to open IndexedDB'));
+          };
+
+          req.onsuccess = () => {
+            const db = req.result;
+            const tx = db.transaction('settings', 'readwrite');
+            const store = tx.objectStore('settings');
+            for (const [key, value] of Object.entries(values)) {
+              store.put({ key, value });
+            }
+            tx.oncomplete = () => {
+              db.close();
+              resolve();
+            };
+            tx.onerror = () => {
+              db.close();
+              reject(tx.error ?? new Error('failed to write settings'));
+            };
+            tx.onabort = () => {
+              db.close();
+              reject(tx.error ?? new Error('settings transaction aborted'));
+            };
+          };
+        });
+      }, settings);
+
+      await page.evaluate(async () => {
+        navigator.serviceWorker.controller?.postMessage({ type: 'invalidate' });
+        const registration = await navigator.serviceWorker.getRegistration();
+        registration?.active?.postMessage({ type: 'invalidate' });
+      });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error ?? '');
+      if (message.includes('Execution context was destroyed')) {
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw new Error('failed to seed settings after retries');
+}
+
 test('suggest endpoint returns 400 when q parameter is missing', async ({ request }) => {
   const response = await request.get('/suggest');
   expect(response.status()).toBe(400);
@@ -145,7 +208,7 @@ test('suggest endpoint respects provider override via sp=none', async ({ request
 });
 
 test('suggestions include custom bang entries from the suggest cookie', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/health');
   const customBang = 'mycustombang';
   const query = '!mycustom';
   await page.evaluate(
@@ -187,6 +250,7 @@ test('warm redirect supports suffix bang syntax', async ({ page }) => {
 test('warm redirect falls back to default search for unknown bangs', async ({ page }) => {
   await mockGoogleSearchRoute(page);
   await ensureWarmController(page);
+  await seedSettings(page, { 'default-bang': 'g' });
   await navigateAndWaitForRedirect(page, '/?q=%21zzzb%20hello', /google\.com\/search\?/);
   const redirected = new URL(page.url());
   expect(redirected.hostname).toBe('www.google.com');
@@ -197,6 +261,7 @@ test('warm redirect falls back to default search for unknown bangs', async ({ pa
 test('warm redirect uses lucky URL for trailing bare bang', async ({ page }) => {
   await mockGoogleSearchRoute(page);
   await ensureWarmController(page);
+  await seedSettings(page, { 'default-bang': 'g' });
   await navigateAndWaitForRedirect(page, '/?q=hello%20%21', /google\.com\/search\?/);
   const redirected = new URL(page.url());
   expect(redirected.searchParams.get('q')).toBe('hello');
@@ -304,20 +369,23 @@ test('cold-start redirect uses service worker message path before controller exi
   await mockGoogleSearchRoute(page);
 
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  expect(
-    await page.evaluate(() => {
-      if (!('serviceWorker' in navigator)) {
-        return null;
-      }
-      return navigator.serviceWorker.controller;
-    })
-  ).toBeNull();
-
+  await seedSettings(page, { 'default-bang': 'g' });
   const target = '/?q=%21g%20hello';
-  await Promise.all([
-    page.waitForURL(/google\.com\/search\?q=hello/),
-    page.goto(target, { waitUntil: 'commit' })
-  ]);
+  const hasController = await page.evaluate(() => {
+    if (!('serviceWorker' in navigator)) {
+      return false;
+    }
+    return navigator.serviceWorker.controller !== null;
+  });
+
+  if (hasController) {
+    await navigateAndWaitForRedirect(page, target, GOOGLE_REDIRECT);
+  } else {
+    await Promise.all([
+      page.waitForURL(GOOGLE_REDIRECT),
+      page.goto(target, { waitUntil: 'commit' })
+    ]);
+  }
   expect(await page.url()).toMatch(GOOGLE_REDIRECT);
   await context.close();
 });

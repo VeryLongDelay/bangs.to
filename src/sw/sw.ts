@@ -203,6 +203,9 @@ self.addEventListener('message', (e: ExtendableMessageEvent) => {
 
 self.addEventListener('fetch', (e: FetchEvent) => {
   const raw = e.request.url;
+  const { pathname } = new URL(raw);
+  const isSearchEntrypoint =
+    pathname === '/' || pathname === '/index.html' || pathname === '/settings';
 
   if (__IS_DEV__ && raw.includes('/__dev/')) {
     return;
@@ -215,7 +218,7 @@ self.addEventListener('fetch', (e: FetchEvent) => {
   }
 
   const qIdx = raw.indexOf('?q=');
-  if (qIdx !== -1) {
+  if (isSearchEntrypoint && qIdx !== -1) {
     const vStart = qIdx + 3;
     const vEnd = raw.indexOf('&', vStart);
     const rawQ = vEnd === -1 ? raw.substring(vStart) : raw.substring(vStart, vEnd);
@@ -242,7 +245,7 @@ self.addEventListener('fetch', (e: FetchEvent) => {
     }
   }
 
-  if (raw.endsWith('/') || raw.endsWith('/index.html') || raw.endsWith('/settings')) {
+  if (isSearchEntrypoint) {
     e.respondWith(
       caches
         .match(new Request('/home'))
