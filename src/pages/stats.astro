@@ -14,10 +14,18 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       <div
         class="relative overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-blue-950 px-5 py-6 text-white sm:px-6 sm:py-7"
       >
-        <div class="absolute right-[-64px] top-[-72px] h-40 w-40 rounded-full bg-blue-400/18 blur-3xl"></div>
-        <div class="absolute bottom-[-48px] left-[18%] h-28 w-28 rounded-full bg-cyan-300/12 blur-3xl"></div>
+        <div
+          class="absolute right-[-64px] top-[-72px] h-40 w-40 rounded-full bg-blue-400/18 blur-3xl"
+        >
+        </div>
+        <div
+          class="absolute bottom-[-48px] left-[18%] h-28 w-28 rounded-full bg-cyan-300/12 blur-3xl"
+        >
+        </div>
         <div class="relative">
-          <p class="text-xs font-700 uppercase tracking-[0.24em] text-blue-100/78">Local analytics</p>
+          <p class="text-xs font-700 uppercase tracking-[0.24em] text-blue-100/78">
+            Local analytics
+          </p>
           <h1
             class="mt-3 max-w-[12ch] font-display text-[2.35rem] font-800 leading-[0.95] tracking-[-0.05em] sm:text-[3rem]"
           >
@@ -27,7 +35,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             Stats live in your browser. When you clear your browser's cache, your stats will reset.
           </p>
 
-          <div class="mt-5 flex flex-wrap gap-2 text-xs font-700 uppercase tracking-[0.16em]">
+          <!-- <div class="mt-5 flex flex-wrap gap-2 text-xs font-700 uppercase tracking-[0.16em]">
             <a
               href="#stats-weekly-rhythm"
               class="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-blue-50/86 transition-colors duration-200 hover:border-white/22 hover:bg-white/12"
@@ -52,30 +60,77 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             >
               Query memory
             </a>
+          </div> -->
+
+          <div id="stats-delete-controls" class="mt-4 flex flex-wrap items-center gap-2">
+            <button
+              id="stats-clear-button"
+              type="button"
+              class="rounded-full border border-white/14 bg-white/8 px-3 py-2 text-xs font-700 uppercase tracking-[0.16em] text-blue-50/88 transition-colors duration-200 hover:border-white/24 hover:bg-white/12"
+            >
+              Clear history
+            </button>
+
+            <div
+              id="stats-clear-confirm"
+              class="hidden items-center gap-2 rounded-full border border-white/16 bg-slate-950/72 px-2 py-2 text-xs font-700 uppercase tracking-[0.16em] text-blue-50/92"
+            >
+              <span class="px-1">Clear local stats?</span>
+              <button
+                id="stats-clear-confirm-yes"
+                type="button"
+                aria-label="Confirm clearing local stats"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-300/26 bg-emerald-400/14 text-sm text-emerald-100 transition-colors duration-200 hover:border-emerald-300/40 hover:bg-emerald-400/22"
+              >
+                ✓
+              </button>
+              <button
+                id="stats-clear-confirm-no"
+                type="button"
+                aria-label="Cancel clearing local stats"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/14 bg-white/8 text-sm text-blue-50/88 transition-colors duration-200 hover:border-white/24 hover:bg-white/12"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div
+              id="stats-restore-banner"
+              class="hidden items-center gap-2 rounded-full border border-white/14 bg-white/8 px-3 py-2 text-xs font-700 uppercase tracking-[0.16em] text-blue-50/88"
+            >
+              <span>History cleared for this visit</span>
+              <button
+                id="stats-restore-button"
+                type="button"
+                class="rounded-full border border-white/16 bg-slate-950/72 px-3 py-1.5 text-[11px] text-blue-50 transition-colors duration-200 hover:border-white/26 hover:bg-slate-950/82"
+              >
+                Restore
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <aside class="card p-5 sm:p-6">
-      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">How ranking works</p>
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">!bangs stats</p>
       <div class="mt-4 grid gap-3">
         <div class="rounded-[22px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Recency stays hot</p>
+          <p class="text-sm font-700 text-text">Stats are local</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            New activity gets the strongest weight, then decays over time.
+            This page only shows searches from the site, not from opensearch or from your browser's
+            address bar.
           </p>
         </div>
         <div class="rounded-[22px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Privacy by design</p>
-          <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Stats do not leave your machine.
-          </p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">Stats do not leave your machine.</p>
         </div>
         <div class="rounded-[22px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Data doesn't leave your device</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            All stats are taken from your browser's local cache. When you clear your history, your stats will be reset.
+            All stats are taken from your browser's local cache. When you clear your history, your
+            stats will be reset.
           </p>
         </div>
       </div>
@@ -96,6 +151,15 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         Run searches like <code>!gh astro</code>, <code>!mdn fetch</code>, or
         <code>!w saturn</code> and this page will start visualizing what you use most.
       </p>
+      <div id="stats-empty-restore" class="mt-5 hidden justify-center">
+        <button
+          id="stats-empty-restore-button"
+          type="button"
+          class="rounded-full border border-slate-200/80 bg-white px-4 py-2 text-xs font-700 uppercase tracking-[0.16em] text-slate-700 shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition-colors duration-200 hover:border-slate-300 hover:text-slate-900 dark:border-white/12 dark:bg-[rgba(15,23,42,0.78)] dark:text-slate-100"
+        >
+          Restore cleared stats
+        </button>
+      </div>
     </div>
   </section>
 
@@ -110,12 +174,16 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         </div>
         <p class="text-xs text-text-secondary">Local time, device-only history</p>
       </div>
-      <p id="stats-heatmap-summary" class="mt-2 max-w-[72ch] text-sm leading-7 text-text-secondary"></p>
+      <p id="stats-heatmap-summary" class="mt-2 max-w-[72ch] text-sm leading-7 text-text-secondary">
+      </p>
       <div class="mt-5 overflow-x-auto pb-1">
         <div class="min-w-[780px]">
           <div class="mb-2 flex items-center gap-2 sm:gap-3">
             <div class="w-11 shrink-0"></div>
-            <div class="grid flex-1 gap-1.5" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
+            <div
+              class="grid flex-1 gap-1.5"
+              style="grid-template-columns: repeat(24, minmax(0, 1fr));"
+            >
               {
                 Array.from({ length: 24 }, (_, hour) => (
                   <div class="text-center text-[10px] font-700 uppercase tracking-[0.14em] text-text-muted">
@@ -130,16 +198,25 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             class="grid gap-1.5"
             role="grid"
             aria-label="Search activity heatmap by day of week and hour"
-          ></div>
+          >
+          </div>
         </div>
       </div>
       <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
         <span>Lower activity</span>
         <div class="flex items-center gap-1.5">
-          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.08)] dark:border-white/8"></span>
-          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.28)] dark:border-white/8"></span>
-          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.52)] dark:border-white/8"></span>
-          <span class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(34,211,238,0.86)] dark:border-white/8"></span>
+          <span
+            class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.08)] dark:border-white/8"
+          ></span>
+          <span
+            class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.28)] dark:border-white/8"
+          ></span>
+          <span
+            class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(59,130,246,0.52)] dark:border-white/8"
+          ></span>
+          <span
+            class="h-3 w-5 rounded-full border border-white/65 bg-[rgba(34,211,238,0.86)] dark:border-white/8"
+          ></span>
         </div>
         <span>Higher activity</span>
       </div>

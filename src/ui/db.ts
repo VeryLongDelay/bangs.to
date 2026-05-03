@@ -27,6 +27,11 @@ export class DB {
     await idbWrap(s.put({ key, value }));
   }
 
+  async removeSetting(key: string) {
+    const s = await this.store('settings', 'readwrite');
+    await idbWrap(s.delete(key));
+  }
+
   async getAllCustomBangs(): Promise<Array<{ trigger: string; name: string; url: string }>> {
     const s = await this.store('custom-bangs');
     return idbWrap<Array<{ trigger: string; name: string; url: string }>>(s.getAll());

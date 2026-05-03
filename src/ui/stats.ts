@@ -28,6 +28,10 @@ interface StatsModel {
 
 const db = new DB();
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const FRECENCY_SETTING_KEY = 'frecency';
+let deletedSnapshotRaw: string | null = null;
+let hasStatsData = false;
+let isConfirmingClear = false;
 
 function escapeHtml(value: string): string {
   return value
@@ -313,9 +317,94 @@ function buildHeatmap(weeklyBuckets: WeeklyUsageBuckets) {
   }
 }
 
+function setDisplay(id: string, hidden: boolean, visibleClass = 'block') {
+  const node = $(id);
+  node.classList.toggle('hidden', hidden);
+  if (visibleClass) {
+    node.classList.toggle(visibleClass, !hidden);
+  }
+}
+
+function updateDeleteControls() {
+  setDisplay(
+    '#stats-clear-button',
+    isConfirmingClear || deletedSnapshotRaw !== null,
+    'inline-flex'
+  );
+  setDisplay('#stats-clear-confirm', !isConfirmingClear, 'inline-flex');
+  setDisplay('#stats-restore-banner', deletedSnapshotRaw === null, 'inline-flex');
+  setDisplay('#stats-empty-restore', deletedSnapshotRaw === null || hasStatsData, 'flex');
+}
+
+function cancelClearConfirmation() {
+  isConfirmingClear = false;
+  updateDeleteControls();
+}
+
+async function clearStatsHistory() {
+  const snapshotRaw = await db.getSetting(FRECENCY_SETTING_KEY);
+  deletedSnapshotRaw = snapshotRaw;
+  await db.removeSetting(FRECENCY_SETTING_KEY);
+  isConfirmingClear = false;
+  hasStatsData = false;
+  $('#stats-dashboard').classList.add('hidden');
+  $('#stats-empty').classList.remove('hidden');
+  updateDeleteControls();
+}
+
+async function restoreStatsHistory() {
+  if (!deletedSnapshotRaw) {
+    return;
+  }
+  await db.setSetting(FRECENCY_SETTING_KEY, deletedSnapshotRaw);
+  deletedSnapshotRaw = null;
+  isConfirmingClear = false;
+  await init();
+}
+
+function bindDeleteControls() {
+  $('#stats-clear-button').addEventListener('click', () => {
+    isConfirmingClear = true;
+    updateDeleteControls();
+  });
+
+  $('#stats-clear-confirm-no').addEventListener('click', () => {
+    cancelClearConfirmation();
+  });
+
+  $('#stats-clear-confirm-yes').addEventListener('click', () => {
+    void clearStatsHistory();
+  });
+
+  $('#stats-restore-button').addEventListener('click', () => {
+    void restoreStatsHistory();
+  });
+
+  $('#stats-empty-restore-button').addEventListener('click', () => {
+    void restoreStatsHistory();
+  });
+
+  document.addEventListener('click', event => {
+    if (!isConfirmingClear) {
+      return;
+    }
+    const controls = $('#stats-delete-controls');
+    const target = event.target;
+    if (target instanceof Node && !controls.contains(target)) {
+      cancelClearConfirmation();
+    }
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && isConfirmingClear) {
+      cancelClearConfirmation();
+    }
+  });
+}
+
 async function loadStatsModel(): Promise<StatsModel> {
   const [raw, mod] = await Promise.all([
-    db.getSetting('frecency'),
+    db.getSetting(FRECENCY_SETTING_KEY),
     import('../generated/bangs-meta.js')
   ]);
   const snapshot = deserializeFrecencySnapshot(raw);
@@ -348,12 +437,17 @@ async function loadStatsModel(): Promise<StatsModel> {
 
 async function init() {
   const { entries, weeklyBuckets } = await loadStatsModel();
+  hasStatsData = entries.length > 0;
+  updateDeleteControls();
 
   if (entries.length === 0) {
     $('#stats-dashboard').classList.add('hidden');
     $('#stats-empty').classList.remove('hidden');
     return;
   }
+
+  $('#stats-empty').classList.add('hidden');
+  $('#stats-dashboard').classList.remove('hidden');
 
   const totalUses = entries.reduce((sum, entry) => sum + entry.count, 0);
   const hottest = entries[0];
@@ -396,8 +490,12 @@ async function init() {
   buildHeatmap(weeklyBuckets);
 }
 
+bindDeleteControls();
+
 init().catch(error => {
   console.error('Failed to load stats', error);
+  hasStatsData = false;
+  updateDeleteControls();
   $('#stats-dashboard').classList.add('hidden');
   $('#stats-empty').classList.remove('hidden');
 });
