@@ -88,6 +88,13 @@ function summaryCard(label: string, value: string, detail: string, accent: strin
   return card;
 }
 
+function formatPercent(numerator: number, denominator: number): string {
+  if (denominator <= 0) {
+    return '0%';
+  }
+  return `${Math.max(1, Math.round((numerator / denominator) * 100))}%`;
+}
+
 function buildLeaderboard(entries: DisplayEntry[]) {
   const container = $('#stats-top-list');
   container.replaceChildren();
@@ -146,6 +153,47 @@ function buildRecent(entries: DisplayEntry[]) {
         <p class="shrink-0 text-xs font-700 uppercase tracking-[0.18em] text-primary-700">
           ${formatRelativeTime(entry.lastUsedAt)}
         </p>
+      </div>
+    `;
+    container.append(article);
+  }
+}
+
+function buildFrequency(entries: DisplayEntry[]) {
+  const container = $('#stats-frequency-list');
+  container.replaceChildren();
+
+  const ranked = [...entries]
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        b.score - a.score ||
+        b.lastUsedAt - a.lastUsedAt ||
+        a.trigger.localeCompare(b.trigger)
+    )
+    .slice(0, 8);
+  const maxCount = ranked[0]?.count || 1;
+  const totalUses = entries.reduce((sum, entry) => sum + entry.count, 0);
+
+  for (const entry of ranked) {
+    const article = el(
+      'article',
+      'rounded-[22px] border border-white/70 bg-bg-soft px-4 py-3 dark:border-white/10'
+    );
+    const width = Math.max(10, Math.round((entry.count / maxCount) * 100));
+    article.innerHTML = `
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-sm font-700 text-text"><code>!${escapeHtml(entry.trigger)}</code> <span class="font-500 text-text-secondary">${escapeHtml(entry.name)}</span></p>
+          <p class="mt-1 truncate text-xs uppercase tracking-[0.16em] text-text-muted">${formatPercent(entry.count, totalUses)} of all tracked runs</p>
+        </div>
+        <div class="shrink-0 text-right">
+          <p class="text-sm font-700 text-text">${entry.count.toLocaleString()}</p>
+          <p class="text-xs text-text-secondary">total uses</p>
+        </div>
+      </div>
+      <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/80 dark:bg-white/8">
+        <div class="h-full rounded-full bg-linear-to-r from-amber-400 via-orange-400 to-rose-400" style="width:${width}%"></div>
       </div>
     `;
     container.append(article);
@@ -343,6 +391,7 @@ async function init() {
 
   buildLeaderboard(entries);
   buildRecent(entries);
+  buildFrequency(entries);
   buildQueryGroups(entries);
   buildHeatmap(weeklyBuckets);
 }
