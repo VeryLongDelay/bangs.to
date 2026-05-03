@@ -1,2 +1,2 @@
-export const SITE_TITLE = 'Bangs.To';
-export const SITE_TAGLINE = 'A fast, local-first "search engine" for !bang users ';
+export const SITE_TITLE = 'Bangs.to';
+export const SITE_TAGLINE = 'A fast, local-first search tool for !bangs users ';
