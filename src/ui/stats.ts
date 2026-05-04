@@ -99,6 +99,10 @@ function formatPercent(numerator: number, denominator: number): string {
   return `${Math.max(1, Math.round((numerator / denominator) * 100))}%`;
 }
 
+function queryMemoryHref(trigger: string, query: string): string {
+  return `/?q=${encodeURIComponent(`!${trigger} ${query}`)}`;
+}
+
 function buildLeaderboard(entries: DisplayEntry[]) {
   const container = $('#stats-top-list');
   container.replaceChildren();
@@ -228,9 +232,14 @@ function buildQueryGroups(entries: DisplayEntry[]) {
       .slice(0, 4)
       .map(
         query => `
-          <span class="rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-600 text-slate-700 shadow-[0_10px_24px_rgba(15,23,42,0.06)] dark:border-white/12 dark:bg-[rgba(15,23,42,0.78)] dark:text-slate-100 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <a
+            href="${queryMemoryHref(entry.trigger, query.query)}"
+            class="query-memory-pill rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-600 text-slate-700 no-underline shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60"
+            aria-label="Repeat search !${escapeHtml(entry.trigger)} ${escapeHtml(query.query)}"
+            title="Repeat search !${escapeHtml(entry.trigger)} ${escapeHtml(query.query)}"
+          >
             ${escapeHtml(query.query)}
-          </span>
+          </a>
         `
       )
       .join('');

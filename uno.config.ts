@@ -562,6 +562,19 @@ export default defineConfig({
           background: rgba(30, 64, 175, 0.18) !important;
         }
 
+        .query-memory-pill {
+          color: #334155;
+          text-decoration: none;
+        }
+
+        .query-memory-pill:visited {
+          color: #334155;
+        }
+
+        .query-memory-pill:hover {
+          color: #0f172a;
+        }
+
         :root[data-theme="dark"] [class*="bg-white/80"],
         :root[data-theme="dark"] [class*="bg-white/85"],
         :root[data-theme="dark"] [class*="bg-white/86"],
@@ -574,6 +587,25 @@ export default defineConfig({
         :root[data-theme="dark"] [class*="border-white/80"],
         :root[data-theme="dark"] [class*="border-white/85"] {
           border-color: rgba(148, 163, 184, 0.14) !important;
+        }
+
+        :root[data-theme="dark"] .query-memory-pill {
+          background: rgba(2, 6, 23, 0.94) !important;
+          border-color: rgba(71, 85, 105, 0.78) !important;
+          color: #e5eef9 !important;
+          box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+        }
+
+        :root[data-theme="dark"] .query-memory-pill:visited {
+          color: #e5eef9 !important;
+        }
+
+        :root[data-theme="dark"] .query-memory-pill:hover {
+          background: rgba(15, 23, 42, 0.98) !important;
+          border-color: rgba(100, 116, 139, 0.82) !important;
+          color: #f8fbff !important;
         }
 
         :root[data-theme="dark"] #settings-modal {
