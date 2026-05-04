@@ -1,6 +1,7 @@
 import { normalize } from 'node:path';
 import { handleOpenSearchRequest, handleSuggestRequest } from '../src/server/handlers';
 import { pageHeaders, SW_HEADERS } from '../src/server/headers';
+import { getStaticRedirect } from '../src/server/redirects';
 import { readPathname } from '../src/shared/raw-url';
 
 const SECURITY_HEADERS = pageHeaders("'unsafe-inline'");
@@ -68,6 +69,13 @@ Bun.serve({
   port,
   async fetch(req) {
     const pathname = readPathname(req.url);
+    const redirectTarget = getStaticRedirect(pathname);
+
+    if (redirectTarget) {
+      const url = new URL(req.url);
+      const location = `${redirectTarget}${url.search}`;
+      return Response.redirect(location, 302);
+    }
 
     if (pathname === '/health') {
       return new Response('ok');

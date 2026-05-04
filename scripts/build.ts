@@ -139,6 +139,7 @@ await rm(ASTRO_OUTDIR, { recursive: true, force: true });
 await Bun.write('dist/manifest.json', Bun.file('src/ui/manifest.json'));
 await Bun.write('dist/icon.svg', Bun.file('src/ui/icon.svg'));
 await Bun.write('dist/robots.txt', 'User-agent: *\nAllow: /\n');
+await Bun.write('dist/_redirects', '/history /stats 302\n/history.html /stats 302\n');
 
 console.log('=== Generate _headers with CSP ===');
 function extractScriptHashes(html: string): string[] {
