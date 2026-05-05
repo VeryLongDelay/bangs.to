@@ -3,12 +3,12 @@ import { readOrigin, readPathname } from '../src/shared/raw-url';
 
 describe('readPathname', () => {
   test('parses pathname from absolute URL with query and hash', () => {
-    expect(readPathname('https://flashbang.local/suggest?q=cats&sp=none#frag')).toBe('/suggest');
+    expect(readPathname('https://bangs.local/suggest?q=cats&sp=none#frag')).toBe('/suggest');
   });
 
   test('returns / for origin-only absolute URL', () => {
-    expect(readPathname('https://flashbang.local')).toBe('/');
-    expect(readPathname('https://flashbang.local?q=1')).toBe('/');
+    expect(readPathname('https://bangs.local')).toBe('/');
+    expect(readPathname('https://bangs.local?q=1')).toBe('/');
   });
 
   test('parses pathname from path-only URL', () => {
@@ -21,14 +21,14 @@ describe('readPathname', () => {
   });
 
   test('treats empty pathname as /', () => {
-    expect(readPathname('https://flashbang.local#top')).toBe('/');
+    expect(readPathname('https://bangs.local#top')).toBe('/');
   });
 });
 
 describe('readOrigin', () => {
   test('returns origin for absolute URLs with and without paths', () => {
-    expect(readOrigin('https://flashbang.local/suggest?q=1')).toBe('https://flashbang.local');
-    expect(readOrigin('https://flashbang.local')).toBe('https://flashbang.local');
+    expect(readOrigin('https://bangs.local/suggest?q=1')).toBe('https://bangs.local');
+    expect(readOrigin('https://bangs.local')).toBe('https://bangs.local');
     expect(readOrigin('http://localhost:3000/path')).toBe('http://localhost:3000');
   });
 

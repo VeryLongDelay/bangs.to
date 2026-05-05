@@ -5,6 +5,7 @@ import { deserializeFrecencySnapshot } from '../../src/sw/frecency';
 const GOOGLE_REDIRECT = /google\.com\/search\?q=hello/;
 const GOOGLE_HOST = 'https://www.google.com';
 const CUSTOM_HOST = 'https://example.com';
+const DB_NAME = 'bangs-to';
 
 async function mockGoogleSearchRoute(page: Page): Promise<void> {
   await page.route(`${GOOGLE_HOST}/**`, route => {
@@ -74,46 +75,49 @@ async function seedCustomBangs(
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       await page.waitForLoadState('domcontentloaded');
-      await page.evaluate(async customBangs => {
-        await new Promise<void>((resolve, reject) => {
-          const req = indexedDB.open('flashbang', 1);
+      await page.evaluate(
+        async ({ customBangs, dbName }) => {
+          await new Promise<void>((resolve, reject) => {
+            const req = indexedDB.open(dbName, 1);
 
-          req.onupgradeneeded = () => {
-            const db = req.result;
-            if (!db.objectStoreNames.contains('settings')) {
-              db.createObjectStore('settings', { keyPath: 'key' });
-            }
-            if (!db.objectStoreNames.contains('custom-bangs')) {
-              db.createObjectStore('custom-bangs', { keyPath: 'trigger' });
-            }
-          };
+            req.onupgradeneeded = () => {
+              const db = req.result;
+              if (!db.objectStoreNames.contains('settings')) {
+                db.createObjectStore('settings', { keyPath: 'key' });
+              }
+              if (!db.objectStoreNames.contains('custom-bangs')) {
+                db.createObjectStore('custom-bangs', { keyPath: 'trigger' });
+              }
+            };
 
-          req.onerror = () => {
-            reject(req.error ?? new Error('failed to open IndexedDB'));
-          };
+            req.onerror = () => {
+              reject(req.error ?? new Error('failed to open IndexedDB'));
+            };
 
-          req.onsuccess = () => {
-            const db = req.result;
-            const tx = db.transaction('custom-bangs', 'readwrite');
-            const store = tx.objectStore('custom-bangs');
-            for (const bang of customBangs) {
-              store.put(bang);
-            }
-            tx.oncomplete = () => {
-              db.close();
-              resolve();
+            req.onsuccess = () => {
+              const db = req.result;
+              const tx = db.transaction('custom-bangs', 'readwrite');
+              const store = tx.objectStore('custom-bangs');
+              for (const bang of customBangs) {
+                store.put(bang);
+              }
+              tx.oncomplete = () => {
+                db.close();
+                resolve();
+              };
+              tx.onerror = () => {
+                db.close();
+                reject(tx.error ?? new Error('failed to write custom bangs'));
+              };
+              tx.onabort = () => {
+                db.close();
+                reject(tx.error ?? new Error('custom bang transaction aborted'));
+              };
             };
-            tx.onerror = () => {
-              db.close();
-              reject(tx.error ?? new Error('failed to write custom bangs'));
-            };
-            tx.onabort = () => {
-              db.close();
-              reject(tx.error ?? new Error('custom bang transaction aborted'));
-            };
-          };
-        });
-      }, bangs);
+          });
+        },
+        { customBangs: bangs, dbName: DB_NAME }
+      );
 
       await page.evaluate(() => {
         navigator.serviceWorker.controller?.postMessage({ type: 'invalidate' });
@@ -135,46 +139,49 @@ async function seedSettings(page: Page, settings: Record<string, string>): Promi
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       await page.waitForLoadState('domcontentloaded');
-      await page.evaluate(async values => {
-        await new Promise<void>((resolve, reject) => {
-          const req = indexedDB.open('flashbang', 1);
+      await page.evaluate(
+        async ({ values, dbName }) => {
+          await new Promise<void>((resolve, reject) => {
+            const req = indexedDB.open(dbName, 1);
 
-          req.onupgradeneeded = () => {
-            const db = req.result;
-            if (!db.objectStoreNames.contains('settings')) {
-              db.createObjectStore('settings', { keyPath: 'key' });
-            }
-            if (!db.objectStoreNames.contains('custom-bangs')) {
-              db.createObjectStore('custom-bangs', { keyPath: 'trigger' });
-            }
-          };
+            req.onupgradeneeded = () => {
+              const db = req.result;
+              if (!db.objectStoreNames.contains('settings')) {
+                db.createObjectStore('settings', { keyPath: 'key' });
+              }
+              if (!db.objectStoreNames.contains('custom-bangs')) {
+                db.createObjectStore('custom-bangs', { keyPath: 'trigger' });
+              }
+            };
 
-          req.onerror = () => {
-            reject(req.error ?? new Error('failed to open IndexedDB'));
-          };
+            req.onerror = () => {
+              reject(req.error ?? new Error('failed to open IndexedDB'));
+            };
 
-          req.onsuccess = () => {
-            const db = req.result;
-            const tx = db.transaction('settings', 'readwrite');
-            const store = tx.objectStore('settings');
-            for (const [key, value] of Object.entries(values)) {
-              store.put({ key, value });
-            }
-            tx.oncomplete = () => {
-              db.close();
-              resolve();
+            req.onsuccess = () => {
+              const db = req.result;
+              const tx = db.transaction('settings', 'readwrite');
+              const store = tx.objectStore('settings');
+              for (const [key, value] of Object.entries(values)) {
+                store.put({ key, value });
+              }
+              tx.oncomplete = () => {
+                db.close();
+                resolve();
+              };
+              tx.onerror = () => {
+                db.close();
+                reject(tx.error ?? new Error('failed to write settings'));
+              };
+              tx.onabort = () => {
+                db.close();
+                reject(tx.error ?? new Error('settings transaction aborted'));
+              };
             };
-            tx.onerror = () => {
-              db.close();
-              reject(tx.error ?? new Error('failed to write settings'));
-            };
-            tx.onabort = () => {
-              db.close();
-              reject(tx.error ?? new Error('settings transaction aborted'));
-            };
-          };
-        });
-      }, settings);
+          });
+        },
+        { values: settings, dbName: DB_NAME }
+      );
 
       await page.evaluate(async () => {
         navigator.serviceWorker.controller?.postMessage({ type: 'invalidate' });
@@ -195,31 +202,34 @@ async function seedSettings(page: Page, settings: Record<string, string>): Promi
 }
 
 function readSetting(page: Page, key: string): Promise<string | null> {
-  return page.evaluate(settingKey => {
-    return new Promise<string | null>((resolve, reject) => {
-      const req = indexedDB.open('flashbang', 1);
+  return page.evaluate(
+    ({ settingKey, dbName }) => {
+      return new Promise<string | null>((resolve, reject) => {
+        const req = indexedDB.open(dbName, 1);
 
-      req.onerror = () => {
-        reject(req.error ?? new Error('failed to open IndexedDB'));
-      };
+        req.onerror = () => {
+          reject(req.error ?? new Error('failed to open IndexedDB'));
+        };
 
-      req.onsuccess = () => {
-        const db = req.result;
-        const tx = db.transaction('settings', 'readonly');
-        const store = tx.objectStore('settings');
-        const getReq = store.get(settingKey);
-        getReq.onerror = () => {
-          db.close();
-          reject(getReq.error ?? new Error('failed to read setting'));
+        req.onsuccess = () => {
+          const db = req.result;
+          const tx = db.transaction('settings', 'readonly');
+          const store = tx.objectStore('settings');
+          const getReq = store.get(settingKey);
+          getReq.onerror = () => {
+            db.close();
+            reject(getReq.error ?? new Error('failed to read setting'));
+          };
+          getReq.onsuccess = () => {
+            const value = (getReq.result as { value?: string } | undefined)?.value ?? null;
+            db.close();
+            resolve(value);
+          };
         };
-        getReq.onsuccess = () => {
-          const value = (getReq.result as { value?: string } | undefined)?.value ?? null;
-          db.close();
-          resolve(value);
-        };
-      };
-    });
-  }, key);
+      });
+    },
+    { settingKey: key, dbName: DB_NAME }
+  );
 }
 
 test('suggest endpoint returns 400 when q parameter is missing', async ({ request }) => {

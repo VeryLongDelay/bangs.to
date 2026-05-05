@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "flashbang",
+      "name": "bangs-to",
       "dependencies": {
         "defu": "latest",
         "picomatch": "latest",

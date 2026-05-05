@@ -1,5 +1,5 @@
 /**
- * Comprehensive profiling for flashbang's core data structures and hot paths.
+ * Comprehensive profiling for bangs.to's core data structures and hot paths.
  * Measures what actually matters before optimizing.
  *
  * Run: bun scripts/profile.ts
@@ -515,7 +515,7 @@ console.log(
 
 separator('6. SERVER ROUTE PATH PARSE PERFORMANCE');
 
-const RAW_URL = 'https://flashbang.local/suggest?q=%21g&sp=none#x';
+const RAW_URL = 'https://bangs.local/suggest?q=%21g&sp=none#x';
 const PATH_ITERS = 500_000;
 const pathViaUrlTimes: number[] = [];
 const pathViaRawTimes: number[] = [];
@@ -557,7 +557,7 @@ console.log(
 separator('7. QUERY & COOKIE PARSING PERFORMANCE');
 
 const PARAM_URL =
-  'https://flashbang.local/suggest?x=1&q=%21g%20kittens%20and%20cats&sp=none&src=prof#x';
+  'https://bangs.local/suggest?x=1&q=%21g%20kittens%20and%20cats&sp=none&src=prof#x';
 const PARAM_ITERS = 500_000;
 const queryDualScanTimes: number[] = [];
 const querySingleScanTimes: number[] = [];
@@ -618,7 +618,7 @@ const reqHeavyCookie = new Request('http://localhost/suggest?q=x', {
       ' misc1=1; misc2=2; misc3=3; misc4=4'
   }
 });
-const SETTINGS_PARSE_URL = 'http://localhost/suggest?q=flashbang';
+const SETTINGS_PARSE_URL = 'http://localhost/suggest?q=bangs';
 
 const COOKIE_ITERS = 300_000;
 const cookieNoneTimes: number[] = [];
@@ -794,10 +794,10 @@ separator('9. SUGGEST HANDLER PERFORMANCE');
 const reqBang = new Request('http://localhost/suggest?q=!gh', {
   headers: { Cookie: 'suggest=default,g,' }
 });
-const reqPlain = new Request('http://localhost/suggest?q=flashbang&sp=none', {
+const reqPlain = new Request('http://localhost/suggest?q=bangs&sp=none', {
   headers: { Cookie: 'suggest=none,g,' }
 });
-const reqPlainHeavy = new Request('http://localhost/suggest?q=flashbang&sp=none', {
+const reqPlainHeavy = new Request('http://localhost/suggest?q=bangs&sp=none', {
   headers: {
     Cookie:
       'session=abc123; theme=dark; lang=en-US; exp=beta-on; tracking=xyz;' +
@@ -889,7 +889,7 @@ console.log(Bun.nanoseconds() - t0);
 function isolatedWarmThenBangNs(): number {
   const script = `
 import { handleSuggestRequest } from "./src/server/handlers";
-await handleSuggestRequest(new Request("http://localhost/suggest?q=flashbang&sp=none", {
+await handleSuggestRequest(new Request("http://localhost/suggest?q=bangs&sp=none", {
   headers: { Cookie: "suggest=none,g," }
 }));
 await new Promise((resolve) => setTimeout(resolve, 5));
@@ -907,7 +907,7 @@ const coldBangSamples: number[] = [];
 const warmThenBangSamples: number[] = [];
 for (let i = 0; i < COLD_RUNS; i++) {
   coldPlainSamples.push(
-    isolatedFirstHitNs('http://localhost/suggest?q=flashbang&sp=none', 'suggest=none,g,')
+    isolatedFirstHitNs('http://localhost/suggest?q=bangs&sp=none', 'suggest=none,g,')
   );
   coldBangSamples.push(isolatedFirstHitNs('http://localhost/suggest?q=!gh', 'suggest=default,g,'));
   warmThenBangSamples.push(isolatedWarmThenBangNs());

@@ -47,13 +47,7 @@ describe('handleSuggestRequest', () => {
   });
 
   test('forwards custom suggest provider request when query has no bang', async () => {
-    const upstream = [
-      'flashbang',
-      ['flashbang', 'flashlight'],
-      [],
-      [],
-      { 'google:suggestdetail': {} }
-    ];
+    const upstream = ['bangs', ['bangs', 'bang search'], [], [], { 'google:suggestdetail': {} }];
     fetchSpy.mockResolvedValue(new Response(JSON.stringify(upstream), { headers: JSON_HEADERS }));
 
     const custom = 'https://example.com/suggest?q={}';

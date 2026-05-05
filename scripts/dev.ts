@@ -58,7 +58,7 @@ async function build() {
       target: 'browser',
       format: 'esm',
       define: {
-        __CACHE_VERSION__: '"flashbang-dev"',
+        __CACHE_VERSION__: '"bangs-to-dev"',
         __EXTRA_ASSETS__: '[]',
         __IS_DEV__: JSON.stringify(true)
       }

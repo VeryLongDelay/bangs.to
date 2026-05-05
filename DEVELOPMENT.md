@@ -38,7 +38,7 @@ bun run build:css
 ## Project structure
 
 ```
-flashbang/
+bangs.to/
 ├── functions/
 │   ├── suggest.ts            # Cloudflare Pages Function for /suggest
 │   └── opensearch.xml.ts     # Cloudflare Pages Function for /opensearch.xml
@@ -56,7 +56,7 @@ flashbang/
 ├── src/
 │   ├── config/
 │   │   └── site.ts            # Centralized site title/tagline (current brand: bangs.to)
-│   ├── pages/                 # Astro routes → static HTML (index, home, bangs, faq, instructions, bench)
+│   ├── pages/                 # Astro routes → static HTML (index, home, bangs, stats, contact, faq, instructions)
 │   ├── components/            # Astro components (layout chrome, try-search, settings modal, etc.)
 │   ├── layouts/               # Astro layouts (e.g. SiteLayout)
 │   ├── env.d.ts               # Astro / ambient typings
@@ -88,8 +88,8 @@ flashbang/
 │   └── ui/                    # Client JS entrypoints + static assets (bundled by Bun)
 │       ├── app.ts             # Main app initialization & orchestration
 │       ├── bangs.ts           # Bang browser page script
-│       ├── bench.ts           # Benchmark script
 │       ├── theme.ts           # Theme toggle script
+│       ├── stats.ts           # Local stats dashboard
 │       ├── settings.ts        # Settings event wiring, shared bang search, import/export
 │       ├── modal.ts           # Shared settings modal behavior + #settings route handling
 │       ├── custom-bangs.ts    # Custom bang list & add form
@@ -130,7 +130,7 @@ Unit tests:
 
 End-to-end tests:
 
-- `tests/e2e/flashbang.e2e.ts` — Suggest endpoint behavior, warm/cold redirect flows, lucky redirects, and custom bang redirect scenarios
+- `tests/e2e/site.e2e.ts` — Suggest endpoint behavior, warm/cold redirect flows, lucky redirects, and custom bang redirect scenarios
 
 If this is your first Playwright run on a machine, install browsers once:
 
@@ -161,7 +161,7 @@ CSP headers are defined in `src/server/headers.ts` — the single source of trut
 - **Page CSP** — No `unsafe-eval`. The `script-src` value varies by target: `build.ts` uses inline script hashes, while `dev.ts`/`start.ts` use `'unsafe-inline'`
 - **SW CSP** — Strict: `default-src 'self'; script-src 'self'; connect-src 'self'`. No `unsafe-eval`; SW runtime avoids eval.
 
-On **Cloudflare Pages**, CSP is set per-path in `_headers` (not `/*`) to avoid CF Pages' additive header merging — `/*` would combine with `/sw.js`, and the browser enforces the intersection. Instead, CSP is set individually on `/`, `/index.html`, `/home.html`, `/bangs`, `/bangs.html`, `/bench.html`, `/faq`, `/faq.html`, `/instructions`, `/instructions.html`, and `/sw.js`. Base security headers (without page CSP) still apply under `/*`.
+On **Cloudflare Pages**, CSP is set per-path in `_headers` (not `/*`) to avoid CF Pages' additive header merging — `/*` would combine with `/sw.js`, and the browser enforces the intersection. Instead, CSP is set individually on `/`, `/index.html`, `/home.html`, `/bangs`, `/bangs.html`, `/stats`, `/stats.html`, `/contact`, `/contact.html`, `/faq`, `/faq.html`, `/instructions`, `/instructions.html`, and `/sw.js`. Base security headers (without page CSP) still apply under `/*`.
 
 On **self-hosted** (Docker/Railway via `start.ts`), the Bun server sets headers per-request, serving `SW_HEADERS` for `/sw.js` and page headers for everything else.
 
@@ -242,14 +242,14 @@ The Dockerfile uses a multi-stage build to produce a minimal runtime image:
 The production server exposes `GET /health`, and the runtime image defines a Docker `HEALTHCHECK` against that endpoint.
 
 ```sh
-docker build -t flashbang .
-docker run -p 3000:3000 flashbang
+docker build -t bangs-to .
+docker run -p 3000:3000 bangs-to
 ```
 
 The port is configurable via the `PORT` environment variable:
 
 ```sh
-docker run -p 8080:8080 -e PORT=8080 flashbang
+docker run -p 8080:8080 -e PORT=8080 bangs-to
 ```
 
 Static assets are served with Brotli pre-compression when the client supports it, falling back to uncompressed. No runtime compression overhead.

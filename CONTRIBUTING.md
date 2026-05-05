@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in Flashbang! This guide covers what you need to know to contribute.
+Thanks for your interest in bangs.to! This guide covers what you need to know to contribute.
 
 ## Quick start
 
@@ -62,7 +62,7 @@ Add tests for new logic and user-facing behavior. Look at existing tests for pat
 
 - `src/sw/redirect.test.ts` — redirect and routing logic
 - `src/suggest.test.ts` — suggestions and cookie parsing
-- `tests/e2e/flashbang.e2e.ts` — suggestion endpoint behavior, warm/cold redirects, and custom bang redirect flows
+- `tests/e2e/site.e2e.ts` — suggestion endpoint behavior, warm/cold redirects, and custom bang redirect flows
 
 ## Code style
 
