@@ -9,9 +9,10 @@ import {
   invalidateCache,
   loadFrecency,
   readRedirectSettings,
+  resetFrecencyCache,
   trackBangUsage
 } from './idb';
-import { type RedirectSettings, redirectRaw, redirectUrl } from './redirect';
+import { type RedirectSettings, redirectRaw, redirectUrlAndTrigger } from './redirect';
 
 declare const __CACHE_VERSION__: string;
 declare const __EXTRA_ASSETS__: string[];
@@ -77,49 +78,55 @@ function ensureOptionalPrecache(): Promise<void> {
 }
 
 function queueBangSideEffects(e: FetchEvent, trigger: string, rawQuery: string): void {
-  e.waitUntil(
-    RESOLVED_PROMISE.then(() => {
-      trackBangUsage(trigger, extractBangQuery(rawQuery, trigger));
-      const val = getFrecencyValue();
-      if (!val || typeof cookieStore === 'undefined') {
+  e.waitUntil(recordBangSideEffects(trigger, rawQuery));
+}
+
+function recordBangSideEffects(trigger: string, rawQuery: string): Promise<void> {
+  return RESOLVED_PROMISE.then(() => {
+    trackBangUsage(trigger, extractBangQuery(rawQuery, trigger));
+    const val = getFrecencyValue();
+    if (!val || typeof cookieStore === 'undefined') {
+      return;
+    }
+
+    const frecency = getSuggestFrecencyValue();
+    const updateSuggestCookie = cookieStore.get('suggest').then(cookie => {
+      if (!cookie?.value) {
         return;
       }
+      const parsed = parseSuggestCookieValue(cookie.value, true);
+      return cookieStore.set({
+        name: 'suggest',
+        value: encodeSuggestCookieValue(
+          parsed.provider,
+          parsed.trigger,
+          parsed.customUrl || '',
+          parsed.custom,
+          frecency
+        ),
+        path: '/',
+        expires: Date.now() + COOKIE_MAX_AGE_S * 1000,
+        sameSite: 'lax'
+      });
+    });
 
-      const frecency = getSuggestFrecencyValue();
-      const updateSuggestCookie = cookieStore.get('suggest').then(cookie => {
-        if (!cookie?.value) {
-          return;
-        }
-        const parsed = parseSuggestCookieValue(cookie.value, true);
-        return cookieStore.set({
-          name: 'suggest',
-          value: encodeSuggestCookieValue(
-            parsed.provider,
-            parsed.trigger,
-            parsed.customUrl || '',
-            parsed.custom,
-            frecency
-          ),
+    return Promise.all([
+      cookieStore
+        .set({
+          name: 'sf',
+          value: val,
           path: '/',
           expires: Date.now() + COOKIE_MAX_AGE_S * 1000,
           sameSite: 'lax'
-        });
-      });
-
-      return Promise.all([
-        cookieStore
-          .set({
-            name: 'sf',
-            value: val,
-            path: '/',
-            expires: Date.now() + COOKIE_MAX_AGE_S * 1000,
-            sameSite: 'lax'
-          })
-          .catch(swallowError),
-        updateSuggestCookie
-      ]).catch(swallowError);
-    }).catch(swallowError)
-  );
+        })
+        .catch(swallowError),
+      updateSuggestCookie
+    ])
+      .then(() => {
+        /* no-op */
+      })
+      .catch(swallowError);
+  }).catch(swallowError);
 }
 
 function decodeBangQuery(rawQuery: string): string {
@@ -182,14 +189,22 @@ self.addEventListener('message', (e: ExtendableMessageEvent) => {
   if (e.data?.type === 'invalidate') {
     invalidateCache();
   }
+  if (e.data?.type === 'refresh-frecency') {
+    resetFrecencyCache();
+    e.waitUntil(loadFrecency());
+  }
   if (e.data?.type === 'claim') {
     e.waitUntil(self.clients.claim());
   }
   if (e.data?.type === 'redirect' && e.data.query) {
     const q = e.data.query as string;
     const resolve = (s: RedirectSettings) => {
+      const [url, trigger] = redirectUrlAndTrigger(q, s);
+      if (trigger) {
+        e.waitUntil(recordBangSideEffects(trigger, encodeURIComponent(q).replace(/%5C/g, '\\')));
+      }
       (e.source as Client)?.postMessage({
-        url: redirectUrl(q, s)
+        url
       });
     };
     const cached = getCachedSettings();
@@ -205,7 +220,11 @@ self.addEventListener('fetch', (e: FetchEvent) => {
   const raw = e.request.url;
   const { pathname } = new URL(raw);
   const isSearchEntrypoint =
-    pathname === '/' || pathname === '/index.html' || pathname === '/settings';
+    pathname === '/' ||
+    pathname === '/index.html' ||
+    pathname === '/home' ||
+    pathname === '/home.html' ||
+    pathname === '/settings';
 
   if (__IS_DEV__ && raw.includes('/__dev/')) {
     return;

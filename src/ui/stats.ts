@@ -1,10 +1,12 @@
 import {
   type BangUsageEntry,
   deserializeFrecencySnapshot,
+  serializeFrecencySnapshot,
   type WeeklyUsageBuckets
 } from '../sw/frecency';
 import { DB } from './db';
 import { $, el } from './dom';
+import { notifySW } from './sw-bridge';
 
 interface BangMeta {
   d: string;
@@ -23,15 +25,22 @@ interface DisplayEntry {
 
 interface StatsModel {
   entries: DisplayEntry[];
+  raw: string | null;
   weeklyBuckets: WeeklyUsageBuckets;
 }
 
 const db = new DB();
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const FRECENCY_SETTING_KEY = 'frecency';
+const EMPTY_SNAPSHOT_RAW = serializeFrecencySnapshot(deserializeFrecencySnapshot(null));
 let deletedSnapshotRaw: string | null = null;
+let deletedStatsModel: StatsModel | null = null;
+let currentEntries: DisplayEntry[] = [];
+let currentWeeklyBuckets: WeeklyUsageBuckets = [];
 let hasStatsData = false;
+let initInFlight: Promise<void> | null = null;
 let isConfirmingClear = false;
+let selectedTrigger: string | null = null;
 
 function escapeHtml(value: string): string {
   return value
@@ -103,6 +112,53 @@ function queryMemoryHref(trigger: string, query: string): string {
   return `/?q=${encodeURIComponent(`!${trigger} ${query}`)}`;
 }
 
+function bangLabelMarkup(entry: DisplayEntry): string {
+  return `<code>!${escapeHtml(entry.trigger)}</code> <span class="font-500 text-text-secondary">${escapeHtml(entry.name)}</span>`;
+}
+
+function bangDomainLabel(entry: DisplayEntry): string {
+  return escapeHtml(entry.domain || 'Custom bang');
+}
+
+function wireBangSelection(root: ParentNode): void {
+  for (const button of root.querySelectorAll<HTMLElement>('[data-stats-trigger]')) {
+    button.addEventListener('click', () => {
+      const trigger = button.dataset.statsTrigger;
+      if (!trigger) {
+        return;
+      }
+      selectedTrigger = trigger;
+      renderDetailPanel();
+    });
+  }
+}
+
+function serializeCurrentStatsSnapshot(): string {
+  return serializeFrecencySnapshot({
+    entries: Object.fromEntries(
+      currentEntries.map(entry => [
+        entry.trigger,
+        {
+          count: entry.count,
+          lastUsedAt: entry.lastUsedAt,
+          queries: Object.fromEntries(
+            entry.queries.map(query => [
+              query.query,
+              {
+                count: query.count,
+                lastUsedAt: query.lastUsedAt
+              }
+            ])
+          ),
+          score: entry.score
+        }
+      ])
+    ),
+    lastDecayTs: Date.now(),
+    weeklyBuckets: currentWeeklyBuckets
+  });
+}
+
 function buildLeaderboard(entries: DisplayEntry[]) {
   const container = $('#stats-top-list');
   container.replaceChildren();
@@ -110,9 +166,11 @@ function buildLeaderboard(entries: DisplayEntry[]) {
 
   for (const [index, entry] of entries.slice(0, 10).entries()) {
     const article = el(
-      'article',
-      'rounded-[24px] border border-white/70 bg-bg-soft p-4 transition-colors duration-200 hover:border-primary-200 dark:border-white/10'
+      'button',
+      'rounded-[24px] border border-white/70 bg-bg-soft p-4 text-left transition-colors duration-200 hover:border-primary-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50 dark:border-white/10'
     );
+    article.type = 'button';
+    article.dataset.statsTrigger = entry.trigger;
     const width = Math.max(12, Math.round((entry.score / maxScore) * 100));
     article.innerHTML = `
       <div class="flex items-start justify-between gap-4">
@@ -121,10 +179,9 @@ function buildLeaderboard(entries: DisplayEntry[]) {
             <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-white/90 px-2 text-xs font-700 text-primary-700 dark:bg-white/10 dark:text-primary-200">
               ${index + 1}
             </span>
-            <code class="text-sm font-700 text-text">!${escapeHtml(entry.trigger)}</code>
-            <span class="truncate text-sm text-text-secondary">${escapeHtml(entry.name)}</span>
+            <span class="truncate text-sm font-700 text-text">${bangLabelMarkup(entry)}</span>
           </div>
-          <p class="mt-2 truncate text-xs uppercase tracking-[0.18em] text-text-muted">${escapeHtml(entry.domain || 'Custom bang')}</p>
+          <p class="mt-2 truncate text-xs uppercase tracking-[0.18em] text-text-muted">${bangDomainLabel(entry)}</p>
         </div>
         <div class="shrink-0 text-right">
           <p class="text-sm font-700 text-text">${entry.score.toLocaleString()}</p>
@@ -141,6 +198,8 @@ function buildLeaderboard(entries: DisplayEntry[]) {
     `;
     container.append(article);
   }
+
+  wireBangSelection(container);
 }
 
 function buildRecent(entries: DisplayEntry[]) {
@@ -149,14 +208,16 @@ function buildRecent(entries: DisplayEntry[]) {
 
   for (const entry of [...entries].sort((a, b) => b.lastUsedAt - a.lastUsedAt).slice(0, 8)) {
     const article = el(
-      'article',
-      'rounded-[22px] border border-white/70 bg-bg-soft px-4 py-3 dark:border-white/10'
+      'button',
+      'rounded-[22px] border border-white/70 bg-bg-soft px-4 py-3 text-left transition-colors duration-200 hover:border-primary-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50 dark:border-white/10'
     );
+    article.type = 'button';
+    article.dataset.statsTrigger = entry.trigger;
     article.innerHTML = `
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <p class="text-sm font-700 text-text"><code>!${escapeHtml(entry.trigger)}</code> <span class="font-500 text-text-secondary">${escapeHtml(entry.name)}</span></p>
-          <p class="mt-1 truncate text-xs uppercase tracking-[0.16em] text-text-muted">${escapeHtml(entry.domain || 'Custom bang')}</p>
+          <p class="text-sm font-700 text-text">${bangLabelMarkup(entry)}</p>
+          <p class="mt-1 truncate text-xs uppercase tracking-[0.16em] text-text-muted">${bangDomainLabel(entry)}</p>
         </div>
         <p class="shrink-0 text-xs font-700 uppercase tracking-[0.18em] text-primary-700">
           ${formatRelativeTime(entry.lastUsedAt)}
@@ -165,6 +226,8 @@ function buildRecent(entries: DisplayEntry[]) {
     `;
     container.append(article);
   }
+
+  wireBangSelection(container);
 }
 
 function buildFrequency(entries: DisplayEntry[]) {
@@ -185,14 +248,16 @@ function buildFrequency(entries: DisplayEntry[]) {
 
   for (const entry of ranked) {
     const article = el(
-      'article',
-      'rounded-[22px] border border-white/70 bg-bg-soft px-4 py-3 dark:border-white/10'
+      'button',
+      'rounded-[22px] border border-white/70 bg-bg-soft px-4 py-3 text-left transition-colors duration-200 hover:border-primary-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50 dark:border-white/10'
     );
+    article.type = 'button';
+    article.dataset.statsTrigger = entry.trigger;
     const width = Math.max(10, Math.round((entry.count / maxCount) * 100));
     article.innerHTML = `
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <p class="text-sm font-700 text-text"><code>!${escapeHtml(entry.trigger)}</code> <span class="font-500 text-text-secondary">${escapeHtml(entry.name)}</span></p>
+          <p class="text-sm font-700 text-text">${bangLabelMarkup(entry)}</p>
           <p class="mt-1 truncate text-xs uppercase tracking-[0.16em] text-text-muted">${formatPercent(entry.count, totalUses)} of all tracked runs</p>
         </div>
         <div class="shrink-0 text-right">
@@ -206,6 +271,8 @@ function buildFrequency(entries: DisplayEntry[]) {
     `;
     container.append(article);
   }
+
+  wireBangSelection(container);
 }
 
 function buildQueryGroups(entries: DisplayEntry[]) {
@@ -225,7 +292,7 @@ function buildQueryGroups(entries: DisplayEntry[]) {
 
   for (const entry of withQueries) {
     const article = el(
-      'article',
+      'section',
       'rounded-[24px] border border-white/70 bg-bg-soft p-4 dark:border-white/10 dark:bg-slate-950/55'
     );
     const chips = entry.queries
@@ -245,16 +312,22 @@ function buildQueryGroups(entries: DisplayEntry[]) {
       .join('');
     article.innerHTML = `
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p class="text-sm font-700 text-text"><code>!${escapeHtml(entry.trigger)}</code> <span class="font-500 text-text-secondary">${escapeHtml(entry.name)}</span></p>
+        <button
+          type="button"
+          data-stats-trigger="${escapeHtml(entry.trigger)}"
+          class="min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50"
+        >
+          <p class="text-sm font-700 text-text">${bangLabelMarkup(entry)}</p>
           <p class="mt-1 text-xs uppercase tracking-[0.16em] text-text-muted">${entry.queries.length} saved pattern${entry.queries.length === 1 ? '' : 's'}</p>
-        </div>
+        </button>
         <p class="text-xs text-text-secondary">Last used ${formatRelativeTime(entry.lastUsedAt)}</p>
       </div>
       <div class="mt-4 flex flex-wrap gap-2">${chips}</div>
     `;
     container.append(article);
   }
+
+  wireBangSelection(container);
 }
 
 function formatBucketHour(hour: number): string {
@@ -326,6 +399,84 @@ function buildHeatmap(weeklyBuckets: WeeklyUsageBuckets) {
   }
 }
 
+function formatAbsoluteTime(timestamp: number): string {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(timestamp);
+}
+
+function renderDetailPanel() {
+  const panel = $('#stats-detail-panel');
+  const entry =
+    currentEntries.find(candidate => candidate.trigger === selectedTrigger) ?? currentEntries[0];
+
+  if (!entry) {
+    panel.replaceChildren();
+    return;
+  }
+
+  selectedTrigger = entry.trigger;
+  const queryLinks =
+    entry.queries.length > 0
+      ? entry.queries
+          .slice(0, 6)
+          .map(
+            query => `
+              <a
+                href="${queryMemoryHref(entry.trigger, query.query)}"
+                class="query-memory-pill rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-600 text-slate-700 no-underline shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60"
+              >
+                ${escapeHtml(query.query)}
+              </a>
+            `
+          )
+          .join('')
+      : '<p class="text-sm text-text-secondary">No stored query samples yet for this bang.</p>';
+
+  panel.innerHTML = `
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,1.08fr)_minmax(280px,0.92fr)]">
+      <div class="rounded-[24px] border border-white/70 bg-bg-soft p-5 dark:border-white/10">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-sm font-700 text-text">${bangLabelMarkup(entry)}</p>
+            <p class="mt-1 text-xs uppercase tracking-[0.18em] text-text-muted">${bangDomainLabel(entry)}</p>
+          </div>
+          <a
+            href="/?q=${encodeURIComponent(`!${entry.trigger}`)}"
+            class="rounded-full border border-slate-200/80 bg-white px-3 py-2 text-xs font-700 uppercase tracking-[0.16em] text-slate-700 no-underline shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 dark:border-white/12 dark:bg-[rgba(15,23,42,0.78)] dark:text-slate-100"
+          >
+            Run this bang
+          </a>
+        </div>
+        <div class="mt-5 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-[20px] bg-white/85 p-4 dark:bg-white/6">
+            <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">Live score</p>
+            <p class="mt-2 text-2xl font-800 tracking-[-0.04em] text-text">${entry.score.toLocaleString()}</p>
+          </div>
+          <div class="rounded-[20px] bg-white/85 p-4 dark:bg-white/6">
+            <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">Total uses</p>
+            <p class="mt-2 text-2xl font-800 tracking-[-0.04em] text-text">${entry.count.toLocaleString()}</p>
+          </div>
+          <div class="rounded-[20px] bg-white/85 p-4 dark:bg-white/6">
+            <p class="text-xs font-700 uppercase tracking-[0.18em] text-text-muted">Last active</p>
+            <p class="mt-2 text-sm font-700 text-text">${escapeHtml(formatRelativeTime(entry.lastUsedAt))}</p>
+            <p class="mt-1 text-xs text-text-secondary">${escapeHtml(formatAbsoluteTime(entry.lastUsedAt))}</p>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-[24px] border border-white/70 bg-bg-soft p-5 dark:border-white/10">
+        <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Query memory</p>
+        <h3 class="mt-2 text-lg font-800 tracking-[-0.03em] text-text">Replay common searches</h3>
+        <p class="mt-2 text-sm leading-6 text-text-secondary">
+          These samples are stored locally and are used for similarity boosting.
+        </p>
+        <div class="mt-4 flex flex-wrap gap-2">${queryLinks}</div>
+      </div>
+    </div>
+  `;
+}
+
 function setDisplay(id: string, hidden: boolean, visibleClass = 'block') {
   const node = $(id);
   node.classList.toggle('hidden', hidden);
@@ -334,127 +485,31 @@ function setDisplay(id: string, hidden: boolean, visibleClass = 'block') {
   }
 }
 
-function updateDeleteControls() {
-  setDisplay(
-    '#stats-clear-button',
-    isConfirmingClear || deletedSnapshotRaw !== null,
-    'inline-flex'
-  );
-  setDisplay('#stats-clear-confirm', !isConfirmingClear, 'inline-flex');
-  setDisplay('#stats-restore-banner', deletedSnapshotRaw === null, 'inline-flex');
-  setDisplay('#stats-empty-restore', deletedSnapshotRaw === null || hasStatsData, 'flex');
+function setTransferStatus(message = '', tone: 'default' | 'error' = 'default') {
+  const node = $('#stats-transfer-status');
+  node.textContent = message;
+  node.className = `mt-3 text-xs font-700 uppercase tracking-[0.16em] ${
+    tone === 'error' ? 'text-rose-200' : 'text-blue-100/78'
+  }`;
+  node.classList.toggle('hidden', !message);
 }
 
-function cancelClearConfirmation() {
-  isConfirmingClear = false;
-  updateDeleteControls();
-}
-
-async function clearStatsHistory() {
-  const snapshotRaw = await db.getSetting(FRECENCY_SETTING_KEY);
-  deletedSnapshotRaw = snapshotRaw;
-  await db.removeSetting(FRECENCY_SETTING_KEY);
-  isConfirmingClear = false;
-  hasStatsData = false;
-  $('#stats-dashboard').classList.add('hidden');
-  $('#stats-empty').classList.remove('hidden');
-  updateDeleteControls();
-}
-
-async function restoreStatsHistory() {
-  if (!deletedSnapshotRaw) {
-    return;
-  }
-  await db.setSetting(FRECENCY_SETTING_KEY, deletedSnapshotRaw);
-  deletedSnapshotRaw = null;
-  isConfirmingClear = false;
-  await init();
-}
-
-function bindDeleteControls() {
-  $('#stats-clear-button').addEventListener('click', () => {
-    isConfirmingClear = true;
-    updateDeleteControls();
-  });
-
-  $('#stats-clear-confirm-no').addEventListener('click', () => {
-    cancelClearConfirmation();
-  });
-
-  $('#stats-clear-confirm-yes').addEventListener('click', () => {
-    void clearStatsHistory();
-  });
-
-  $('#stats-restore-button').addEventListener('click', () => {
-    void restoreStatsHistory();
-  });
-
-  $('#stats-empty-restore-button').addEventListener('click', () => {
-    void restoreStatsHistory();
-  });
-
-  document.addEventListener('click', event => {
-    if (!isConfirmingClear) {
-      return;
-    }
-    const controls = $('#stats-delete-controls');
-    const target = event.target;
-    if (target instanceof Node && !controls.contains(target)) {
-      cancelClearConfirmation();
-    }
-  });
-
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && isConfirmingClear) {
-      cancelClearConfirmation();
-    }
-  });
-}
-
-async function loadStatsModel(): Promise<StatsModel> {
-  const [raw, mod] = await Promise.all([
-    db.getSetting(FRECENCY_SETTING_KEY),
-    import('../generated/bangs-meta.js')
-  ]);
-  const snapshot = deserializeFrecencySnapshot(raw);
-  const meta = mod.BANGS as Record<string, BangMeta>;
-
-  return {
-    weeklyBuckets: snapshot.weeklyBuckets,
-    entries: Object.entries(snapshot.entries)
-      .map(([trigger, entry]) => {
-        const bangMeta = meta[trigger];
-        return {
-          trigger,
-          count: entry.count,
-          lastUsedAt: entry.lastUsedAt,
-          queries: usageQueries(entry),
-          score: entry.score,
-          name: bangMeta?.s || 'Custom bang',
-          domain: bangMeta?.d || ''
-        };
-      })
-      .sort(
-        (a, b) =>
-          b.score - a.score ||
-          b.count - a.count ||
-          b.lastUsedAt - a.lastUsedAt ||
-          a.trigger.localeCompare(b.trigger)
-      )
-  };
-}
-
-async function init() {
-  const { entries, weeklyBuckets } = await loadStatsModel();
+function applyStatsModel(entries: DisplayEntry[], weeklyBuckets: WeeklyUsageBuckets) {
+  currentEntries = entries;
+  currentWeeklyBuckets = weeklyBuckets;
   hasStatsData = entries.length > 0;
   updateDeleteControls();
 
   if (entries.length === 0) {
+    selectedTrigger = null;
     $('#stats-dashboard').classList.add('hidden');
     $('#stats-empty').classList.remove('hidden');
     return;
   }
 
+  selectedTrigger = entries.some(entry => entry.trigger === selectedTrigger)
+    ? selectedTrigger
+    : entries[0]?.trigger || null;
   $('#stats-empty').classList.add('hidden');
   $('#stats-dashboard').classList.remove('hidden');
 
@@ -497,14 +552,221 @@ async function init() {
   buildFrequency(entries);
   buildQueryGroups(entries);
   buildHeatmap(weeklyBuckets);
+  renderDetailPanel();
+}
+
+function updateDeleteControls() {
+  setDisplay(
+    '#stats-clear-button',
+    isConfirmingClear || deletedSnapshotRaw !== null,
+    'inline-flex'
+  );
+  setDisplay('#stats-clear-confirm', !isConfirmingClear, 'inline-flex');
+  setDisplay('#stats-restore-banner', deletedSnapshotRaw === null, 'inline-flex');
+  setDisplay('#stats-empty-restore', deletedSnapshotRaw === null || hasStatsData, 'flex');
+}
+
+function cancelClearConfirmation() {
+  isConfirmingClear = false;
+  updateDeleteControls();
+}
+
+async function clearStatsHistory() {
+  if (currentEntries.length === 0 && initInFlight) {
+    await initInFlight.catch(() => {
+      /* fall back to DB snapshot below */
+    });
+  }
+  const fallbackSnapshotRaw = await db.getSetting(FRECENCY_SETTING_KEY);
+  deletedStatsModel =
+    currentEntries.length > 0
+      ? {
+          entries: currentEntries,
+          raw: fallbackSnapshotRaw,
+          weeklyBuckets: currentWeeklyBuckets
+        }
+      : await loadStatsModel(fallbackSnapshotRaw);
+  deletedSnapshotRaw =
+    currentEntries.length > 0
+      ? serializeCurrentStatsSnapshot()
+      : fallbackSnapshotRaw || EMPTY_SNAPSHOT_RAW;
+  await db.removeSetting(FRECENCY_SETTING_KEY);
+  notifySW('refresh-frecency');
+  isConfirmingClear = false;
+  hasStatsData = false;
+  currentEntries = [];
+  selectedTrigger = null;
+  currentWeeklyBuckets = [];
+  $('#stats-dashboard').classList.add('hidden');
+  $('#stats-empty').classList.remove('hidden');
+  setTransferStatus('Local stats cleared');
+  updateDeleteControls();
+}
+
+async function restoreStatsHistory() {
+  const snapshotRaw = deletedSnapshotRaw;
+  const snapshotModel = deletedStatsModel;
+  if (!snapshotRaw) {
+    return;
+  }
+  await db.setSetting(FRECENCY_SETTING_KEY, snapshotRaw);
+  notifySW('refresh-frecency');
+  deletedSnapshotRaw = null;
+  deletedStatsModel = null;
+  isConfirmingClear = false;
+  setTransferStatus('Local stats restored');
+  if (snapshotModel) {
+    applyStatsModel(snapshotModel.entries, snapshotModel.weeklyBuckets);
+    return;
+  }
+  await init(snapshotRaw);
+}
+
+async function exportStatsHistory() {
+  const raw = await db.getSetting(FRECENCY_SETTING_KEY);
+  const payload = {
+    exported: new Date().toISOString(),
+    frecency: deserializeFrecencySnapshot(raw)
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `bangs-stats-${new Date().toISOString().split('T')[0]}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  setTransferStatus('Stats export ready');
+}
+
+async function importStatsHistory(file: File) {
+  const parsed = JSON.parse(await file.text()) as { frecency?: unknown } | unknown;
+  const normalized = deserializeFrecencySnapshot(
+    JSON.stringify(
+      parsed && typeof parsed === 'object' && !Array.isArray(parsed) && 'frecency' in parsed
+        ? (parsed as { frecency?: unknown }).frecency
+        : parsed
+    )
+  );
+  await db.setSetting(FRECENCY_SETTING_KEY, serializeFrecencySnapshot(normalized));
+  notifySW('refresh-frecency');
+  deletedSnapshotRaw = null;
+  deletedStatsModel = null;
+  isConfirmingClear = false;
+  setTransferStatus('Stats import applied');
+  await init();
+}
+
+function bindDeleteControls() {
+  $('#stats-clear-button').addEventListener('click', () => {
+    isConfirmingClear = true;
+    updateDeleteControls();
+  });
+
+  $('#stats-clear-confirm-no').addEventListener('click', () => {
+    cancelClearConfirmation();
+  });
+
+  $('#stats-clear-confirm-yes').addEventListener('click', () => {
+    void clearStatsHistory();
+  });
+
+  $('#stats-restore-button').addEventListener('click', () => {
+    void restoreStatsHistory();
+  });
+
+  $('#stats-empty-restore-button').addEventListener('click', () => {
+    void restoreStatsHistory();
+  });
+
+  $('#stats-export-button').addEventListener('click', () => {
+    void exportStatsHistory();
+  });
+
+  $('#stats-import-button').addEventListener('click', () => {
+    $<HTMLInputElement>('#stats-import-file').click();
+  });
+
+  $<HTMLInputElement>('#stats-import-file').addEventListener('change', event => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      return;
+    }
+    void importStatsHistory(file).catch(() => {
+      setTransferStatus('Invalid stats file', 'error');
+    });
+    (event.target as HTMLInputElement).value = '';
+  });
+
+  document.addEventListener('click', event => {
+    if (!isConfirmingClear) {
+      return;
+    }
+    const controls = $('#stats-delete-controls');
+    const target = event.target;
+    if (target instanceof Node && !controls.contains(target)) {
+      cancelClearConfirmation();
+    }
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && isConfirmingClear) {
+      cancelClearConfirmation();
+    }
+  });
+}
+
+async function loadStatsModel(rawOverride?: string | null): Promise<StatsModel> {
+  const [raw, mod] = await Promise.all([
+    rawOverride === undefined ? db.getSetting(FRECENCY_SETTING_KEY) : Promise.resolve(rawOverride),
+    import('../generated/bangs-meta.js')
+  ]);
+  const snapshot = deserializeFrecencySnapshot(raw);
+  const meta = mod.BANGS as Record<string, BangMeta>;
+
+  return {
+    raw,
+    weeklyBuckets: snapshot.weeklyBuckets,
+    entries: Object.entries(snapshot.entries)
+      .map(([trigger, entry]) => {
+        const bangMeta = meta[trigger];
+        return {
+          trigger,
+          count: entry.count,
+          lastUsedAt: entry.lastUsedAt,
+          queries: usageQueries(entry),
+          score: entry.score,
+          name: bangMeta?.s || 'Custom bang',
+          domain: bangMeta?.d || ''
+        };
+      })
+      .sort(
+        (a, b) =>
+          b.score - a.score ||
+          b.count - a.count ||
+          b.lastUsedAt - a.lastUsedAt ||
+          a.trigger.localeCompare(b.trigger)
+      )
+  };
+}
+
+async function init(rawOverride?: string | null) {
+  const { entries, weeklyBuckets } = await loadStatsModel(rawOverride);
+  applyStatsModel(entries, weeklyBuckets);
 }
 
 bindDeleteControls();
 
-init().catch(error => {
-  console.error('Failed to load stats', error);
-  hasStatsData = false;
-  updateDeleteControls();
-  $('#stats-dashboard').classList.add('hidden');
-  $('#stats-empty').classList.remove('hidden');
-});
+initInFlight = init()
+  .catch(error => {
+    console.error('Failed to load stats', error);
+    deletedStatsModel = null;
+    hasStatsData = false;
+    currentEntries = [];
+    currentWeeklyBuckets = [];
+    selectedTrigger = null;
+    updateDeleteControls();
+    $('#stats-dashboard').classList.add('hidden');
+    $('#stats-empty').classList.remove('hidden');
+  })
+  .finally(() => {
+    initInFlight = null;
+  });

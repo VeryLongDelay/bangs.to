@@ -8,6 +8,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
   description="Review your local bang usage, hot streaks, and recent search patterns."
   currentPath="/stats"
   pageScript="stats"
+  registerServiceWorker={true}
 >
   <section class="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(300px,0.68fr)]">
     <div class="card overflow-hidden p-0">
@@ -71,6 +72,24 @@ import SiteLayout from '../layouts/SiteLayout.astro';
               Clear history
             </button>
 
+            <button
+              id="stats-export-button"
+              type="button"
+              class="rounded-full border border-white/14 bg-white/8 px-3 py-2 text-xs font-700 uppercase tracking-[0.16em] text-blue-50/88 transition-colors duration-200 hover:border-white/24 hover:bg-white/12"
+            >
+              Export stats
+            </button>
+
+            <button
+              id="stats-import-button"
+              type="button"
+              class="rounded-full border border-white/14 bg-white/8 px-3 py-2 text-xs font-700 uppercase tracking-[0.16em] text-blue-50/88 transition-colors duration-200 hover:border-white/24 hover:bg-white/12"
+            >
+              Import stats
+            </button>
+
+            <input id="stats-import-file" type="file" accept="application/json" class="hidden" />
+
             <div
               id="stats-clear-confirm"
               class="hidden items-center gap-2 rounded-full border border-white/16 bg-slate-950/72 px-2 py-2 text-xs font-700 uppercase tracking-[0.16em] text-blue-50/92"
@@ -108,6 +127,12 @@ import SiteLayout from '../layouts/SiteLayout.astro';
               </button>
             </div>
           </div>
+
+          <p
+            id="stats-transfer-status"
+            class="mt-3 hidden text-xs font-700 uppercase tracking-[0.16em] text-blue-100/78"
+          >
+          </p>
         </div>
       </div>
     </div>
@@ -118,8 +143,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <div class="rounded-[22px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">Stats are local</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            This page only shows searches from the site, not from opensearch or from your browser's
-            address bar. Only searches with !bangs are counted towards your stats.
+            Only searches with !bangs are counted.
           </p>
         </div>
         <div class="rounded-[22px] bg-bg-soft p-4">
@@ -165,6 +189,17 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 
   <section id="stats-dashboard" class="mt-4 grid gap-4">
     <div id="stats-summary" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+
+    <section id="stats-detail" class="card p-5 sm:p-6">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Bang detail</p>
+          <h2 class="section-title mt-2">Inspect one shortcut at a time</h2>
+        </div>
+        <p class="text-xs text-text-secondary">Click a row below to change focus</p>
+      </div>
+      <div id="stats-detail-panel" class="mt-5"></div>
+    </section>
 
     <section id="stats-weekly-rhythm" class="card overflow-hidden p-5 sm:p-6 scroll-mt-24">
       <div class="flex flex-wrap items-end justify-between gap-4">

@@ -138,8 +138,12 @@ export function invalidateCache() {
   persistInFlight = false;
   cachedRedirect = null;
   redirectSettingsPromise = null;
-  loadFrecencyPromise = null;
   resetDB();
+  resetFrecencyCache();
+}
+
+export function resetFrecencyCache() {
+  loadFrecencyPromise = null;
   frecencyEntries = null;
   topFrecency = [];
   frecencyCookie = '';

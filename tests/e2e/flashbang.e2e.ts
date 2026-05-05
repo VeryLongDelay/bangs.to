@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { encodeSuggestCookieValue } from '../../src/shared/suggest-cookie';
+import { deserializeFrecencySnapshot } from '../../src/sw/frecency';
 
 const GOOGLE_REDIRECT = /google\.com\/search\?q=hello/;
 const GOOGLE_HOST = 'https://www.google.com';
@@ -191,6 +192,34 @@ async function seedSettings(page: Page, settings: Record<string, string>): Promi
   }
 
   throw new Error('failed to seed settings after retries');
+}
+
+function readSetting(page: Page, key: string): Promise<string | null> {
+  return page.evaluate(settingKey => {
+    return new Promise<string | null>((resolve, reject) => {
+      const req = indexedDB.open('flashbang', 1);
+
+      req.onerror = () => {
+        reject(req.error ?? new Error('failed to open IndexedDB'));
+      };
+
+      req.onsuccess = () => {
+        const db = req.result;
+        const tx = db.transaction('settings', 'readonly');
+        const store = tx.objectStore('settings');
+        const getReq = store.get(settingKey);
+        getReq.onerror = () => {
+          db.close();
+          reject(getReq.error ?? new Error('failed to read setting'));
+        };
+        getReq.onsuccess = () => {
+          const value = (getReq.result as { value?: string } | undefined)?.value ?? null;
+          db.close();
+          resolve(value);
+        };
+      };
+    });
+  }, key);
 }
 
 test('suggest endpoint returns 400 when q parameter is missing', async ({ request }) => {
@@ -388,4 +417,82 @@ test('cold-start redirect uses service worker message path before controller exi
   }
   expect(await page.url()).toMatch(GOOGLE_REDIRECT);
   await context.close();
+});
+
+test('cold-start redirect records stats for the redirected bang', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await mockGoogleSearchRoute(page);
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const target = '/?q=%21g%20hello';
+  const hasController = await page.evaluate(() => {
+    if (!('serviceWorker' in navigator)) {
+      return false;
+    }
+    return navigator.serviceWorker.controller !== null;
+  });
+
+  if (hasController) {
+    await navigateAndWaitForRedirect(page, target, GOOGLE_REDIRECT);
+  } else {
+    await Promise.all([
+      page.waitForURL(GOOGLE_REDIRECT),
+      page.goto(target, { waitUntil: 'commit' })
+    ]);
+  }
+
+  const statsPage = await context.newPage();
+  await statsPage.goto('/stats', { waitUntil: 'domcontentloaded' });
+  const frecencyRaw = await readSetting(statsPage, 'frecency');
+  expect(frecencyRaw).not.toBeNull();
+  expect(frecencyRaw).toContain('"g"');
+
+  await expect(statsPage.locator('#stats-detail-panel')).toContainText('!g');
+  await context.close();
+});
+
+test('stats clear flow cancels on click-away and restores after soft delete', async ({ page }) => {
+  await mockGoogleSearchRoute(page);
+  await ensureWarmController(page);
+  await navigateAndWaitForRedirect(page, '/?q=%21g%20react', /google\.com\/search\?q=react/);
+  await page.goto('/stats', { waitUntil: 'domcontentloaded' });
+  const snapshotRaw = await readSetting(page, 'frecency');
+  expect(snapshotRaw).not.toBeNull();
+  const expectedSnapshot = deserializeFrecencySnapshot(snapshotRaw);
+  await page.getByRole('button', { name: 'Clear history' }).click();
+  await expect(page.locator('#stats-clear-confirm')).toBeVisible();
+  await page.locator('body').click({ position: { x: 20, y: 20 } });
+  await expect(page.locator('#stats-clear-confirm')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Clear history' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Clear history' }).click();
+  await page.getByRole('button', { name: 'Confirm clearing local stats' }).click();
+  await expect(page.locator('#stats-restore-banner')).toBeVisible();
+  await expect(page.locator('#stats-empty')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Restore stats' }).click();
+  await expect
+    .poll(async () => {
+      const restored = deserializeFrecencySnapshot(await readSetting(page, 'frecency'));
+      return JSON.stringify({
+        entries: restored.entries,
+        weeklyBuckets: restored.weeklyBuckets
+      });
+    })
+    .toBe(
+      JSON.stringify({
+        entries: expectedSnapshot.entries,
+        weeklyBuckets: expectedSnapshot.weeklyBuckets
+      })
+    );
+});
+
+test('stats query memory pill replays the saved bang search', async ({ page }) => {
+  await mockGoogleSearchRoute(page);
+  await ensureWarmController(page);
+  await navigateAndWaitForRedirect(page, '/?q=%21g%20react', /google\.com\/search\?q=react/);
+  await page.goto('/stats', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('link', { name: 'Repeat search !g react' }).click();
+  await expect.poll(() => page.url(), { timeout: 10_000 }).toMatch(/google\.com\/search\?q=react/);
 });

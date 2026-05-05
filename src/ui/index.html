@@ -83,7 +83,13 @@
           })
         ]).then(() => {
           const p = location.pathname;
-          if (p === '/' || p === '/index.html' || p === '/settings') {
+          if (
+            p === '/' ||
+            p === '/index.html' ||
+            p === '/home' ||
+            p === '/home.html' ||
+            p === '/settings'
+          ) {
             location.replace(location.href);
           }
         });

@@ -1,5 +1,5 @@
-flashbang
-Copyright (c) 2026 Dmytro Pletenskyi
+Bangs.to
+Copyright (c) 2026 VeryLongDelay
 
 This software is licensed under the GNU Affero General Public License v3.0.
 See the LICENSE file for the full license text.
@@ -8,7 +8,7 @@ See the LICENSE file for the full license text.
 
 Bang definitions are sourced from:
 
-- Kagi Bangs (https://github.com/kagisearch/bangs) — MIT License
+- Kagi Bangs (<https://github.com/kagisearch/bangs>) — MIT License
   Copyright (c) Kagi Inc.
 
-- DuckDuckGo Bangs (https://duckduckgo.com/bang.js) — public API, no stated license
+- DuckDuckGo Bangs (<https://duckduckgo.com/bang.js>) — public API, no stated license

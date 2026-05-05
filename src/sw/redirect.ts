@@ -495,8 +495,15 @@ function encodeForRedirect(query: string): string {
   return encodeURIComponent(query).replace(/%5C/g, '\\');
 }
 
+export function redirectUrlAndTrigger(
+  query: string,
+  settings: RedirectSettings
+): [string, string | null] {
+  return resolveRaw(encodeForRedirect(query), settings);
+}
+
 export function redirectUrl(query: string, settings: RedirectSettings): string {
-  return resolveRaw(encodeForRedirect(query), settings)[0];
+  return redirectUrlAndTrigger(query, settings)[0];
 }
 
 export function redirect(query: string, settings: RedirectSettings): Response {
