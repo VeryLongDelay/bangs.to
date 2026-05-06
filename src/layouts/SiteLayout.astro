@@ -27,6 +27,9 @@ const {
   searchEntrypoint = false,
 } = Astro.props;
 
+const siteUrl = "https://bangs.to";
+const ogImageUrl = "https://bangs.to/ogimage.png";
+const ogDescription = "The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.";
 const settingsHref = `${currentPath}#settings`;
 ---
 
@@ -37,20 +40,20 @@ const settingsHref = `${currentPath}#settings`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
 
-    <meta name="description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.">
+    <meta name="description" content={ogDescription}>
     <!-- Facebook Meta Tags -->
-    <meta property="og:url" content="https://bangs.to/">
+    <meta property="og:url" content={siteUrl}>
     <meta property="og:type" content="website">
     <meta property="og:title" content={title}>
-    <meta property="og:description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.">
-    <meta property="og:image" content="https://bangs.to/ogimage.png">
+    <meta property="og:description" content={ogDescription}>
+    <meta property="og:image" content={ogImageUrl}>
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta property="twitter:domain" content={title}>
-    <meta property="twitter:url" content="https://bangs.to/">
+    <meta property="twitter:url" content={siteUrl}>
     <meta name="twitter:title" content={title}>
-    <meta name="twitter:description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.">
-    <meta name="twitter:image" content="https://bangs.to/ogimage.png">
+    <meta name="twitter:description" content={ogDescription}>
+    <meta name="twitter:image" content={ogImageUrl}>
 
 
     <link rel="stylesheet" href="/styles.css" />
