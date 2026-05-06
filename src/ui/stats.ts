@@ -312,22 +312,16 @@ function buildQueryGroups(entries: DisplayEntry[]) {
       .join('');
     article.innerHTML = `
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          data-stats-trigger="${escapeHtml(entry.trigger)}"
-          class="min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50"
-        >
+        <div class="min-w-0 text-left">
           <p class="text-sm font-700 text-text">${bangLabelMarkup(entry)}</p>
           <p class="mt-1 text-xs uppercase tracking-[0.16em] text-text-muted">${entry.queries.length} saved pattern${entry.queries.length === 1 ? '' : 's'}</p>
-        </button>
+        </div>
         <p class="text-xs text-text-secondary">Last used ${formatRelativeTime(entry.lastUsedAt)}</p>
       </div>
       <div class="mt-4 flex flex-wrap gap-2">${chips}</div>
     `;
     container.append(article);
   }
-
-  wireBangSelection(container);
 }
 
 function formatBucketHour(hour: number): string {
