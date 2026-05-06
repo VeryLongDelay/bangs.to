@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024"
+    role="img">
+    <defs>
+        <linearGradient id="bg" x1="0" y1="1024" x2="1024" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#1c6fea" />
+            <stop offset="0.55" stop-color="#218fe9" />
+            <stop offset="1" stop-color="#25a8f3" />
+        </linearGradient>
+        <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0a3d78" flood-opacity="0.28" />
+        </filter>
+        <linearGradient id="plane" x1="338" y1="544" x2="668" y2="318"
+            gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ffffff" />
+            <stop offset="1" stop-color="#f7fbff" />
+        </linearGradient>
+    </defs>
+
+    <rect width="1024" height="1024" fill="url(#bg)" />
+    <rect x="2" y="2" width="1020" height="1020" fill="none" stroke="#0e5fa8" stroke-opacity="0.55"
+        stroke-width="4" />
+
+    <g filter="url(#softShadow)">
+        <path fill="url(#plane)"
+            d="M181.4 526.4c-10.8 7.8-6.8 24.8 6.4 26.8l156.8 22.8-66.2 214.8c-4.4 14.2 11.8 25.6 23.8 16.8l191.6-141.2 91.4 138.6c8.4 12.8 28.2 7.4 29-7.8l47-569.6c1-13.6-14.2-22.2-25.4-14.2L181.4 526.4Z" />
+        <path fill="#edf8ff" opacity="0.75" d="M493.8 666.4 614.2 797.2 661.2 227.6 414.4 584.8z" />
+        <rect x="706" y="213" width="132" height="410" rx="66" fill="#fff"
+            transform="rotate(5.5 772 418)" />
+        <circle cx="721" cy="756" r="62" fill="#fff" />
+    </g>
+</svg>
