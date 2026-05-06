@@ -24,6 +24,7 @@ const ASSETS = [
   '/app.js',
   '/theme.js',
   '/icon.svg',
+  '/ogimage.png',
   '/manifest.json',
   ...__EXTRA_ASSETS__
 ];

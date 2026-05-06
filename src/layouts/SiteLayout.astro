@@ -36,6 +36,23 @@ const settingsHref = `${currentPath}#settings`;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+
+    <meta name="description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.">
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://bangs.to/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content={title}>
+    <meta property="og:description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.">
+    <meta property="og:image" content="https://bangs.to/ogimage.png">
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content={title}>
+    <meta property="twitter:url" content="https://bangs.to/">
+    <meta name="twitter:title" content={title}>
+    <meta name="twitter:description" content="The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.">
+    <meta name="twitter:image" content="https://bangs.to/ogimage.png">
+
+
     <link rel="stylesheet" href="/styles.css" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="manifest" href="/manifest.json" />

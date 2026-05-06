@@ -1,8 +1,8 @@
+import { minify } from '@minify-html/node';
+import { $ } from 'bun';
 import { watch } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
 import { handleOpenSearchRequest, handleSuggestRequest } from '../src/server/handlers';
 import { pageHeaders, SW_HEADERS } from '../src/server/headers';
 import { getStaticRedirect } from '../src/server/redirects';
@@ -129,6 +129,7 @@ async function build() {
   await Bun.write('dist/robots.txt', 'User-agent: *\nAllow: /\n');
   await Bun.write('dist/manifest.json', Bun.file('src/ui/manifest.json'));
   await Bun.write('dist/icon.svg', Bun.file('src/ui/icon.svg'));
+  await Bun.write('dist/ogimage.png', Bun.file('src/ui/ogimage.png'));
 
   console.log(`Build done in ${(performance.now() - t).toFixed(0)}ms`);
 }
@@ -212,7 +213,7 @@ Bun.serve({
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          Connection: 'keep-alive'
+          'Connection': 'keep-alive'
         }
       });
     }
