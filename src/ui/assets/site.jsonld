@@ -7,7 +7,7 @@
       "url": "https://bangs.to",
       "name": "Bangs.to",
       "alternateName": "bangs.to",
-      "description": "Blazing-fast DuckDuckGo-style !bangs for your search engine. Redirects cached browser-side to avoid DNS latency. Privacy-first search engine shortcuts powered by a JavaScript Service Worker.",
+      "description": "Blazing-fast DuckDuckGo/Kagi-style !bangs for any search engine. Redirects cached browser-side to avoid DNS latency, powered by a JavaScript Service Worker.",
       "image": "https://bangs.to/ogimage.png",
       "inLanguage": "en-US",
       "potentialAction": {
@@ -24,7 +24,7 @@
       "operatingSystem": "Web",
       "url": "https://bangs.to",
       "image": "https://bangs.to/ogimage.png",
-      "description": "Blazing-fast DuckDuckGo-style !bangs for your search engine. Redirects cached browser-side to avoid DNS latency. Privacy-first search engine shortcuts powered by a JavaScript Service Worker.",
+      "description": "Blazing-fast DuckDuckGo/Kagi-style !bangs for any search engine. Redirects cached browser-side to avoid DNS latency, powered by a JavaScript Service Worker.",
       "offers": {
         "@type": "Offer",
         "price": "0",

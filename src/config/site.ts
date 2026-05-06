@@ -3,7 +3,7 @@ export const SITE_TAGLINE = 'A fast, local-first search tool for !bangs users';
 export const SITE_URL = 'https://bangs.to';
 export const OG_IMAGE_URL = `${SITE_URL}/ogimage.png`;
 export const OG_DESCRIPTION =
-  'Blazing-fast DuckDuckGo-style !bangs for your search engine. Redirects cached browser-side to avoid DNS latency. Privacy-first search engine shortcuts powered by a JavaScript Service Worker.';
+  'Blazing-fast DuckDuckGo/Kagi-style !bangs for any search engine. Redirects cached browser-side to avoid DNS latency, powered by a JavaScript Service Worker.';
 
 export function getSettingsHref(currentPath: string): string {
   return `${currentPath}#settings`;
