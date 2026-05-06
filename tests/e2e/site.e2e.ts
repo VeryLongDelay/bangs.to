@@ -429,6 +429,19 @@ test('cold-start redirect uses service worker message path before controller exi
   await context.close();
 });
 
+test('try search form submits on first visit', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await mockGoogleSearchRoute(page);
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.locator('#try-query').fill('!g hello');
+  await page.locator('#try-query').press('Enter');
+
+  await expect.poll(() => page.url(), { timeout: 10_000 }).toMatch(GOOGLE_REDIRECT);
+  await context.close();
+});
+
 test('cold-start redirect records stats for the redirected bang', async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();

@@ -9,6 +9,89 @@ import { initSettings } from './settings';
 
 const db = new DB();
 
+function navigateSearch(query: string) {
+  const target = `/?q=${encodeURIComponent(query)}`;
+
+  if (!('serviceWorker' in navigator)) {
+    location.assign(target);
+    return;
+  }
+
+  const sendRedirectRequest = () => {
+    const controller = navigator.serviceWorker.controller;
+    if (!controller) {
+      return false;
+    }
+
+    const handleMessage = (event: MessageEvent<{ url?: string }>) => {
+      if (event.data?.url) {
+        location.replace(event.data.url);
+        return;
+      }
+      location.assign(target);
+    };
+
+    navigator.serviceWorker.addEventListener('message', handleMessage, { once: true });
+    controller.postMessage({ type: 'redirect', query });
+    return true;
+  };
+
+  if (sendRedirectRequest()) {
+    return;
+  }
+
+  let fallbackTimer = window.setTimeout(() => {
+    fallbackTimer = 0;
+    location.assign(target);
+  }, 1600);
+
+  navigator.serviceWorker.addEventListener(
+    'controllerchange',
+    () => {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = 0;
+      }
+
+      if (!sendRedirectRequest()) {
+        location.assign(target);
+      }
+    },
+    { once: true }
+  );
+
+  navigator.serviceWorker
+    .register('/sw.js')
+    .then(registration => {
+      registration.active?.postMessage({ type: 'claim' });
+    })
+    .catch(() => {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+      }
+      location.assign(target);
+    });
+}
+
+function initSearchForm() {
+  const form = document.querySelector<HTMLFormElement>('#try-search-form');
+  const input = form?.querySelector<HTMLInputElement>('input[name="q"]');
+
+  if (!(form && input)) {
+    return;
+  }
+
+  form.addEventListener('submit', event => {
+    const query = input.value.trim();
+    if (!query) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateSearch(query);
+  });
+}
+
 async function syncSuggestCookie() {
   const [provider, trigger, url, custom] = await Promise.all([
     db.getSetting('suggest-provider').then(v => v || 'default'),
@@ -22,6 +105,7 @@ async function syncSuggestCookie() {
 
 function init() {
   syncSuggestCookie();
+  initSearchForm();
 
   $<HTMLInputElement>('#setup-url').value = `${location.origin}?q=%s`;
 
