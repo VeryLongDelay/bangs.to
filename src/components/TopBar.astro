@@ -25,10 +25,29 @@ const links = [
 >
   <div class="flex items-center gap-3">
     <div
-      class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/72 p-0.5 shadow-[0_12px_24px_rgba(37,99,235,0.14)] dark:border-white/12 dark:bg-[rgba(15,23,42,0.5)] [&_svg]:block [&_svg]:h-full [&_svg]:w-full [&_svg]:overflow-hidden [&_svg]:rounded-[0.95rem]"
+      class="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white/72 p-0.5 shadow-[0_12px_24px_rgba(37,99,235,0.14)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:border-primary-300/60 hover:shadow-[0_20px_40px_rgba(37,99,235,0.22)] active:translate-y-0 active:scale-[0.98] dark:border-white/12 dark:bg-[rgba(15,23,42,0.5)] dark:hover:border-white/18 dark:hover:bg-[rgba(15,23,42,0.64)]"
       aria-hidden="true"
-      set:html={iconSvg}
-    />
+    >
+      <div
+        class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+      >
+        <div
+          class="absolute inset-[-45%] animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_180deg_at_50%_50%,rgba(59,130,246,0)_0deg,rgba(59,130,246,0.26)_120deg,rgba(168,85,247,0.3)_230deg,rgba(59,130,246,0)_360deg)]"
+        >
+        </div>
+      </div>
+
+      <div
+        class="pointer-events-none absolute inset-0 translate-x-[-140%] bg-[linear-gradient(110deg,transparent_0%,rgba(255,255,255,0.16)_44%,rgba(255,255,255,0.5)_50%,rgba(255,255,255,0.16)_56%,transparent_100%)] opacity-0 transition-all duration-700 group-hover:translate-x-[140%] group-hover:opacity-100 dark:bg-[linear-gradient(110deg,transparent_0%,rgba(255,255,255,0.05)_44%,rgba(255,255,255,0.16)_50%,rgba(255,255,255,0.05)_56%,transparent_100%)]"
+      >
+      </div>
+
+      <div
+        class="relative z-10 h-full w-full overflow-hidden rounded-[0.95rem] [&_svg]:block [&_svg]:h-full [&_svg]:w-full [&_svg]:transition-transform [&_svg]:duration-500 [&_svg]:ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:[&_svg]:-translate-y-[1px] group-hover:[&_svg]:rotate-[6deg] group-hover:[&_svg]:scale-[1.08]"
+        set:html={iconSvg}
+      />
+    </div>
+
     <div>
       <p class="font-display text-lg font-700 tracking-tight text-text">{SITE_TITLE}</p>
       <p class="text-sm text-text-secondary">{SITE_TAGLINE}</p>
