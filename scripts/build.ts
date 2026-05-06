@@ -1,14 +1,17 @@
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
 import { createHash } from 'node:crypto';
 import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { brotliCompressSync, constants } from 'node:zlib';
+import { minify } from '@minify-html/node';
+import { $ } from 'bun';
 import { ensureGeneratedBangData } from './codegen';
+import { copyStaticAssets } from './static-assets';
+import { writeStructuredDataAsset } from './structured-data';
 
 const ASTRO_OUTDIR = '.astro-build';
 
 await ensureGeneratedBangData(true);
+await writeStructuredDataAsset();
 
 // Start from a clean dist to avoid stale artifacts (e.g. orphaned .br chunks).
 await rm('dist', { recursive: true, force: true });
@@ -136,9 +139,8 @@ for (const file of [
 
 await rm('dist/styles.css');
 await rm(ASTRO_OUTDIR, { recursive: true, force: true });
-await Bun.write('dist/manifest.json', Bun.file('src/ui/manifest.json'));
-await Bun.write('dist/icon.svg', Bun.file('src/ui/icon.svg'));
-await Bun.write('dist/ogimage.png', Bun.file('src/ui/ogimage.png'));
+await copyStaticAssets('dist');
+
 await Bun.write('dist/robots.txt', 'User-agent: *\nAllow: /\n');
 await Bun.write('dist/_redirects', '/history /stats 302\n/history.html /stats 302\n');
 

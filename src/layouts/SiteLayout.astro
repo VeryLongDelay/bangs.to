@@ -3,7 +3,16 @@ import SettingsModal from "../components/SettingsModal.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import TopBar from "../components/TopBar.astro";
 import TrySearch from "../components/TrySearch.astro";
-import { SITE_TITLE } from "../config/site";
+import {
+  getCanonicalUrl,
+  getSettingsHref,
+  OG_DESCRIPTION,
+  OG_IMAGE_URL,
+  SITE_TAGLINE,
+  SITE_TITLE,
+  SITE_URL,
+} from "../config/site";
+import baseJsonLdText from "../ui/assets/site.jsonld?raw";
 
 interface Props {
   currentPath: string;
@@ -27,10 +36,37 @@ const {
   searchEntrypoint = false,
 } = Astro.props;
 
-const siteUrl = "https://bangs.to";
-const ogImageUrl = "https://bangs.to/ogimage.png";
-const ogDescription = "The blazing-fast local-first DuckDuckGo-style bang redirects. Privacy-first search engine shortcuts powered by a Service Worker.";
-const settingsHref = `${currentPath}#settings`;
+const tagline = SITE_TAGLINE;
+const siteUrl = SITE_URL;
+const ogImageUrl = OG_IMAGE_URL;
+const ogDescription = OG_DESCRIPTION;
+const settingsHref = getSettingsHref(currentPath);
+const canonicalUrl = getCanonicalUrl(currentPath);
+const baseJsonLd = JSON.parse(baseJsonLdText);
+const jsonLd = {
+  ...baseJsonLd,
+  "@graph": [
+    ...baseJsonLd["@graph"],
+    {
+      "@type": "WebPage",
+      "@id": `${canonicalUrl}#webpage`,
+      url: canonicalUrl,
+      name: title,
+      description,
+      isPartOf: {
+        "@id": `${siteUrl}/#website`,
+      },
+      about: {
+        "@id": `${siteUrl}/#app`,
+      },
+      primaryImageOfPage: {
+        "@type": "ImageObject",
+        url: ogImageUrl,
+      },
+      inLanguage: "en-US",
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -38,27 +74,38 @@ const settingsHref = `${currentPath}#settings`;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title}</title>
-
+    <title>{title} - {tagline}</title>
     <meta name="description" content={ogDescription}>
-    <!-- Facebook Meta Tags -->
-    <meta property="og:url" content={siteUrl}>
+    <!-- Search engine meta tags -->
+    <meta property="og:site_name" content={`${SITE_TITLE} - ${tagline}`} />
+    <meta property="og:locale" content="en_US" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+
+    <!-- Meta Tags for social media -->
+    <meta property="og:url" content={canonicalUrl}>
     <meta property="og:type" content="website">
     <meta property="og:title" content={title}>
     <meta property="og:description" content={ogDescription}>
     <meta property="og:image" content={ogImageUrl}>
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title} - ${tagline}`}>
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta property="twitter:domain" content={title}>
-    <meta property="twitter:url" content={siteUrl}>
+    <meta property="twitter:url" content={canonicalUrl}>
     <meta name="twitter:title" content={title}>
     <meta name="twitter:description" content={ogDescription}>
     <meta name="twitter:image" content={ogImageUrl}>
 
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 
     <link rel="stylesheet" href="/styles.css" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link
       rel="search"
       type="application/opensearchdescription+xml"

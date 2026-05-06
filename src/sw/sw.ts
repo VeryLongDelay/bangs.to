@@ -25,7 +25,16 @@ const ASSETS = [
   '/theme.js',
   '/icon.svg',
   '/ogimage.png',
-  '/manifest.json',
+  '/site.webmanifest',
+  '/apple-touch-icon.png',
+  '/favicon.ico',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png',
+  '/favicon-48x48.png',
+  '/android-chrome-192x192.png',
+  '/android-chrome-512x512.png',
+  '/maskable-icon-192x192.png',
+  '/maskable-icon-512x512.png',
   ...__EXTRA_ASSETS__
 ];
 

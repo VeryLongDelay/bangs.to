@@ -92,6 +92,40 @@ function initSearchForm() {
   });
 }
 
+function initCopyTargets() {
+  const copyTargets = document.querySelectorAll<HTMLElement>('[data-copy-text]');
+
+  for (const target of copyTargets) {
+    const status = target.querySelector<HTMLElement>('[data-copy-status]');
+    const defaultStatus = status?.textContent ?? '';
+
+    const triggers = target.querySelectorAll<HTMLElement>('[data-copy-trigger]');
+
+    for (const trigger of triggers) {
+      trigger.addEventListener('click', async event => {
+        event.preventDefault();
+
+        const copyText = target.dataset.copyText;
+        if (!copyText) {
+          return;
+        }
+
+        await navigator.clipboard.writeText(copyText);
+        flashAnim(target);
+
+        if (!status) {
+          return;
+        }
+
+        status.textContent = 'Copied';
+        window.setTimeout(() => {
+          status.textContent = defaultStatus;
+        }, 1500);
+      });
+    }
+  }
+}
+
 async function syncSuggestCookie() {
   const [provider, trigger, url, custom] = await Promise.all([
     db.getSetting('suggest-provider').then(v => v || 'default'),
@@ -106,6 +140,7 @@ async function syncSuggestCookie() {
 function init() {
   syncSuggestCookie();
   initSearchForm();
+  initCopyTargets();
 
   $<HTMLInputElement>('#setup-url').value = `${location.origin}?q=%s`;
 

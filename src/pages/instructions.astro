@@ -1,5 +1,5 @@
 ---
-import { SITE_TITLE } from "../config/site";
+import { SITE_TITLE } from '../config/site';
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
@@ -8,7 +8,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
   description="A plain-language guide to using ban.gs."
   currentPath="/instructions"
 >
-  <div class="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
+  <div class="grid gap-4 lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1fr)]">
     <aside class="card h-fit p-5 sm:p-6">
       <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Quick summary</p>
       <h1
@@ -23,30 +23,33 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <div class="rounded-[20px] bg-bg-soft p-4">
           <p class="text-sm font-700 text-text">No extension required</p>
           <p class="mt-2 text-sm leading-6 text-text-secondary">
-            Most browsers support custom search engines natively. <a href="https://helium.computer" target="_blank">Some browsers</a> even have native !bangs support.</a>
-          </p>
-        </div>
-        <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">One install link</p>
-          <p class="mt-2 text-sm leading-6 text-text-secondary">
-            <code>?q=%s</code> is the part your browser needs.
-          </p>
-        </div>
-        <div class="rounded-[20px] bg-bg-soft p-4">
-          <p class="text-sm font-700 text-text">Still flexible</p>
-          <p class="mt-2 text-sm leading-6 text-text-secondary">
-            You can change defaults, lucky mode, and add custom shortcuts later.
+            Most browsers support custom search engines natively. <a
+              href="https://helium.computer"
+              target="_blank">Some browsers</a
+            > even have native !bangs support.
           </p>
         </div>
       </div>
+      <div class="rounded-[20px] bg-bg-soft p-4">
+        <p class="text-sm font-700 text-text">One install link</p>
+        <p class="mt-2 text-sm leading-6 text-text-secondary">
+          <code>?q=%s</code> is the part your browser needs.
+        </p>
+      </div>
+      <div class="rounded-[20px] bg-bg-soft p-4">
+        <p class="text-sm font-700 text-text">Alfred Integration</p>
+        <p class="mt-2 text-sm leading-6 text-text-secondary">
+          <a
+            href="alfred://customsearch/Bangs.to/bn/utf8/nospace/https://bangs.to/?q=%7Bquery%7D"
+            target="_blank">Alfred One-click install</a
+          >
+        </p>
+      </div>
     </aside>
-
     <div class="grid gap-4">
       <section class="card">
-        <h2 class="section-title mb-3">1. Try it on the home page</h2>
-        <p class="text-text-secondary mb-3">
-          Use the search bar on the front page and type something like:
-        </p>
+        <h2 class="section-title mb-3">1. Try it live</h2>
+        <p class="text-text-secondary mb-3">Use the search bar and type something like:</p>
         <div class="grid gap-2 text-sm">
           <div class="rounded-[18px] bg-bg-soft px-3 py-2 font-mono">!gh react</div>
           <div class="rounded-[18px] bg-bg-soft px-3 py-2 font-mono">!w solar system</div>
@@ -57,11 +60,11 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       </section>
 
       <section class="card">
-        <h2 class="section-title mb-3">2. Learn the basic rule</h2>
+        <h2 class="section-title mb-3">2. Learn the usage pattern</h2>
         <p class="text-text-secondary">
-          If your search starts with a bang like <code>!gh</code> or
+          If your search contains a !bang, like <code>!gh</code> or
           <code>!w</code>, bangs.to sends you to that site. If your search has no bang, it goes to
-          your default search engine.
+          your default search engine, which is customizable in <a href="#settings">Settings</a>.
         </p>
       </section>
 
@@ -74,29 +77,99 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         </p>
 
         <div
-          class="rounded-[22px] border border-primary-100 bg-primary-50/75 px-4 py-4 text-sm text-text-secondary mb-4"
+          data-copy-text="https://bangs.to/?q=%s"
+          data-copy-label="Search URL"
+          class="mb-4 w-full rounded-[22px] border border-primary-100 bg-primary-50/75 px-4 py-4 text-sm text-text-secondary dark:border-white/12 dark:bg-[rgba(15,23,42,0.78)]"
         >
-          You only need one piece of information:
-          <br />
-          <code class="text-text">Search URL:</code>
-          <code>https://bangs.to/?q=%s</code>
+          <span class="flex flex-wrap items-center justify-between gap-2">
+            <span>
+              <span class="text-text">Search URL:</span>
+              <code
+                class="ml-1 cursor-pointer rounded-md px-1 py-0.5 transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/10"
+                data-copy-trigger>https://bangs.to/?q=%s</code
+              >
+            </span>
+            <span
+              class="cursor-pointer text-[11px] font-700 uppercase tracking-[0.16em] text-primary-700 transition-colors duration-200 hover:text-primary-800 dark:text-blue-100/78 dark:hover:text-blue-50"
+              data-copy-trigger
+              data-copy-status>Click to copy</span
+            >
+          </span>
         </div>
 
-        <h3 class="text-lg font-700 mb-2 text-text">Chrome, Arc, Brave, and Edge</h3>
+        <h3 class="text-lg font-700 mb-2 text-text">Chrome, Firefox, Edge, and more</h3>
         <p class="text-text-secondary mb-3">
           Open your browser settings and search for <strong>Search engines</strong>. Then add a new
           search engine.
         </p>
         <div class="grid gap-2 text-sm mb-4">
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2">
-            <strong>Name:</strong> bangs.to
+          <div
+            data-copy-text="bangs.to"
+            data-copy-label="Name"
+            class="flex w-full flex-wrap items-center justify-between gap-2 rounded-[18px] bg-bg-soft px-3 py-2"
+          >
+            <span
+              class="cursor-pointer rounded-md px-1 py-0.5 transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/10"
+              data-copy-trigger><strong>Name:</strong> bangs.to</span
+            >
+            <span
+              class="cursor-pointer text-[11px] font-700 uppercase tracking-[0.16em] text-primary-700 transition-colors duration-200 hover:text-primary-800 dark:text-blue-100/78 dark:hover:text-blue-50"
+              data-copy-trigger
+              data-copy-status>Click to copy</span
+            >
           </div>
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2">
-            <strong>Shortcut:</strong> bangs.to
+          <div
+            data-copy-text="bangs.to"
+            data-copy-label="Shortcut"
+            class="flex w-full flex-wrap items-center justify-between gap-2 rounded-[18px] bg-bg-soft px-3 py-2"
+          >
+            <span
+              class="cursor-pointer rounded-md px-1 py-0.5 transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/10"
+              data-copy-trigger><strong>Shortcut:</strong> bangs.to</span
+            >
+            <span
+              class="cursor-pointer text-[11px] font-700 uppercase tracking-[0.16em] text-primary-700 transition-colors duration-200 hover:text-primary-800 dark:text-blue-100/78 dark:hover:text-blue-50"
+              data-copy-trigger
+              data-copy-status>Click to copy</span
+            >
           </div>
-          <div class="rounded-[18px] bg-bg-soft px-3 py-2 font-mono">
-            <strong class="font-sans not-italic">URL:</strong>
-            https://bangs.to/?q=%s
+          <div
+            data-copy-text="https://bangs.to/?q=%s"
+            data-copy-label="URL"
+            class="flex w-full flex-wrap items-center justify-between gap-2 rounded-[18px] bg-bg-soft px-3 py-2 font-mono"
+          >
+            <span
+              class="cursor-pointer rounded-md px-1 py-0.5 transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/10"
+              data-copy-trigger>
+              <strong class="font-sans not-italic">URL:</strong>
+              https://bangs.to/?q=%s
+            </span>
+            <span
+              class="font-sans cursor-pointer text-[11px] font-700 uppercase tracking-[0.16em] text-primary-700 transition-colors duration-200 hover:text-primary-800 dark:text-blue-100/78 dark:hover:text-blue-50"
+              data-copy-trigger
+              data-copy-status>Click to copy</span
+            >
+          </div>
+
+          <p class="text-text-secondary">
+            If you wish to use search suggestions, you can add the following URL from DuckDuckGo:
+          </p>
+          <div
+            data-copy-text="https://duckduckgo.com/ac/?q=%s&type=list"
+            data-copy-label="Suggestions URL"
+            class="flex w-full flex-wrap items-center justify-between gap-2 rounded-[18px] bg-bg-soft px-3 py-2 font-mono"
+          >
+            <span
+              class="cursor-pointer rounded-md px-1 py-0.5 transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/10"
+              data-copy-trigger>
+              <strong class="font-sans not-italic">Suggestions URL:</strong>
+              https://duckduckgo.com/ac/?q=%s&type=list
+            </span>
+            <span
+              class="font-sans cursor-pointer text-[11px] font-700 uppercase tracking-[0.16em] text-primary-700 transition-colors duration-200 hover:text-primary-800 dark:text-blue-100/78 dark:hover:text-blue-50"
+              data-copy-trigger
+              data-copy-status>Click to copy</span
+            >
           </div>
         </div>
         <p class="text-text-secondary mb-4">
@@ -119,8 +192,8 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <h3 class="text-lg font-700 mb-2 text-text">Safari</h3>
         <p class="text-text-secondary mb-4">
           Safari is more limited with custom search engines than Chrome or Firefox. If Safari does
-          not let you add it directly, the simplest option is to keep bangs.to open as a pinned tab or
-          use a Safari extension that adds custom search engine support.
+          not let you add it directly, the simplest option is to keep bangs.to open as a pinned tab
+          or use a Safari extension that adds custom search engine support.
         </p>
 
         <h3 class="text-lg font-700 mb-2 text-text">How to test that it worked</h3>
@@ -158,7 +231,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <h2 class="section-title mb-3">6. What happens behind the scenes?</h2>
         <p class="text-text-secondary">
           The short version is: your browser recognizes the query and sends you straight to the
-          right place. You do not see an extra redirect page. That is why it feels fast.
+          right place. Frequently used !bangs are cached in your browser.
         </p>
       </section>
 
