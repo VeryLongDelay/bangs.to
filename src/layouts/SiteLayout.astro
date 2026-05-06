@@ -8,9 +8,11 @@ import {
   getSettingsHref,
   OG_DESCRIPTION,
   OG_IMAGE_URL,
+  SITE_DOMAIN,
   SITE_TAGLINE,
   SITE_TITLE,
   SITE_URL,
+  TWITTER_SITE,
 } from "../config/site";
 import baseJsonLdText from "../ui/assets/site.jsonld?raw";
 
@@ -39,7 +41,8 @@ const {
 const tagline = SITE_TAGLINE;
 const siteUrl = SITE_URL;
 const ogImageUrl = OG_IMAGE_URL;
-const ogDescription = OG_DESCRIPTION;
+const metaDescription = description || OG_DESCRIPTION;
+const fullTitle = title === SITE_TITLE ? `${SITE_TITLE} - ${tagline}` : `${title} - ${tagline}`;
 const settingsHref = getSettingsHref(currentPath);
 const canonicalUrl = getCanonicalUrl(currentPath);
 const baseJsonLd = JSON.parse(baseJsonLdText);
@@ -74,10 +77,10 @@ const jsonLd = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} - {tagline}</title>
-    <meta name="description" content={ogDescription}>
+    <title>{fullTitle}</title>
+    <meta name="description" content={metaDescription} />
     <!-- Search engine meta tags -->
-    <meta property="og:site_name" content={`${SITE_TITLE} - ${tagline}`} />
+    <meta property="og:site_name" content={SITE_TITLE} />
     <meta property="og:locale" content="en_US" />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -85,21 +88,22 @@ const jsonLd = {
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
 
     <!-- Meta Tags for social media -->
-    <meta property="og:url" content={canonicalUrl}>
-    <meta property="og:type" content="website">
-    <meta property="og:title" content={title}>
-    <meta property="og:description" content={ogDescription}>
-    <meta property="og:image" content={ogImageUrl}>
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${title} - ${tagline}`}>
+    <meta property="og:image:alt" content={fullTitle} />
     <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta property="twitter:domain" content={title}>
-    <meta property="twitter:url" content={canonicalUrl}>
-    <meta name="twitter:title" content={title}>
-    <meta name="twitter:description" content={ogDescription}>
-    <meta name="twitter:image" content={ogImageUrl}>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={TWITTER_SITE} />
+    <meta property="twitter:domain" content={SITE_DOMAIN} />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 
@@ -112,7 +116,6 @@ const jsonLd = {
       title={SITE_TITLE}
       href="/opensearch.xml"
     />
-    <meta name="description" content={description} />
     <meta name="theme-color" content="#f4f8fc" />
     <script is:inline>
       "use strict";
