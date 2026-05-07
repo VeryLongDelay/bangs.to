@@ -6,6 +6,7 @@
  */
 
 import { readPathname } from '../src/shared/raw-url';
+import type { SuggestFrecency } from '../src/sw/frecency';
 import { ensureGeneratedBangData, GENERATED_BANG_DATA_FILES } from './codegen';
 
 const [minPath, metaPath, triePath] = GENERATED_BANG_DATA_FILES;
@@ -338,7 +339,7 @@ function countTerminals(node: number): number {
 const suggestPartials = ['g', 'gh', 'gi', 'yt', 'a', 's'];
 const SUGGEST_ITERS = 100_000;
 const SUGGEST_PREFIX_ITERS = 20_000;
-const emptyFrecency: Record<string, number> = Object.create(null);
+const emptyFrecency: SuggestFrecency = Object.create(null);
 const emptyCustom: string[] = [];
 
 // Warm up

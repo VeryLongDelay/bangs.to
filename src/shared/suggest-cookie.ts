@@ -167,7 +167,7 @@ export function parseSuggestCookieValueWithValidation(
   }
 
   let custom: string[] = [];
-  let frecent: Record<string, number> = {};
+  let frecent: SuggestFrecency = {};
   let hasInvalidContext = false;
 
   if (includeBangContext && firstPipe !== -1) {

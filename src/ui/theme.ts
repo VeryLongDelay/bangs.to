@@ -5,6 +5,11 @@ const THEME_COLORS = {
 } as const;
 
 type Theme = keyof typeof THEME_COLORS;
+type NavigatorWithUAData = Navigator & {
+  userAgentData?: {
+    platform?: string;
+  };
+};
 
 function readStoredTheme(): Theme | null {
   try {
@@ -74,7 +79,8 @@ function updateShortcutModifierLabel() {
     return;
   }
 
-  const platform = navigator.userAgentData?.platform || navigator.platform || '';
+  const platform =
+    (navigator as NavigatorWithUAData).userAgentData?.platform || navigator.platform || '';
   const isMac = /mac|iphone|ipad|ipod/i.test(platform);
   modifierChip.textContent = isMac ? '⌘' : 'Ctrl';
 }
