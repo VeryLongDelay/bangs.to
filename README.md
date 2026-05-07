@@ -136,7 +136,6 @@ The settings page has a copy button that gives you the exact search URL template
 Open the settings modal from the gear icon on the home page, or type **`!settings`** in the address bar to jump there directly. Type **`!`** on its own to quickly access the home page.
 
 - **Default bang** — The bang used when no `!` is in the query. Defaults to `ddg` (DuckDuckGo). Change it to `g`, `b`, or any valid bang trigger
-- **Feeling Lucky** — Choose how lucky redirects resolve: Default (match your default bang), Google, DuckDuckGo, Custom (your own URL template with `{}` as query placeholder), or Disabled
 - **Search suggestions** — Choose the source for address bar autocomplete: Default (matches your default bang), Google, DuckDuckGo, Bing, Brave, Custom (provide your own URL template with `{}` as query placeholder), or None
 - **Custom bangs** — Add bangs with a trigger, name, and URL template (use `{}` as the query placeholder). Custom bangs override built-in ones
 - **Search bangs** — Real-time search across all 14,000+ bangs by trigger, name, or domain
@@ -150,25 +149,6 @@ All settings are stored in IndexedDB locally on your device.
 When you type `!gh react` in the address bar, the Service Worker intercepts the request before it reaches the network. It parses the bang trigger, looks it up in the bang map (checking custom bangs first, then built-ins), and responds with a 302 redirect. If no bang is found, your default search engine is used.
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for build pipeline and project structure details.
-
-## Comparison with other bang tools
-
-|                             | **bangs.to**                                  | **unduck**                       | **unduckified**                  | **rebang**                                             |
-| --------------------------- | --------------------------------------------- | -------------------------------- | -------------------------------- | ------------------------------------------------------ |
-| **Redirect method**         | Service Worker intercept                      | `window.location.replace`        | `window.location.replace`        | Cloudflare Worker (edge) + client fallback             |
-| **When redirect happens**   | Before page renders (Service Worker)          | After page loads (HTML, CSS, JS) | After page loads (HTML, CSS, JS) | At the edge or after page loads (HTML, CSS, JS, React) |
-| **Sources**                 | DDG + Kagi + custom                           | DDG                              | Kagi                             | DDG + Kagi                                             |
-| **Analytics**               | None†                                         | Plausible                        | None‡                            | Plausible+Vercel Analytics+Vercel Speed Insights       |
-| **Server required**         | No (redirects), yes (suggestions, OpenSearch) | No                               | No                               | Yes (Cloudflare Worker)                                |
-| **Feeling Lucky**           | Yes (configurable per-engine)                 | No                               | No                               | No                                                     |
-| **Search suggestions**      | Yes (bang autocomplete + configurable)        | No                               | No                               | No                                                     |
-| **OpenSearch**              | Yes (dynamic, self-host friendly)             | No                               | Yes                              | Yes                                                    |
-| **Local stats**             | Yes                                           | No                               | No                               | No                                                     |
-| **Custom bangs**            | Yes (IndexedDB faster)                        | No                               | Yes (localStorage)               | Yes (localStorage)                                     |
-| **Build tool**              | Bun                                           | Vite                             | Vite                             | Vite                                                   |
-| **Bang data for redirects** | ~867 KB (trigger→URL only)                    | 2.7 MB (full metadata)           | 1.5 MB (full metadata)           | ~200 KB inline + 1.5 MB lazy-loaded                    |
-| **Parsed on**               | SW thread (once, persists in memory)          | Main thread (every page load)    | Main thread (every page load)    | Main thread (every page load) or edge worker           |
-| **License**                 | AGPL-3.0                                      | MIT                              | MIT                              | MIT                                                    |
 
 † bangs.to doesn't include any analytics scripts or tracking. Cloudflare Pages exposes basic request counts in its dashboard for all hosted sites — this is a platform-level
 metric we did not opt into and cannot disable. It is not Cloudflare Web Analytics.
@@ -194,7 +174,7 @@ Yes. Try it yourself: open unduck or unduckified, type `!g cats`, and watch the 
 
 ## Acknowledgments
 
-bangs.to was inspired by [unduck](https://github.com/t3dotgg/unduck) by Theo Browne, which demonstrated the value of fast client-side bang redirects. Bang data is sourced from [DuckDuckGo](https://duckduckgo.com/bang) and [Kagi](https://kagi.com).
+bangs.to was inspired by Theo Browne's [unduck](https://github.com/t3dotgg/unduck), which demonstrated the value of fast client-side bang redirects. Inspration also taken from Dmytro Pletenskyi's [Flashbang](https://github.com/ph1losof/flashbang). Bangs data is sourced from [DuckDuckGo](https://duckduckgo.com/bang) and [Kagi](https://kagi.com).
 
 ## Daily updates
 
