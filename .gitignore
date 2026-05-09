@@ -1,6 +1,8 @@
+.agent/
+.agents/
+skills-lock.json
 .codex/
 .gemini/
-.agent/
 .vscode/
 .astro/
 .astro-build/
