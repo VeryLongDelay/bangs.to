@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true,
-    "lib": ["ESNext", "WebWorker", "DOM"],
+    "lib": ["ESNext", "WebWorker", "DOM", "DOM.Iterable"],
     "types": ["@types/bun", "astro/client"]
   },
   "include": [

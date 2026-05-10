@@ -110,7 +110,7 @@ function initCopyTargets() {
     const triggers = target.querySelectorAll<HTMLElement>('[data-copy-trigger]');
 
     for (const trigger of triggers) {
-      trigger.addEventListener('click', async event => {
+      trigger.addEventListener('click', async (event: MouseEvent) => {
         event.preventDefault();
 
         const copyText = target.dataset.copyText;

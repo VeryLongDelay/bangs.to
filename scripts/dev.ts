@@ -1,8 +1,8 @@
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
 import { watch } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
+import { minify } from '@minify-html/node';
+import { $ } from 'bun';
 import { handleOpenSearchRequest, handleSuggestRequest } from '../src/server/handlers';
 import { pageHeaders, SW_HEADERS } from '../src/server/headers';
 import { getStaticRedirect } from '../src/server/redirects';
@@ -219,7 +219,7 @@ Bun.serve({
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive'
+          Connection: 'keep-alive'
         }
       });
     }

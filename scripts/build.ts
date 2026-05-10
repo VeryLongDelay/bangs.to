@@ -1,9 +1,9 @@
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
 import { createHash } from 'node:crypto';
 import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { brotliCompressSync, constants } from 'node:zlib';
+import { minify } from '@minify-html/node';
+import { $ } from 'bun';
 import { ensureGeneratedBangData } from './codegen';
 import { copyStaticAssets } from './static-assets';
 import { writeStructuredDataAsset } from './structured-data';
