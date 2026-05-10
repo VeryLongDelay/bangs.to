@@ -125,7 +125,8 @@ for (const file of [
   'stats.html',
   'contact.html',
   'faq.html',
-  'instructions.html'
+  'instructions.html',
+  'ai.html'
 ]) {
   const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
   await Bun.write(
@@ -214,6 +215,12 @@ await Bun.write(
     `  ${pageCspHeader}`,
     '',
     '/instructions.html',
+    `  ${pageCspHeader}`,
+    '',
+    '/ai',
+    `  ${pageCspHeader}`,
+    '',
+    '/ai.html',
     `  ${pageCspHeader}`,
     '',
     '/sw.js',

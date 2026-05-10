@@ -1,0 +1,576 @@
+---
+import { SITE_TITLE } from '../config/site';
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title={`${SITE_TITLE} AI Disclaimer`}
+  description="How bangs.to relates to AI: site copy, local-first redirects, and why you should verify bang URLs and search providers yourself."
+  currentPath="/ai"
+>
+  <div class="grid gap-4 lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1fr)]">
+    <aside class="card h-fit p-5 sm:p-6">
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">AI disclaimer</p>
+      <h1
+        class="mt-2 max-w-[12ch] font-display text-[2.4rem] font-800 leading-[0.95] tracking-[-0.05em] text-text sm:text-[2.9rem]"
+      >
+        AI Disclaimer
+      </h1>
+      <div class="mt-5 grid gap-3">
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">What we are</p>
+          <p class="mt-3 max-w-[68ch] text-sm leading-7 text-text-secondary">
+            bangs.to is a privacy-oriented, local-first !bang redirect: it routes what you type to
+            search engines and sites using templates in your browser. All results are from other services. We do
+            not provide answers to questions, interpret intent beyond bang expansion, or replace the destination
+            site. Anything you read here is informational—verify important details yourself.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Human intent, automated output</p>
+          <p class="mt-3 max-w-[68ch] text-sm leading-7 text-text-secondary">
+            Some site copy may be drafted or refined with AI tools; that output can be wrong while
+            sounding plausible.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Bang data and third-party sites</p>
+          <p class="mt-3 max-w-[68ch] text-sm leading-7 text-text-secondary">
+            Redirect URLs come from merged bang definitions and upstream catalogs; destinations are
+            third-party services with their own behavior and terms. We do not guarantee the validity of the redirects, and you should verify the final URL and the provider's own documentation or support.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <div class="grid gap-4">
+
+
+      <section class="card p-5 sm:p-6">
+        <h2 class="section-title">Human intent, automated output</h2>
+        <div class="mt-3 grid gap-3">
+          <p class="max-w-[68ch] text-sm leading-7 text-text-secondary">
+            Some pages or strings on bangs.to may be generated or refined with AI-assisted editing
+            (for example drafting or tightening copy). Like any automated help, that can introduce
+            mistakes, omissions, or wording that sounds authoritative but is not.
+          </p>
+          <p class="max-w-[68ch] text-sm leading-7 text-text-secondary">
+            For how the product works, prefer the FAQ, instructions, and repository or deployment
+            docs you trust. For search results and site behavior after a redirect, rely on the
+            provider or site you opened—not this disclaimer page.
+          </p>
+        </div>
+      </section>
+
+      <section class="card p-5 sm:p-6">
+        <h2 class="section-title">Bang data and third-party sites</h2>
+        <div class="mt-3 grid gap-3">
+          <p class="max-w-[68ch] text-sm leading-7 text-text-secondary">
+            bangs.to builds redirect URLs from merged bang data (see project codegen). Triggers,
+            templates, and upstream catalogs can change over time; a bang that worked yesterday may
+            differ today. The app does not guarantee that every destination remains valid, complete,
+            or aligned with your expectations.
+          </p>
+          <p class="max-w-[68ch] text-sm leading-7 text-text-secondary">
+            After you follow a redirect, you are interacting with third-party search engines and
+            sites. Their privacy policies, results, paywalls, and rate limits apply—not bangs.to’s
+            local-first redirect layer. If something looks wrong, check the final URL and the
+            provider’s own documentation or support.
+          </p>
+        </div>
+      </section>
+
+      <section class="card overflow-hidden p-5 sm:p-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h2 class="section-title">Tools</h2>
+        </div>
+
+        <div
+          aria-label="Tools used to build pkmn.fyi"
+          class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+        >
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 100 100"
+              width="1em"
+              height="1em"
+              style="flex:none;line-height:1"
+            >
+              <title>Visual Studio Code</title>
+              <mask
+                id="vscode-mask"
+                width="100"
+                height="100"
+                x="0"
+                y="0"
+                mask-type="alpha"
+                maskUnits="userSpaceOnUse"
+              >
+                <path
+                  name="vscode-mask-shape"
+                  fill="#fff"
+                  fill-rule="evenodd"
+                  d="M70.912 99.317a6.22 6.22 0 0 0 4.96-.19l20.589-9.907A6.25 6.25 0 0 0 100 83.587V16.413a6.25 6.25 0 0 0-3.54-5.632L75.874.874a6.23 6.23 0 0 0-7.104 1.21L29.355 38.04 12.187 25.01a4.16 4.16 0 0 0-5.318.236l-5.506 5.009a4.17 4.17 0 0 0-.004 6.162L16.247 50 1.36 63.583a4.17 4.17 0 0 0 .004 6.162l5.506 5.01a4.16 4.16 0 0 0 5.318.236l17.168-13.032L68.77 97.917a6.2 6.2 0 0 0 2.143 1.4M75.015 27.3 45.11 50l29.906 22.701z"
+                  clip-rule="evenodd"></path>
+              </mask>
+              <g mask="url(#vscode-mask)">
+                <path
+                  name="vscode-fill-left"
+                  fill="#0065A9"
+                  d="M96.461 10.796 75.857.876a6.23 6.23 0 0 0-7.107 1.207l-67.451 61.5a4.167 4.167 0 0 0 .004 6.162l5.51 5.009a4.17 4.17 0 0 0 5.32.236l81.228-61.62c2.725-2.067 6.639-.124 6.639 3.297v-.24a6.25 6.25 0 0 0-3.539-5.63"
+                ></path>
+                <path
+                  name="vscode-fill-right"
+                  fill="#007ACC"
+                  d="m96.461 89.204-20.604 9.92a6.23 6.23 0 0 1-7.107-1.207l-67.451-61.5a4.167 4.167 0 0 1 .004-6.162l5.51-5.009a4.17 4.17 0 0 1 5.32-.236l81.228 61.62c2.725 2.067 6.639.124 6.639-3.297v.24a6.25 6.25 0 0 1-3.539 5.63"
+                ></path>
+                <path
+                  name="vscode-fill-fold"
+                  fill="#1F9CF0"
+                  d="M75.858 99.126a6.23 6.23 0 0 1-7.108-1.21c2.306 2.307 6.25.674 6.25-2.588V4.672c0-3.262-3.944-4.895-6.25-2.589a6.23 6.23 0 0 1 7.108-1.21l20.6 9.908A6.25 6.25 0 0 1 100 16.413v67.174a6.25 6.25 0 0 1-3.541 5.633z"
+                ></path>
+              </g>
+            </svg>
+            <a href="https://code.visualstudio.com" target="_blank" rel="noopener noreferrer"
+              >VSCode</a
+            >
+          </p>
+
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10"
+          >
+            <svg
+              height="1em"
+              style="flex:none;line-height:1"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <title>Codex</title>
+              <path
+                name="codex-card-background"
+                d="M19.503 0H4.496A4.496 4.496 0 000 4.496v15.007A4.496 4.496 0 004.496 24h15.007A4.496 4.496 0 0024 19.503V4.496A4.496 4.496 0 0019.503 0z"
+                fill="#fff"></path>
+              <path
+                name="codex-symbol"
+                d="M9.064 3.344a4.578 4.578 0 012.285-.312c1 .115 1.891.54 2.673 1.275.01.01.024.017.037.021a.09.09 0 00.043 0 4.55 4.55 0 013.046.275l.047.022.116.057a4.581 4.581 0 012.188 2.399c.209.51.313 1.041.315 1.595a4.24 4.24 0 01-.134 1.223.123.123 0 00.03.115c.594.607.988 1.33 1.183 2.17.289 1.425-.007 2.71-.887 3.854l-.136.166a4.548 4.548 0 01-2.201 1.388.123.123 0 00-.081.076c-.191.551-.383 1.023-.74 1.494-.9 1.187-2.222 1.846-3.711 1.838-1.187-.006-2.239-.44-3.157-1.302a.107.107 0 00-.105-.024c-.388.125-.78.143-1.204.138a4.441 4.441 0 01-1.945-.466 4.544 4.544 0 01-1.61-1.335c-.152-.202-.303-.392-.414-.617a5.81 5.81 0 01-.37-.961 4.582 4.582 0 01-.014-2.298.124.124 0 00.006-.056.085.085 0 00-.027-.048 4.467 4.467 0 01-1.034-1.651 3.896 3.896 0 01-.251-1.192 5.189 5.189 0 01.141-1.6c.337-1.112.982-1.985 1.933-2.618.212-.141.413-.251.601-.33.215-.089.43-.164.646-.227a.098.098 0 00.065-.066 4.51 4.51 0 01.829-1.615 4.535 4.535 0 011.837-1.388zm3.482 10.565a.637.637 0 000 1.272h3.636a.637.637 0 100-1.272h-3.636zM8.462 9.23a.637.637 0 00-1.106.631l1.272 2.224-1.266 2.136a.636.636 0 101.095.649l1.454-2.455a.636.636 0 00.005-.64L8.462 9.23z"
+                fill="url(#codex-gradient)"></path>
+              <defs>
+                <linearGradient
+                  gradientUnits="userSpaceOnUse"
+                  id="codex-gradient"
+                  x1="12"
+                  x2="12"
+                  y1="3"
+                  y2="21"
+                >
+                  <stop stop-color="#B1A7FF"></stop>
+                  <stop offset=".5" stop-color="#7A9DFF"></stop>
+                  <stop offset="1" stop-color="#3941FF"></stop>
+                </linearGradient>
+              </defs>
+            </svg>
+            <a href="https://openai.com/codex" target="_blank" rel="noopener noreferrer">Codex</a> (GPT
+            5.4-Medium)
+          </p>
+
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10"
+          >
+            <svg
+              height="1em"
+              style="flex:none;line-height:1"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              ><title>Claude Code</title><path
+                name="claude-code-mark"
+                clip-rule="evenodd"
+                d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"
+                fill="#D97757"
+                fill-rule="evenodd"></path></svg
+            >
+            <a
+              href="https://www.anthropic.com/claude-code"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Claude Code
+            </a> (Opus 4.6)
+          </p>
+
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10"
+          >
+            <svg
+              fill="#BC52EE"
+              role="img"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              width="1em"
+              height="1em"
+              style="flex:none;line-height:1"
+            >
+              <title>Astro</title>
+              <path
+                name="astro-logo-mark"
+                d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"
+              ></path>
+            </svg>
+            <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>
+          </p>
+
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="3.94 0 40.12 48"
+              width="1em"
+              height="1em"
+              style="flex:none;line-height:1"
+              role="img"
+            >
+              <title>Cloudflare Pages</title>
+              <defs>
+                <linearGradient
+                  id="cloudflare-pages-gradient"
+                  x1="76.765"
+                  x2="22.746"
+                  y1="1.127"
+                  y2="53.45"
+                  gradientTransform="scale(.80865 1.2366)"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0" stop-color="#fbb743"></stop>
+                  <stop offset="1" stop-color="#f28333"></stop>
+                  <stop offset="1" stop-color="#ea6b00"></stop>
+                </linearGradient>
+              </defs>
+              <path
+                name="cloudflare-pages-outline"
+                fill="#b7bbbd"
+                d="M31.67 5.494h10.848l1.543 1.543v33.95l-1.543 1.542H27.734l.749-1.157H42.04l.864-.864V7.515l-.864-.864h-9.352l-1.103 5.702h-1.18l1.056-5.756.216-1.103zM5.481 42.529 3.94 40.986V7.036l1.543-1.542h15.355l-.78 1.157H5.96l-.864.864v32.993l.864.864h11.173l-.185 1.157zm2.315-3.857h6.558l-.231 1.157H7.025l-.386-.386V32.5l1.158 2.315zm26.234 0 1.157 1.157H29.4l.772-1.157z"
+              ></path>
+              <path
+                name="cloudflare-pages-mark"
+                fill="url(#cloudflare-pages-gradient)"
+                d="M32.67 40H19l-1.66-3.12 23-34 3.62 1.5L39.42 28H53l1.68 3.09-22 34-3.66-1.4zM15.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"
+                transform="translate(-3.777 -2.222)scale(.77158)"></path>
+            </svg>
+            <a href="https://pages.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+              Cloudflare Pages
+            </a>
+          </p>
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10"
+          >
+            <svg
+              height="1em"
+              style="flex:none;line-height:1"
+              viewBox="0 0 320 320"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              ><title>LobeHub</title><path
+                name="lobe-body-shell"
+                d="M294 172.519c0 75.655-59.442 128.5-134 128.5-74.558 0-134-53.845-134-129.5 0-22.5 5-32.141 31.5-35.671 47.5-6.329 72.542-3.829 102.5-3.829 29.959 0 72.556-1.27 102.5 3.829 24.5 4.171 30 8.671 31.5 36.671z"
+                fill="url(#lobe-icons-lobe-hub-0-_R_0_)"></path><path
+                name="lobe-mouth-inner"
+                d="M159.75 242.51c-28.25 0-35.75 3.5-35.75 3.5s3.5 27 35.75 27 35.75-27 35.75-27-7.5-3.5-35.75-3.5z"
+                fill="#972021"></path><path
+                name="lobe-brow-band"
+                d="M271.999 148.517c0 6.351-49.92 11.5-111.5 11.5s-111.5-5.149-111.5-11.5c0-6.352 49.92-11.5 111.5-11.5s111.5 5.148 111.5 11.5z"
+                fill="url(#lobe-icons-lobe-hub-1-_R_0_)"></path><path
+                name="lobe-snout"
+                d="M135.503 160.013c.633-14.972-.483-22.788-5.5-36.443 0 0 9.5-12.056 27-12.056s30 3.064 30 3.064c-3.028 16.793-3.182 26.921-2.5 45.435h-49z"
+                fill="url(#lobe-icons-lobe-hub-2-_R_0_)"></path><path
+                name="lobe-cheek-whites"
+                d="M119.191 234.294c14.742-7.076 24.811-21.51 24.811-39.273 0-25.406-20.595-48-46-48s-47 19.594-47 45c0 13.983 6.542 26.812 16.662 35.521 5.893-2.245 12.652-3.521 19.838-3.521 12.705 0 24.077 3.989 31.689 10.273zM200.813 234.294c-14.742-7.076-24.811-21.51-24.811-39.273 0-25.406 20.595-48 46-48s47 19.594 47 45c0 13.983-6.543 26.812-16.662 35.521-5.893-2.245-12.652-3.521-19.838-3.521-12.705 0-24.077 3.989-31.689 10.273z"
+                fill="#fff"></path><path
+                name="lobe-eye-left"
+                d="M101 221.012c15.464 0 28-12.536 28-28s-12.536-28-28-28-28 12.536-28 28 12.536 28 28 28z"
+                fill="url(#lobe-icons-lobe-hub-3-_R_0_)"></path><path
+                name="lobe-eye-right"
+                d="M219 221.012c-15.464 0-28-12.536-28-28s12.536-28 28-28 28 12.536 28 28-12.536 28-28 28z"
+                fill="url(#lobe-icons-lobe-hub-4-_R_0_)"></path><g
+                filter="url(#lobe-icons-lobe-hub-5-_R_0_)"
+                ><path
+                  name="lobe-head-main"
+                  d="M172.997 19.016c-14.027 0-19.5-11.5-41-11-23.394 0-34 13-45.5 23-1.958 1.702-11.5 7-16 9-19.683 8.748-34.5 21.5-34.5 40.5 0 20.711 17.461 37.5 39 37.5 3.536 0 6.963-.453 10.22-1.301 8.7 10.539 22.179 16.658 37.28 17.301 23.5 1 31-15.25 44.5-8.5 9.259 4.629 13.83 8.5 28.5 8.5 17.108 0 25.057-5.233 30-11 9-10.5 22.879-4 31.5-4 18.778 0 34-14.551 34-32.5 0-17.95-15.222-32.5-34-32.5-5.15 0-14.856 1.27-17-7-3.5-13.5-20.148-29-44-29-9.318 0-17.691 1-23 1z"
+                  fill="url(#lobe-icons-lobe-hub-6-_R_0_)"></path></g
+              ><path
+                name="lobe-spot-purple"
+                d="M82.998 20.517a9.5 9.5 0 11-19 0 9.5 9.5 0 0119 0z"
+                fill="url(#lobe-icons-lobe-hub-7-_R_0_)"></path><path
+                name="lobe-spot-red"
+                d="M71.002 108.021c0 8.836-7.163 16-16 16s-16-7.164-16-16c0-8.837 7.163-16 16-16s16 7.163 16 16z"
+                fill="url(#lobe-icons-lobe-hub-8-_R_0_)"></path><path
+                name="lobe-spot-green"
+                d="M282.002 49.516c0 8.56-6.94 15.5-15.5 15.5-8.56 0-15.5-6.94-15.5-15.5 0-8.56 6.94-15.5 15.5-15.5 8.56 0 15.5 6.94 15.5 15.5z"
+                fill="url(#lobe-icons-lobe-hub-9-_R_0_)"></path><path
+                name="lobe-mouth-highlight"
+                d="M132.232 244.111c5.483-.823 14.191-1.601 27.515-1.601 12.212 0 20.546.654 26.073 1.396-1.542 5.861-12.963 8.104-26.823 8.104-13.698 0-25.013-2.191-26.765-7.899z"
+                fill="#fff"></path><path
+                name="lobe-chin-base"
+                d="M160.006 290.016c20.099 0 23.305-20.488 23.927-25.61.478-4.146-1.675-6.244-4.02-7.659-2.345-1.414-9.379-2.731-19.907-2.731-10.527 0-17.514 1.317-19.906 2.731-2.393 1.415-4.546 3.513-4.02 7.659.622 5.122 3.828 25.61 23.926 25.61z"
+                fill="url(#lobe-icons-lobe-hub-10-_R_0_)"></path><g
+                filter="url(#lobe-icons-lobe-hub-11-_R_0_)"
+                ><path
+                  name="lobe-face-snout"
+                  d="M171.694 129.744c-5.721-3.89-13.954-4.248-19.786-.526-7.724 4.929-16.971 7.798-26.91 7.798-27.062 0-49-21.267-49-47.5 0-26.234 21.938-47.5 49-47.5 13.628 0 25.956 5.392 34.838 14.097 4.948 4.85 13.088 6.24 19.498 3.609a42.502 42.502 0 0116.164-3.166c22.92 0 41.5 18.012 41.5 40.23 0 22.218-18.58 40.23-41.5 40.23-8.856 0-17.065-2.69-23.804-7.272z"
+                  fill="url(#lobe-icons-lobe-hub-12-_R_0_)"></path></g
+              ><path
+                name="lobe-cheek-blue"
+                d="M219.002 106.51c0 7.456-6.044 13.5-13.5 13.5s-13.5-6.044-13.5-13.5 6.044-13.5 13.5-13.5 13.5 6.044 13.5 13.5z"
+                fill="url(#lobe-icons-lobe-hub-13-_R_0_)"></path><defs
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="rotate(-57.041 328.447 55.73) scale(238.957 377.848)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-0-_R_0_"
+                  r="1"
+                  ><stop stop-color="#FCBD72"></stop><stop offset=".255" stop-color="#FAC371"
+                  ></stop><stop offset=".465" stop-color="#FFA14C"></stop><stop
+                    offset=".64"
+                    stop-color="#EB7A34"></stop><stop offset=".845" stop-color="#F0866D"
+                  ></stop></radialGradient
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="rotate(90 26.49 47.007) scale(9.5)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-7-_R_0_"
+                  r="1"
+                  ><stop offset=".62" stop-color="#58239F"></stop><stop
+                    offset=".822"
+                    stop-color="#8E3FE9"></stop><stop offset="1" stop-color="#AF6FEC"
+                  ></stop></radialGradient
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="matrix(0 16 -16 0 55.002 108.021)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-8-_R_0_"
+                  r="1"
+                  ><stop offset=".62" stop-color="#C32F45"></stop><stop
+                    offset=".822"
+                    stop-color="#F44341"></stop><stop offset="1" stop-color="#FC9D9B"
+                  ></stop></radialGradient
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="matrix(0 15.5 -15.5 0 266.502 49.516)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-9-_R_0_"
+                  r="1"
+                  ><stop offset=".385" stop-color="#4DA33C"></stop><stop
+                    offset=".822"
+                    stop-color="#63ED47"></stop><stop offset="1" stop-color="#70D775"
+                  ></stop></radialGradient
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="matrix(0 -44 58.6667 0 160 290)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-10-_R_0_"
+                  r="1"
+                  ><stop stop-color="#FD9B8B"></stop><stop offset=".5" stop-color="#F24F3A"
+                  ></stop><stop offset="1" stop-color="#D93318"></stop></radialGradient
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="matrix(15.5 -61.50002 82.33886 20.75208 156 110)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-12-_R_0_"
+                  r="1"
+                  ><stop offset=".26" stop-color="#FFC1A3"></stop><stop
+                    offset=".764"
+                    stop-color="#FD82AB"></stop><stop offset=".952" stop-color="#DF4FAA"
+                  ></stop></radialGradient
+                ><radialGradient
+                  cx="0"
+                  cy="0"
+                  gradientTransform="rotate(90 49.496 156.006) scale(13.5)"
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-13-_R_0_"
+                  r="1"
+                  ><stop offset=".572" stop-color="#4C86D3"></stop><stop
+                    offset=".822"
+                    stop-color="#72ADE2"></stop><stop offset="1" stop-color="#90BBE3"
+                  ></stop></radialGradient
+                ><linearGradient
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-1-_R_0_"
+                  x1="48.999"
+                  x2="271.999"
+                  y1="148.517"
+                  y2="148.517"
+                  ><stop stop-color="#EB791E"></stop><stop offset="1" stop-color="#DB694E"
+                  ></stop></linearGradient
+                ><linearGradient
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-2-_R_0_"
+                  x1="135.5"
+                  x2="187"
+                  y1="147.5"
+                  y2="147.5"
+                  ><stop stop-color="#FCC659"></stop><stop offset=".183" stop-color="#FFE366"
+                  ></stop><stop offset=".404" stop-color="#FECA50"></stop><stop
+                    offset=".702"
+                    stop-color="#FFE76C"></stop><stop offset="1" stop-color="#FCC553"
+                  ></stop></linearGradient
+                ><linearGradient
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-3-_R_0_"
+                  x1="73"
+                  x2="247"
+                  y1="193.012"
+                  y2="193.012"
+                  ><stop stop-color="#2A0B39"></stop><stop offset=".322" stop-color="#42180E"
+                  ></stop><stop offset=".678" stop-color="#483A00"></stop><stop
+                    offset="1"
+                    stop-color="#310D1D"></stop></linearGradient
+                ><linearGradient
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-4-_R_0_"
+                  x1="73"
+                  x2="247"
+                  y1="193.012"
+                  y2="193.012"
+                  ><stop stop-color="#2A0B39"></stop><stop offset=".322" stop-color="#42180E"
+                  ></stop><stop offset=".678" stop-color="#483A00"></stop><stop
+                    offset="1"
+                    stop-color="#310D1D"></stop></linearGradient
+                ><linearGradient
+                  gradientUnits="userSpaceOnUse"
+                  id="lobe-icons-lobe-hub-6-_R_0_"
+                  x1="44.5"
+                  x2="291"
+                  y1="84"
+                  y2="82"
+                  ><stop stop-color="#342FBD"></stop><stop offset=".188" stop-color="#733CC0"
+                  ></stop><stop offset=".375" stop-color="#8748C2"></stop><stop
+                    offset=".654"
+                    stop-color="#7C80DE"></stop><stop offset="1" stop-color="#4A306D"
+                  ></stop></linearGradient
+                ><filter
+                  color-interpolation-filters="sRGB"
+                  filterUnits="userSpaceOnUse"
+                  height="126.061"
+                  id="lobe-icons-lobe-hub-5-_R_0_"
+                  width="255"
+                  x="35.997"
+                  y="8"
+                  ><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend
+                    in="SourceGraphic"
+                    in2="BackgroundImageFix"
+                    result="shape"></feBlend><feColorMatrix
+                    in="SourceAlpha"
+                    result="hardAlpha"
+                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"></feColorMatrix><feOffset
+                  ></feOffset><feGaussianBlur stdDeviation="12"></feGaussianBlur><feComposite
+                    in2="hardAlpha"
+                    k2="-1"
+                    k3="1"
+                    operator="arithmetic"></feComposite><feColorMatrix
+                    values="0 0 0 0 1 0 0 0 0 0.764536 0 0 0 0 0.896726 0 0 0 1 0"
+                  ></feColorMatrix><feBlend in2="shape" result="effect1_innerShadow_1562_736"
+                  ></feBlend></filter
+                ><filter
+                  color-interpolation-filters="sRGB"
+                  filterUnits="userSpaceOnUse"
+                  height="95"
+                  id="lobe-icons-lobe-hub-11-_R_0_"
+                  width="161"
+                  x="75.998"
+                  y="42.016"
+                  ><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend
+                    in="SourceGraphic"
+                    in2="BackgroundImageFix"
+                    result="shape"></feBlend><feColorMatrix
+                    in="SourceAlpha"
+                    result="hardAlpha"
+                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"></feColorMatrix><feOffset
+                  ></feOffset><feGaussianBlur stdDeviation="12"></feGaussianBlur><feComposite
+                    in2="hardAlpha"
+                    k2="-1"
+                    k3="1"
+                    operator="arithmetic"></feComposite><feColorMatrix
+                    values="0 0 0 0 1 0 0 0 0 0.824669 0 0 0 0 0.923101 0 0 0 1 0"
+                  ></feColorMatrix><feBlend in2="shape" result="effect1_innerShadow_1562_736"
+                  ></feBlend></filter
+                ></defs
+              ></svg
+            > Some icons courtesy of <a
+              href="https://lobehub.com/icons/lobehub"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LobeHub</a
+            >,
+            <a
+              href="https://github.com/lobehub/lobe-icons?tab=MIT-1-ov-file"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MIT Licensed.
+            </a>
+          </p>
+          <p
+            class="rounded-[20px] border border-white/65 bg-bg-soft px-4 py-4 text-sm leading-6 text-text-secondary dark:border-white/10 sm:col-span-2 xl:col-span-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1em"
+              height="1em"
+              viewBox="0 0 232 232"
+              role="img"
+              aria-label="dashboard-icons logo"
+            >
+              <rect
+                x="4"
+                y="4"
+                width="224"
+                height="224"
+                rx="32"
+                fill="none"
+                stroke="#fff"
+                stroke-width="8"
+                stroke-linecap="round"
+                stroke-linejoin="round"></rect>
+              <g
+                fill="none"
+                stroke="#ccc"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="24" y="24" width="48" height="48" rx="8" stroke="#FB7185"></rect>
+                <rect x="92" y="24" width="48" height="48" rx="8" fill="#FDBA74"></rect>
+                <rect x="92" y="92" width="48" height="48" rx="8" stroke="#C4B5FD"></rect>
+                <rect x="160" y="92" width="48" height="48" rx="8"></rect>
+                <rect x="92" y="160" width="48" height="48" rx="8"></rect>
+                <rect x="160" y="160" width="48" height="48" rx="8" fill="#93C5FD"></rect>
+              </g>
+              <circle cx="184" cy="48" r="26" fill="#86EFAC"></circle>
+              <circle cx="48" cy="116" r="26" fill="#93C5FD"></circle>
+              <rect x="24" y="160" width="48" height="48" rx="8" fill="#FDE68A"></rect>
+            </svg>
+            Some icons courtesy of <a
+              href="https://dashboardicons.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Dashboard Icons
+            </a>
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+</SiteLayout>

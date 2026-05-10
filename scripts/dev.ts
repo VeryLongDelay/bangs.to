@@ -1,8 +1,8 @@
+import { minify } from '@minify-html/node';
+import { $ } from 'bun';
 import { watch } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
 import { handleOpenSearchRequest, handleSuggestRequest } from '../src/server/handlers';
 import { pageHeaders, SW_HEADERS } from '../src/server/headers';
 import { getStaticRedirect } from '../src/server/redirects';
@@ -117,7 +117,8 @@ async function build() {
     'stats.html',
     'contact.html',
     'faq.html',
-    'instructions.html'
+    'instructions.html',
+    'ai.html'
   ]) {
     const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
     await Bun.write(
@@ -143,6 +144,9 @@ if (!(await generated.exists())) {
 
 await build();
 
+/** Batch rapid saves so rebuilds run less often (fs.watch may emit many events per edit). */
+const WATCH_REBUILD_DEBOUNCE_MS = 2250;
+
 let timeout: Timer;
 watch('src', { recursive: true }, (_event, filename) => {
   if (filename && (filename.endsWith('.test.ts') || filename.endsWith('.test.js'))) {
@@ -157,7 +161,7 @@ watch('src', { recursive: true }, (_event, filename) => {
     } catch (e) {
       console.error('Build failed:', e);
     }
-  }, 200);
+  }, WATCH_REBUILD_DEBOUNCE_MS);
 });
 
 function injectLiveReload(html: string): string {
@@ -214,7 +218,7 @@ Bun.serve({
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          Connection: 'keep-alive'
+          'Connection': 'keep-alive'
         }
       });
     }
