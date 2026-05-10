@@ -2,9 +2,82 @@
   class="card mt-2 flex flex-col gap-3 px-5 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between sm:px-6"
 >
   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-    <span> Queries never leaves on your device</span>
+    <span>Queries never leave your device</span>
     <span class="hidden opacity-40 sm:inline">&middot;</span>
-    <span>Deploys on <a href="https://cloudflare.com/" target="_blank">Cloudflare</a></span>
+    <span class="inline-flex items-center gap-2">
+      <span
+        class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(188,82,238,0.12)] text-[0.875rem] text-[#9a3dd1] shadow-[inset_0_1px_0_rgba(255,255,255,0.36)] dark:bg-[rgba(188,82,238,0.16)] dark:text-[#d6a9f2]"
+      >
+        <svg
+          role="img"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          width="0.92em"
+          height="0.92em"
+          fill="#BC52EE"
+          aria-hidden="true"
+        >
+          <title>AI</title>
+          <path
+            name="large-ai-star"
+            d="M12 2.5l1.7 5.3a3.7 3.7 0 0 0 2.5 2.5l5.3 1.7-5.3 1.7a3.7 3.7 0 0 0-2.5 2.5L12 21.5l-1.7-5.3a3.7 3.7 0 0 0-2.5-2.5L2.5 12l5.3-1.7a3.7 3.7 0 0 0 2.5-2.5L12 2.5z"
+          ></path>
+          <path
+            name="small-ai-star-top"
+            d="M19 2l.55 1.7a1.2 1.2 0 0 0 .75.75L22 5l-1.7.55a1.2 1.2 0 0 0-.75.75L19 8l-.55-1.7a1.2 1.2 0 0 0-.75-.75L16 5l1.7-.55a1.2 1.2 0 0 0 .75-.75L19 2z"
+            opacity=".65"></path>
+          <path
+            name="small-ai-star-bottom"
+            d="M18.5 16l.45 1.35a1 1 0 0 0 .7.7L21 18.5l-1.35.45a1 1 0 0 0-.7.7L18.5 21l-.45-1.35a1 1 0 0 0-.7-.7L16 18.5l1.35-.45a1 1 0 0 0 .7-.7L18.5 16z"
+          ></path>
+        </svg>
+      </span>
+      <span>Code mostly written by humans</span>
+    </span>
+    <span class="inline-flex items-center gap-2">
+      <span
+        class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_1px_2px_rgba(15,39,64,0.06)] dark:bg-white/8 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="3.94 0 40.12 48"
+          width="0.92em"
+          height="0.92em"
+          role="img"
+          aria-hidden="true"
+        >
+          <title>Cloudflare Pages</title>
+          <defs>
+            <linearGradient
+              id="cloudflare-pages-gradient"
+              x1="76.765"
+              x2="22.746"
+              y1="1.127"
+              y2="53.45"
+              gradientTransform="scale(.80865 1.2366)"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0" stop-color="#fbb743"></stop>
+              <stop offset="1" stop-color="#f28333"></stop>
+              <stop offset="1" stop-color="#ea6b00"></stop>
+            </linearGradient>
+          </defs>
+          <path
+            name="cloudflare-pages-outline"
+            fill="#b7bbbd"
+            d="M31.67 5.494h10.848l1.543 1.543v33.95l-1.543 1.542H27.734l.749-1.157H42.04l.864-.864V7.515l-.864-.864h-9.352l-1.103 5.702h-1.18l1.056-5.756.216-1.103zM5.481 42.529 3.94 40.986V7.036l1.543-1.542h15.355l-.78 1.157H5.96l-.864.864v32.993l.864.864h11.173l-.185 1.157zm2.315-3.857h6.558l-.231 1.157H7.025l-.386-.386V32.5l1.158 2.315zm26.234 0 1.157 1.157H29.4l.772-1.157z"
+          ></path>
+          <path
+            name="cloudflare-pages-mark"
+            fill="url(#cloudflare-pages-gradient)"
+            d="M32.67 40H19l-1.66-3.12 23-34 3.62 1.5L39.42 28H53l1.68 3.09-22 34-3.66-1.4zM15.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"
+            transform="translate(-3.777 -2.222)scale(.77158)"></path>
+        </svg>
+      </span>
+      <span>
+        Deploys on <a href="https://cloudflare.com/" target="_blank" rel="noreferrer">Cloudflare</a>
+      </span>
+    </span>
   </div>
   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
     <a href="/stats" class="font-600">Stats</a>

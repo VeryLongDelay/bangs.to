@@ -81,6 +81,14 @@ function initSearchForm() {
     return;
   }
 
+  input.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+
+    input.blur();
+  });
+
   form.addEventListener('submit', event => {
     const query = input.value.trim();
     if (!query) {
