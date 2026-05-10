@@ -29,7 +29,7 @@
     "bracketSpacing": true,
     "expand": "auto",
     "useEditorconfig": true,
-    "includes": ["**", "!**/node_modules", "!**/dist", "!**/*.geojson", "!**/*.min.js"]
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/*.geojson"]
   },
   "linter": {
     "enabled": true,
