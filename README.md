@@ -1,6 +1,9 @@
 # bangs.to
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](<https://deploy.workers.cloudflare.com/?url=><https://github.com/verylongdelay/bangs.to>)
+[![Live Site](https://img.shields.io/badge/Live_Site-bangs.to-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://bangs.to)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/verylongdelay/bangs.to)
 
 Turn your browser's address bar into a shortcut launcher. Type `!g kittens` to search Google, `!w dogs` for Wikipedia, `!gh react` for GitHub — over 14,000 shortcuts (called "bangs") that take you straight to the right site, instantly. No extra tabs, no round-trips, no waiting for a page to load.
 
@@ -193,11 +196,11 @@ bangs.to is designed to be self-hosted and most projects in this space bundle an
 This software is licensed under the GNU Affero General Public License v3.0.
 See the [LICENSE](LICENSE) file for the full license text.
 
---- Third-Party Data Sources ---
+### Third-Party Data Sources
 
 Bang definitions are sourced from:
 
-- Kagi Bangs (<https://github.com/kagisearch/bangs>) — MIT License
+- Kagi Bangs (<https://github.com/kagisearch/bangs>) — [MIT License](https://github.com/kagisearch/bangs/blob/main/LICENSE)
   Copyright (c) Kagi Inc.
 
 - DuckDuckGo Bangs (<https://duckduckgo.com/bang.js>) — public API, no stated license
