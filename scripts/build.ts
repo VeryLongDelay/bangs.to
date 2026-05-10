@@ -1,9 +1,9 @@
+import { minify } from '@minify-html/node';
+import { $ } from 'bun';
 import { createHash } from 'node:crypto';
 import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { brotliCompressSync, constants } from 'node:zlib';
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
 import { ensureGeneratedBangData } from './codegen';
 import { copyStaticAssets } from './static-assets';
 import { writeStructuredDataAsset } from './structured-data';
@@ -126,7 +126,8 @@ for (const file of [
   'contact.html',
   'faq.html',
   'instructions.html',
-  'ai.html'
+  'ai.html',
+  'privacy.html'
 ]) {
   const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
   await Bun.write(
@@ -221,6 +222,12 @@ await Bun.write(
     `  ${pageCspHeader}`,
     '',
     '/ai.html',
+    `  ${pageCspHeader}`,
+    '',
+    '/privacy',
+    `  ${pageCspHeader}`,
+    '',
+    '/privacy.html',
     `  ${pageCspHeader}`,
     '',
     '/sw.js',

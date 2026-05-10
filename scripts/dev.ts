@@ -118,7 +118,8 @@ async function build() {
     'contact.html',
     'faq.html',
     'instructions.html',
-    'ai.html'
+    'ai.html',
+    'privacy.html'
   ]) {
     const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
     await Bun.write(
@@ -145,7 +146,7 @@ if (!(await generated.exists())) {
 await build();
 
 /** Batch rapid saves so rebuilds run less often (fs.watch may emit many events per edit). */
-const WATCH_REBUILD_DEBOUNCE_MS = 2250;
+const WATCH_REBUILD_DEBOUNCE_MS = 1500;
 
 let timeout: Timer;
 watch('src', { recursive: true }, (_event, filename) => {

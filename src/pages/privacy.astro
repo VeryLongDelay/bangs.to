@@ -1,0 +1,141 @@
+---
+import { SITE_TITLE } from '../config/site';
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title={`${SITE_TITLE} Privacy`}
+  description="A plain-English explanation of what bangs.to keeps local, what touches the network, and where your data goes."
+  currentPath="/privacy"
+>
+  <div class="grid gap-4 lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1fr)]">
+    <aside class="card h-fit p-5 sm:p-6">
+      <p class="text-xs font-700 uppercase tracking-[0.24em] text-primary-700">Privacy</p>
+      <h1
+        class="mt-2 max-w-[11ch] font-display text-[2.4rem] font-800 leading-[0.95] tracking-[-0.05em] text-text sm:text-[2.9rem]"
+      >
+        What stays on your machine
+      </h1>
+      <p class="mt-4 max-w-[32ch] text-sm leading-7 text-text-secondary">
+        bangs.to is built to resolve !bangs redirects in the browser, not by sending every query to a
+        redirect service first.
+      </p>
+
+      <div class="mt-5 grid gap-3">
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Core redirects</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            The bang lookup runs locally once the service worker is active.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Suggestions</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Address-bar suggestions are optional and can search suggestions, powered by DuckDuckGo.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Local stats</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            Stats stay in browser storage on this device unless you export them yourself.
+          </p>
+        </div>
+        <div class="rounded-[22px] bg-bg-soft p-4">
+          <p class="text-sm font-700 text-text">Destination sites</p>
+          <p class="mt-2 text-sm leading-6 text-text-secondary">
+            The site you end up on still receives the search you chose to send there.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <div class="grid gap-4">
+      <section class="card">
+        <h2 class="section-title mb-2">Core redirects</h2>
+        <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+          bangs.to is not meant to sit in the middle of every search. The normal path is: your
+          browser loads the local redirect logic, the service worker resolves the bang on your
+          device, then your browser goes straight to the final destination. That means bangs.to is
+          not reading your search terms on a remote redirect server for the core feature.
+        </p>
+        <p class="mt-3 max-w-[70ch] text-sm leading-7 text-text-secondary">
+          That does not mean a search disappears into the void. The destination you choose, such as
+          DuckDuckGo, Google, GitHub, YouTube, or Wikipedia, still receives the final query because
+          that is where you asked the browser to go.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title mb-2">Suggestions and address-bar helpers</h2>
+        <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+          Search suggestions are a separate feature from redirects. If you use browser suggestion
+          support or OpenSearch suggestion requests, the browser loads suggestions from DuckDuckGo.
+        </p>
+        <p class="mt-3 max-w-[70ch] text-sm leading-7 text-text-secondary">
+          That means suggestion traffic may touch the hosted site. This is optional behavior tied to suggestions,
+          not the core !bang redirect itself. You can disable suggestions in settings or by editing out the DuckDuckGo <code>suggest</code> endpoint.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title mb-2">Cookies and local storage</h2>
+        <div class="grid gap-3">
+          <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+            bangs.to uses a small amount of browser storage so the tool can remember how you want it
+            to behave.
+          </p>
+          <div class="rounded-[22px] bg-bg-soft p-4">
+            <p class="text-sm font-700 text-text">Local browser storage</p>
+            <p class="mt-2 text-sm leading-6 text-text-secondary">
+              Settings, custom bangs, and local stats are stored in your browser on this device.
+              Stats can include bang counts, recency-weighted scores, time-of-week usage buckets,
+              and a few recent local query samples per bang so similarity ranking can work.
+            </p>
+          </div>
+          <div class="rounded-[22px] bg-bg-soft p-4">
+            <p class="text-sm font-700 text-text">Same-site cookies</p>
+            <p class="mt-2 text-sm leading-6 text-text-secondary">
+              When suggestions are enabled, a same-site cookie can store your suggestion provider,
+              custom bang triggers, and a compact frecency summary for suggestion ranking. That
+              summary contains bang triggers and scores, not full query history.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title mb-2">What bangs.to does not do</h2>
+        <div class="grid gap-3">
+          <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+            There are no user accounts, no social graph, and no first-party analytics pipeline that
+            profiles your searches. The product does not sell ads against your query stream or build
+            a remote activity dashboard for you.
+          </p>
+          <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+            The hosted site does run on <a href="https://workers.cloudflare.com/" target="_blank">Cloudflare</a>. Like most hosting platforms, that
+            infrastructure can expose coarse aggregate request metrics at the platform level. That
+            is operational hosting metadata, not a product analytics feature built into the search
+            experience.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title mb-2">Practical boundaries</h2>
+        <div class="grid gap-3">
+          <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+            Privacy here is specific: bangs.to tries to avoid being the extra party in the middle of
+            a bang redirect. It does not make the destination search engine private, it does not
+            hide your IP from the site you open, and it does not replace the privacy choices of your
+            browser, DNS, VPN, or network.
+          </p>
+          <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
+            If you want the strongest boundary possible, self-host it, keep suggestions off, and
+            review the source. If you just want a faster hosted bang tool with clearer privacy
+            defaults, the public site is designed for that.
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+</SiteLayout>
