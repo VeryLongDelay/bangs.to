@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "./schemas/bunfig.toml.schema.json",
+  "title": "bunfig.toml (permissive install)",
+  "description": "Wraps Schema Store’s bunfig schema gap: [install] omits newer Bun keys such as ignoreScripts. Prefer https://json.schemastore.org/bunfig.json once it includes them.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "install": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
