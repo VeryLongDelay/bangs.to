@@ -1,5 +1,14 @@
 repos:
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.1 # Use latest stable release
+    rev: v8.30.1
     hooks:
       - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect secrets in your data.
+        entry: bash -c 'trufflehog git file://.'
+        language: system
+        stages: ['pre-commit', 'pre-push']
