@@ -44,16 +44,16 @@ jobs:
           git add data/bangs.json
           if git diff --staged --quiet; then
               echo "changed=false" >> "$GITHUB_OUTPUT"
+              echo "no change detected, skipping commit and push"
           else
               echo "changed=true" >> "$GITHUB_OUTPUT"
+              echo "bangs.json has changed"
           fi
-          echo "changed=$changed" >> "$GITHUB_OUTPUT"
-          echo "bangs.json changed: $changed"
 
       - name: Commit and push
         if: steps.diff.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: update bangs"
           git push
