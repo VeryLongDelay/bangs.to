@@ -1,152 +1,9 @@
 import { createHash } from 'node:crypto';
-import { mkdir, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
 import { brotliCompressSync, constants } from 'node:zlib';
-import { minify } from '@minify-html/node';
-import { $ } from 'bun';
-import { ensureGeneratedBangData } from './codegen';
-import { copyStaticAssets } from './static-assets';
-import { writeStructuredDataAsset } from './structured-data';
+import { pageHeaders, SW_CSP } from '../src/server/headers';
+import { buildSite, distFiles, HTML_PAGES } from './site-build';
 
-const ASTRO_OUTDIR = '.astro-build';
-
-await ensureGeneratedBangData(true);
-await writeStructuredDataAsset();
-
-// Start from a clean dist to avoid stale artifacts (e.g. orphaned .br chunks).
-await rm('dist', { recursive: true, force: true });
-await rm(ASTRO_OUTDIR, { recursive: true, force: true });
-await mkdir('dist', { recursive: true });
-
-console.log('=== Bundle app + bangs + stats + theme (to discover chunks) ===');
-const [appBuild, bangsBuild, statsBuild, themeBuild] = await Promise.all([
-  Bun.build({
-    entrypoints: ['src/ui/app.ts'],
-    outdir: 'dist',
-    naming: 'app.js',
-    splitting: true,
-    minify: true,
-    target: 'browser',
-    format: 'esm'
-  }),
-  Bun.build({
-    entrypoints: ['src/ui/bangs.ts'],
-    outdir: 'dist',
-    naming: 'bangs.js',
-    splitting: true,
-    minify: true,
-    target: 'browser',
-    format: 'esm'
-  }),
-  Bun.build({
-    entrypoints: ['src/ui/stats.ts'],
-    outdir: 'dist',
-    naming: 'stats.js',
-    splitting: true,
-    minify: true,
-    target: 'browser',
-    format: 'esm'
-  }),
-  Bun.build({
-    entrypoints: ['src/ui/theme.ts'],
-    outdir: 'dist',
-    naming: 'theme.js',
-    minify: true,
-    target: 'browser',
-    format: 'esm'
-  })
-]);
-
-const SIZE_THRESHOLD = 50 * 1024; // 50 KB
-const allOutputs = [
-  ...appBuild.outputs,
-  ...bangsBuild.outputs,
-  ...statsBuild.outputs,
-  ...themeBuild.outputs
-];
-const uniqueOutputs = [...new Map(allOutputs.map(output => [output.path, output])).values()];
-const outputFingerprints: string[] = [];
-for (const out of uniqueOutputs) {
-  const contentHash = createHash('sha256')
-    .update(await Bun.file(out.path).bytes())
-    .digest('hex');
-  outputFingerprints.push(`${out.path}:${contentHash}`);
-}
-outputFingerprints.sort();
-const cacheVersion = `fb-${createHash('sha256').update(outputFingerprints.join(',')).digest('hex').slice(0, 8)}`;
-
-const extraAssets = uniqueOutputs
-  .filter(
-    o =>
-      !(
-        o.path.endsWith('/app.js') ||
-        o.path.endsWith('/bangs.js') ||
-        o.path.endsWith('/stats.js') ||
-        o.path.endsWith('/theme.js')
-      ) && o.size < SIZE_THRESHOLD
-  )
-  .map(o => `/${o.path.split('/').pop()!}`);
-
-console.log(`Cache version: ${cacheVersion}`);
-if (extraAssets.length) {
-  console.log(`Extra assets: ${extraAssets.join(', ')}`);
-}
-
-console.log('=== Bundle service worker ===');
-await Bun.build({
-  entrypoints: ['src/sw/sw.ts'],
-  outdir: 'dist',
-  naming: 'sw.js',
-  minify: true,
-  target: 'browser',
-  format: 'esm',
-  define: {
-    __CACHE_VERSION__: JSON.stringify(cacheVersion),
-    __EXTRA_ASSETS__: JSON.stringify(extraAssets),
-    __IS_DEV__: JSON.stringify(false)
-  }
-});
-
-console.log('=== Generate CSS ===');
-await $`bunx unocss "src/**/*.astro" "src/ui/**/*.ts" -o dist/styles.css --minify`;
-
-console.log('=== Build Astro pages ===');
-await $`bunx astro build --outDir ${ASTRO_OUTDIR}`;
-
-console.log('=== Inline CSS + minify HTML ===');
-const css = await Bun.file('dist/styles.css').text();
-const inlineCSS = (src: string) =>
-  src.replace(/<link rel="stylesheet" href="\/styles\.css"\s*\/?>/, `<style>${css}</style>`);
-
-for (const file of [
-  'index.html',
-  'home.html',
-  'bangs.html',
-  'stats.html',
-  'contact.html',
-  'faq.html',
-  'instructions.html',
-  'ai.html',
-  'privacy.html'
-]) {
-  const astroHtml = await Bun.file(join(ASTRO_OUTDIR, file)).text();
-  await Bun.write(
-    join('dist', file),
-    minify(Buffer.from(inlineCSS(astroHtml)), {
-      minify_css: true,
-      minify_js: true
-    })
-  );
-}
-
-await rm('dist/styles.css');
-await rm(ASTRO_OUTDIR, { recursive: true, force: true });
-await copyStaticAssets('dist');
-
-await Bun.write('dist/robots.txt', 'User-agent: *\nAllow: /\n');
-await Bun.write('dist/_redirects', '/history /stats 302\n/history.html /stats 302\n');
-
-console.log('=== Generate _headers with CSP ===');
 function extractScriptHashes(html: string): string[] {
   const hashes: string[] = [];
   const re = /<script>([\s\S]*?)<\/script>/g;
@@ -156,80 +13,33 @@ function extractScriptHashes(html: string): string[] {
   }
   return hashes;
 }
-const scriptHashes = [
-  ...extractScriptHashes(await Bun.file('dist/index.html').text()),
-  ...extractScriptHashes(await Bun.file('dist/home.html').text()),
-  ...extractScriptHashes(await Bun.file('dist/bangs.html').text()),
-  ...extractScriptHashes(await Bun.file('dist/stats.html').text()),
-  ...extractScriptHashes(await Bun.file('dist/contact.html').text()),
-  ...extractScriptHashes(await Bun.file('dist/faq.html').text()),
-  ...extractScriptHashes(await Bun.file('dist/instructions.html').text())
-];
-const { pageHeaders, SW_CSP } = await import('../src/server/headers');
+
+function routeHeaders(pageFile: string, cspHeader: string): string[] {
+  const route = pageFile === 'index.html' ? '/' : `/${pageFile.replace(/\.html$/, '')}`;
+  return [route, `  ${cspHeader}`, '', `/${pageFile}`, `  ${cspHeader}`, ''];
+}
+
+await buildSite({ clean: true, dev: false });
+
+console.log('=== Generate _headers with CSP ===');
+const htmlFiles = HTML_PAGES.map(file => `dist/${file}`);
+const scriptHashes = (await Promise.all(htmlFiles.map(file => readFile(file, 'utf8')))).flatMap(
+  extractScriptHashes
+);
 const { 'Content-Security-Policy': pageCsp, ...baseHeaders } = pageHeaders(scriptHashes.join(' '));
-// CSP is set per-path (not /*) to avoid CF Pages additive header merging.
 const securityHeaders = Object.entries(baseHeaders)
-  .map(([k, v]) => `${k}: ${v}`)
+  .map(([key, value]) => `${key}: ${value}`)
   .join('\n  ');
 const pageCspHeader = `Content-Security-Policy: ${pageCsp}`;
 const swCspHeader = `Content-Security-Policy: ${SW_CSP}`;
-await Bun.write(
+
+await writeFile(
   'dist/_headers',
   [
     '/*',
     `  ${securityHeaders}`,
     '',
-    '/',
-    `  ${pageCspHeader}`,
-    '',
-    '/index.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/home.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/bangs',
-    `  ${pageCspHeader}`,
-    '',
-    '/bangs.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/stats',
-    `  ${pageCspHeader}`,
-    '',
-    '/stats.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/contact',
-    `  ${pageCspHeader}`,
-    '',
-    '/contact.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/faq',
-    `  ${pageCspHeader}`,
-    '',
-    '/faq.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/instructions',
-    `  ${pageCspHeader}`,
-    '',
-    '/instructions.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/ai',
-    `  ${pageCspHeader}`,
-    '',
-    '/ai.html',
-    `  ${pageCspHeader}`,
-    '',
-    '/privacy',
-    `  ${pageCspHeader}`,
-    '',
-    '/privacy.html',
-    `  ${pageCspHeader}`,
-    '',
+    ...HTML_PAGES.flatMap(file => routeHeaders(file, pageCspHeader)),
     '/sw.js',
     `  ${swCspHeader}`,
     '',
@@ -240,18 +50,23 @@ await Bun.write(
 );
 
 console.log('=== Pre-compress static assets ===');
-for (const file of new Bun.Glob('*.{html,js,svg,json,txt}').scanSync('dist')) {
-  const content = await Bun.file(`dist/${file}`).bytes();
-
+for (const file of await distFiles()) {
+  if (!/\.(html|js|svg|json|txt)$/u.test(file)) {
+    continue;
+  }
+  const content = await readFile(`dist/${file}`);
   const br = brotliCompressSync(content, {
     params: { [constants.BROTLI_PARAM_QUALITY]: constants.BROTLI_MAX_QUALITY }
   });
-  await Bun.write(`dist/${file}.br`, br);
+  await writeFile(`dist/${file}.br`, br);
 }
 
 console.log('=== Done ===');
-for (const f of new Bun.Glob('*').scanSync('dist')) {
-  const size = Bun.file(`dist/${f}`).size;
+for (const file of await distFiles()) {
+  if (file.includes('/')) {
+    continue;
+  }
+  const size = (await readFile(`dist/${file}`)).byteLength;
   const kb = (size / 1024).toFixed(1);
-  console.log(`  ${f.padEnd(30)} ${kb} KB`);
+  console.log(`  ${file.padEnd(30)} ${kb} KB`);
 }

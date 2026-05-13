@@ -1,6 +1,7 @@
-import { describe, expect, mock, test } from 'bun:test';
+import { describe, expect, test, vi } from 'vitest';
+import type { RedirectSettings, UrlParts } from '../src/sw/redirect';
 
-mock.module('../generated/bangs-min.js', () => {
+vi.doMock('../src/generated/bangs-min.js', () => {
   const BANGS: Record<string, [string, string | null]> = Object.create(null);
   BANGS.g = ['https://www.google.com/search?q=', ''];
   BANGS.ddg = ['https://duckduckgo.com/?q=', ''];
@@ -17,18 +18,11 @@ mock.module('../generated/bangs-min.js', () => {
   };
 });
 
-import {
-  type RedirectSettings,
-  redirect,
-  redirectRaw as redirectRawTuple,
-  redirectUrl
-} from '../src/sw/redirect';
+const { redirect, redirectRaw: redirectRawTuple, redirectUrl } = await import('../src/sw/redirect');
 
 function redirectRaw(rawQuery: string, settings: RedirectSettings): Response {
   return redirectRawTuple(rawQuery, settings)[0];
 }
-
-import type { UrlParts } from '../src/sw/redirect';
 
 const DEFAULT_URL: UrlParts = ['https://www.google.com/search?q=', ''];
 const LUCKY_URL: UrlParts = ['https://www.google.com/search?btnI&q=', ''];

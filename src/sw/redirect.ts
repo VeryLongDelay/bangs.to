@@ -205,9 +205,10 @@ function getCustomOriginCache(custom: Record<string, UrlParts>): Record<string, 
 }
 
 function redir(url: string): Response {
-  // NOTE: Response.redirect(url, 302) benchmarks faster than constructing
-  // new Response(null, { status: 302, headers: { Location: url } }) here.
-  return Response.redirect(url, 302);
+  return new Response(null, {
+    status: 302,
+    headers: { Location: url }
+  });
 }
 
 function resolveBangFill(

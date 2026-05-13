@@ -4,35 +4,36 @@ High-level notes for AI-assisted work live in [`AGENTS.md`](AGENTS.md).
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) (runtime and bundler)
+- Node.js 24+
+- [pnpm](https://pnpm.io/)
 
 ## Commands
 
 ```sh
-bun install        # install dependencies
-bun run check      # format + lint check (fails on issues)
-bun run fix        # auto-fix format + lint issues
-bun run codegen    # fetch DDG/Kagi sources, merge, and generate bang maps
-bun run build      # full pipeline: JS bundles + Astro pages + CSS inline + Brotli (auto-runs codegen --from-merged if generated bang files are missing)
-bun run dev        # same artifacts as build, served with file watching & live reload (auto-runs codegen if needed)
-bun run start      # serve pre-built dist/ (run `bun run build` first)
-bun run typecheck  # type-check with tsc (no emit)
-bun run profile    # run performance profile benchmarks (auto-runs codegen --from-merged if generated bang files are missing)
-bun test           # run tests
-bun run test:e2e   # run Playwright end-to-end tests (build + browser run)
-bun run clean      # remove dist/
+pnpm install        # install dependencies
+pnpm run check      # format + lint check (fails on issues)
+pnpm run fix        # auto-fix format + lint issues
+pnpm run codegen    # fetch DDG/Kagi sources, merge, and generate bang maps
+pnpm run build      # full pipeline: JS bundles + Astro pages + CSS inline + Brotli (auto-runs codegen --from-merged if generated files are missing)
+pnpm run dev        # same artifacts as build, served with file watching & live reload
+pnpm run start      # serve pre-built dist/ (run `pnpm run build` first)
+pnpm run typecheck  # type-check with tsc (no emit)
+pnpm run profile    # run performance profile benchmarks (auto-runs codegen --from-merged if generated files are missing)
+pnpm test           # run tests
+pnpm run test:e2e   # run Playwright end-to-end tests (build + browser run)
+pnpm run clean      # remove dist/
 
 # Cloudflare Pages (requires Wrangler login / project config)
-bun run deploy     # codegen --from-merged + build + wrangler pages deploy dist
-bun run preview    # codegen --from-merged + build + wrangler pages dev
+pnpm run deploy     # codegen --from-merged + build + wrangler pages deploy dist
+pnpm run preview    # codegen --from-merged + build + wrangler pages dev
 
 # Astro only (writes `.astro-build/`; production HTML still goes through `build` / `dev`)
-bun run build:astro
+pnpm run build:astro
 
 # Lower-level bundling (normally invoked via `build`, not needed day-to-day)
-bun run build:sw
-bun run build:ui
-bun run build:css
+pnpm run build:sw
+pnpm run build:ui
+pnpm run build:css
 ```
 
 ## Project structure
@@ -85,7 +86,7 @@ bangs.to/
 │   │   ├── redirect.ts        # Bang parsing & redirect logic (zero-copy raw + decoded paths)
 │   │   ├── idb.ts             # IndexedDB access, settings cache & in-memory frecency
 │   │   └── frecency.ts        # Top-K frecency helpers used by SW
-│   └── ui/                    # Client JS entrypoints + static assets (bundled by Bun)
+│   └── ui/                    # Client JS entrypoints + static assets
 │       ├── app.ts             # Main app initialization & orchestration
 │       ├── bangs.ts           # Bang browser page script
 │       ├── theme.ts           # Theme toggle script
@@ -116,8 +117,8 @@ bangs.to/
 ## Tests
 
 ```sh
-bun test           # run all tests
-bun run test:e2e   # run end-to-end tests (build + Playwright)
+pnpm test           # run all tests
+pnpm run test:e2e   # run end-to-end tests (build + Playwright)
 ```
 
 Unit tests:
@@ -135,12 +136,12 @@ End-to-end tests:
 If this is your first Playwright run on a machine, install browsers once:
 
 ```sh
-bunx playwright install
+pnpm exec playwright install
 ```
 
 ## Bang codegen
 
-`bun run codegen` fetches bang sources and generates the JavaScript bang maps that `build` and `dev` depend on:
+`pnpm run codegen` fetches bang sources and generates the JavaScript bang maps that `build` and `dev` depend on:
 
 1. **Fetch sources** — Downloads bang definitions from DuckDuckGo (`bang.js`) and Kagi (`bangs.json`) into `data/`
 2. **Merge + validate** — Parses DDG, Kagi, and custom sources. Merges by trigger (deduplicates), validates URLs, and saves the merged result to `data/bangs.json`
@@ -163,22 +164,22 @@ CSP headers are defined in `src/server/headers.ts` — the single source of trut
 
 On **Cloudflare Pages**, CSP is set per-path in `_headers` (not `/*`) to avoid CF Pages' additive header merging — `/*` would combine with `/sw.js`, and the browser enforces the intersection. Instead, CSP is set individually on `/`, `/index.html`, `/home.html`, `/bangs`, `/bangs.html`, `/stats`, `/stats.html`, `/contact`, `/contact.html`, `/faq`, `/faq.html`, `/instructions`, `/instructions.html`, and `/sw.js`. Base security headers (without page CSP) still apply under `/*`.
 
-On **self-hosted** (Docker/Railway via `start.ts`), the Bun server sets headers per-request, serving `SW_HEADERS` for `/sw.js` and page headers for everything else.
+On **self-hosted** (Docker/Railway via `start.ts`), the Node server sets headers per-request, serving `SW_HEADERS` for `/sw.js` and page headers for everything else.
 
 ## Build pipeline
 
-`bun run build` produces `dist/`:
+`pnpm run build` produces `dist/`:
 
-1. **Bundle client scripts** — Bun bundles `src/ui/app.ts`, `src/ui/bench.ts`, `src/ui/bangs.ts`, and `src/ui/theme.ts` into `dist/` (`app.js`, `bench.js`, `bangs.js`, `theme.js`). Entry bundles may split into additional small chunks; chunk fingerprints feed a **`__CACHE_VERSION__`** hash used by the Service Worker precache list.
-2. **Bundle Service Worker** — Bun bundles `src/sw/sw.ts` (including `bangs-min.js`) into `dist/sw.js`, with `__CACHE_VERSION__`, `__EXTRA_ASSETS__` (small hashed chunks), and `__IS_DEV__: false` injected at build time.
+1. **Bundle client scripts** — `esbuild` bundles `src/ui/app.ts`, `src/ui/bangs.ts`, `src/ui/stats.ts`, and `src/ui/theme.ts` into `dist/` (`app.js`, `bangs.js`, `stats.js`, `theme.js`). Entry bundles may split into additional small chunks; chunk fingerprints feed a **`__CACHE_VERSION__`** hash used by the Service Worker precache list.
+2. **Bundle Service Worker** — `esbuild` bundles `src/sw/sw.ts` (including `bangs-min.js`) into `dist/sw.js`, with `__CACHE_VERSION__`, `__EXTRA_ASSETS__` (small hashed chunks), and `__IS_DEV__: false` injected at build time.
 3. **Generate CSS** — UnoCSS scans `src/**/*.astro` and `src/ui/**/*.ts`, emitting `dist/styles.css`.
-4. **Build Astro pages** — `astro build --outDir .astro-build` compiles `src/pages/` and friends into static HTML (e.g. `index.html`, `home.html`, `bangs.html`, `bench.html`, `faq.html`, `instructions.html`).
+4. **Build Astro pages** — `astro build --outDir .astro-build` compiles `src/pages/` and friends into static HTML (e.g. `index.html`, `home.html`, `bangs.html`, `stats.html`, `faq.html`, `instructions.html`).
 5. **Inline & minify HTML** — The Astro HTML files are run through a replace that inlines `dist/styles.css` into `<style>` (matching `<link rel="stylesheet" href="/styles.css">` from `SiteLayout`), then minified with `@minify-html/node` and written to `dist/`. The `.astro-build/` directory is removed afterward; `dist/styles.css` is deleted after inlining.
-6. **Static copies** — `manifest.json`, `icon.svg`, and a minimal `robots.txt` are written to `dist/`.
+6. **Static copies** — `site.webmanifest`, `icon.svg`, and a minimal `robots.txt` are written to `dist/`.
 7. **`dist/_headers`** — Regenerated with per-route CSP (script hashes from inline `<script>` blocks in the built HTML) plus `Content-Type` for `/opensearch.xml`.
 8. **Pre-compress** — Qualifying static assets get Brotli-compressed `.br` siblings. The production server serves `.br` when the client supports it, falling back to uncompressed.
 
-If generated bang artifacts are missing, both `bun run build` and `bun run profile` automatically run `bun run codegen --from-merged` first.
+If generated bang artifacts are missing, both `pnpm run build` and `pnpm run profile` automatically run `pnpm run codegen --from-merged` first.
 
 ## Frecency
 
@@ -194,17 +195,16 @@ The in-memory cache (`frecencyCounts` + preformatted `frecencyCookie` string in 
 
 ## Dev server
 
-`bun run dev` runs the dev server with `bun --hot` for soft module reloading:
+`pnpm run dev` runs the dev server with file watching and SSE-triggered live reload:
 
-- **Codegen guard** — If `src/generated/bangs-min.js` is missing, automatically runs `bun run codegen` before the first build
-- **Inline builds** — Uses `Bun.build()` for the same four UI entrypoints plus the Service Worker as production, then UnoCSS + **`astro build`** into `.astro-build/`, then CSS inlining and HTML minification into `dist/` (same shape as `build.ts`, with `__IS_DEV__: true` for the SW)
+- **Codegen guard** — If `src/generated/bangs-min.js` is missing, automatically runs `pnpm run codegen --from-merged` before the first build
+- **Inline builds** — Uses the same `esbuild` + UnoCSS + Astro pipeline as production, but with `__IS_DEV__: true` for the Service Worker
 - **File watching** — Watches `src/` recursively via `fs.watch` with 200ms debounce. Any source change triggers a full rebuild
 - **Live reload** — SSE endpoint at `/__dev/events` pushes reload events to the browser. A small script is injected into HTML responses that unregisters the Service Worker, clears all caches, and reloads the page on each rebuild
-- **Hot reload** — `bun --hot` enables Bun's native hot module reloading for `Bun.serve()`, so the server's fetch handler updates without process restart
 
 ## Production server
 
-`bun run start` serves the pre-built `dist/` directory with no build step, file watching, or live reload injection. Useful for testing the production build locally. Requires `bun run build` to have been run first.
+`pnpm run start` serves the pre-built `dist/` directory with no build step, file watching, or live reload injection. Useful for testing the production build locally. Requires `pnpm run build` to have been run first.
 
 ## Site shell and settings routing
 

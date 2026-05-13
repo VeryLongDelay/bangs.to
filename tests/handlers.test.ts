@@ -1,8 +1,8 @@
-import { afterAll, beforeEach, describe, expect, spyOn, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { handleSuggestRequest } from '../src/server/handlers';
 import { encodeSuggestCookieValue } from '../src/shared/suggest-cookie';
 
-const fetchSpy = spyOn(globalThis, 'fetch');
+const fetchSpy = vi.spyOn(globalThis, 'fetch');
 
 beforeEach(() => {
   fetchSpy.mockReset();

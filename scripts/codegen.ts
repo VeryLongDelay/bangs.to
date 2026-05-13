@@ -1,8 +1,9 @@
 import { Buffer } from 'node:buffer';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { type BrotliOptions, brotliCompress, constants as zlibConstants } from 'node:zlib';
-import { $ } from 'bun';
+import { transformSync } from 'esbuild';
 import { type BuildNode, buildRadixTrie } from '../src/shared/trie';
+import { elapsedNs, isMainModule, nowNs, pathExists } from './package-tools';
 
 interface Bang {
   domain: string;
@@ -48,7 +49,7 @@ const KAGI_SOURCE_URL = 'https://raw.githubusercontent.com/kagisearch/bangs/main
 export async function ensureGeneratedBangData(fromMerged = true): Promise<void> {
   const missing: string[] = [];
   for (const file of GENERATED_BANG_DATA_FILES) {
-    if (!(await Bun.file(file).exists())) {
+    if (!(await pathExists(file))) {
       missing.push(file);
     }
   }
@@ -59,15 +60,10 @@ export async function ensureGeneratedBangData(fromMerged = true): Promise<void> 
 
   const mode = fromMerged ? ' --from-merged' : '';
   console.warn(`Generated bang data missing (${missing.join(', ')}). Running codegen${mode}...`);
-
-  if (fromMerged) {
-    await $`bun run codegen --from-merged`;
-  } else {
-    await $`bun run codegen`;
-  }
+  await runCodegen({ fromMerged });
 
   for (const file of GENERATED_BANG_DATA_FILES) {
-    if (!(await Bun.file(file).exists())) {
+    if (!(await pathExists(file))) {
       throw new Error(
         `Missing generated bang data after codegen: ${GENERATED_BANG_DATA_FILES.join(', ')}`
       );
@@ -559,10 +555,10 @@ function estimateEvalNs(source: string, runs = BROTLI_EVAL_RUNS): number {
     .replaceAll('export function ', 'function ');
   const times = new Array<number>(runs);
   for (let i = 0; i < runs; i++) {
-    const t0 = Bun.nanoseconds();
+    const t0 = nowNs();
     // Parse+execute proxy in codegen for cold-start sensitive codegen choices.
     new Function(evalCode)();
-    times[i] = Bun.nanoseconds() - t0;
+    times[i] = elapsedNs(t0);
   }
   return medianNs(times);
 }
@@ -821,13 +817,11 @@ function packI32Sections(sections: number[][]): PackedI32Data {
 }
 
 function buildMinifiedTrieRuntimeHelpers(): string {
-  // Keep this path in-memory for Docker/CI and Bun 1.2.x compatibility.
-  const transpiler = new Bun.Transpiler({
+  const minified = transformSync(TRIE_RUNTIME_HELPERS_SOURCE, {
     loader: 'ts',
-    target: 'browser',
+    target: 'es2020',
     minifyWhitespace: true
-  });
-  const minified = transpiler.transformSync(TRIE_RUNTIME_HELPERS_SOURCE).trim();
+  }).code.trim();
   if (!minified.includes('function _b64i32(')) {
     throw new Error('Failed to build trie runtime helpers');
   }
@@ -876,15 +870,18 @@ async function fetchBangSources(): Promise<void> {
   console.log('=== Fetch bang sources ===');
   await mkdir(DATA_DIR, { recursive: true });
   const [kagiRes, ddgRes] = await Promise.all([fetch(KAGI_SOURCE_URL), fetch(DDG_SOURCE_URL)]);
-  await Promise.all([Bun.write(KAGI_BANGS_PATH, kagiRes), Bun.write(DDG_BANGS_PATH, ddgRes)]);
+  await Promise.all([
+    writeFile(KAGI_BANGS_PATH, Buffer.from(await kagiRes.arrayBuffer())),
+    writeFile(DDG_BANGS_PATH, Buffer.from(await ddgRes.arrayBuffer()))
+  ]);
 }
 
 async function parseBangSourcesFromDisk(): Promise<NamedBangSource[]> {
   console.log('=== Parse sources ===');
   const [ddgRaw, kagiRaw, customData] = await Promise.all([
-    Bun.file(DDG_BANGS_PATH).text(),
-    Bun.file(KAGI_BANGS_PATH).text(),
-    Bun.file(CUSTOM_BANGS_PATH).json()
+    readFile(DDG_BANGS_PATH, 'utf8'),
+    readFile(KAGI_BANGS_PATH, 'utf8'),
+    readFile(CUSTOM_BANGS_PATH, 'utf8').then(JSON.parse)
   ]);
 
   const sources: NamedBangSource[] = [
@@ -910,7 +907,7 @@ function mergeAndValidateSources(sources: readonly NamedBangSource[]): Bang[] {
 
 async function saveMergedBangs(bangs: readonly Bang[]): Promise<void> {
   console.log('=== Save merged bangs ===');
-  await Bun.write(MERGED_BANGS_PATH, JSON.stringify(bangs));
+  await writeFile(MERGED_BANGS_PATH, JSON.stringify(bangs));
   console.log(`  ${MERGED_BANGS_PATH}: ${bangs.length} bangs`);
 }
 
@@ -918,7 +915,7 @@ async function loadBangs(options: CodegenOptions): Promise<Bang[]> {
   const { fromMerged = false, noFetch = false } = options;
   if (fromMerged) {
     console.log('=== Read merged bangs ===');
-    const merged = await Bun.file(MERGED_BANGS_PATH).json();
+    const merged = JSON.parse(await readFile(MERGED_BANGS_PATH, 'utf8'));
     const bangs = merged as Bang[];
     console.log(`Loaded ${bangs.length} bangs from ${MERGED_BANGS_PATH}`);
     return bangs;
@@ -961,9 +958,9 @@ async function writeGeneratedArtifacts(
   artifacts: GeneratedArtifacts
 ): Promise<void> {
   await Promise.all([
-    Bun.write(`${outDir}/bangs-min.js`, artifacts.minJs),
-    Bun.write(`${outDir}/bangs-meta.js`, artifacts.metaJs),
-    Bun.write(`${outDir}/bangs-trie.js`, artifacts.trieJs)
+    writeFile(`${outDir}/bangs-min.js`, artifacts.minJs),
+    writeFile(`${outDir}/bangs-meta.js`, artifacts.metaJs),
+    writeFile(`${outDir}/bangs-trie.js`, artifacts.trieJs)
   ]);
   console.log(`  bangs-min.js: ${artifacts.minJs.length} bytes`);
   console.log(`  bangs-meta.js: ${artifacts.metaJs.length} bytes`);
@@ -972,7 +969,7 @@ async function writeGeneratedArtifacts(
 
 async function writeGeneratedDeclarations(outDir: string): Promise<void> {
   await Promise.all([
-    Bun.write(
+    writeFile(
       `${outDir}/bangs-min.d.ts`,
       [
         'export declare const BANG_COUNT: number;',
@@ -980,11 +977,11 @@ async function writeGeneratedDeclarations(outDir: string): Promise<void> {
         ''
       ].join('\n')
     ),
-    Bun.write(
+    writeFile(
       `${outDir}/bangs-meta.d.ts`,
       'export declare const BANGS: Record<string, { s: string; d: string }>;\n'
     ),
-    Bun.write(
+    writeFile(
       `${outDir}/bangs-trie.d.ts`,
       [
         'export declare const LABELS: string;',
@@ -1021,6 +1018,6 @@ async function main(): Promise<void> {
   await runCodegen({ fromMerged, noFetch });
 }
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   await main();
 }

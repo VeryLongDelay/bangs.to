@@ -6,7 +6,7 @@
     "strict": true,
     "noEmit": true,
     "lib": ["ESNext", "WebWorker", "DOM", "DOM.Iterable"],
-    "types": ["@types/bun", "astro/client"]
+    "types": ["node", "astro/client", "vitest/globals"]
   },
   "include": [
     "src/**/*.astro",
@@ -14,8 +14,6 @@
     "src/env.d.ts",
     "scripts/**/*.ts",
     "functions/**/*.ts",
-    "tests/redirect.test.ts",
-    "tests/frecency.test.ts",
-    "tests/raw-url.test.ts"
+    "tests/**/*.ts"
   ]
 }

@@ -21,7 +21,7 @@ All three support bangs natively — but every query still round-trips through t
 
 > Core redirects never leave your machine — the Service Worker handles them locally with no server involved once installed. Search suggestions are optional and go through the `/suggest` endpoint when enabled. A same-site cookie stores your configured suggestion provider and custom bang triggers so the server knows which upstream to proxy. A separate same-site cookie (`sf`) stores your top bang usage counts so suggestions can be personalized by frecency — it contains only bang triggers and scores, no query content. Local stats live in browser storage and include per-bang counts, recency-weighted scores, local time-of-week usage buckets, and a few recent query samples per bang so similarity ranking can work. No accounts, no sessions, no remote analytics pipeline. Cloudflare Pages exposes basic aggregate request counts in its dashboard as a platform feature we did not opt into and cannot disable. It contains no query content or personally identifiable information.
 >
-> If you'd rather not trust the hosted suggest endpoint at all, bangs.to is fully self-hostable. Deploy to Cloudflare Pages or run it yourself with Docker or Bun. See [Setup](#setup-as-search-engine) for details.
+> If you'd rather not trust the hosted suggest endpoint at all, bangs.to is fully self-hostable. Deploy to Cloudflare Pages or run it yourself with Docker or pnpm. See [Setup](#setup-as-search-engine) for details.
 
 ## Features
 
@@ -97,7 +97,7 @@ Nothing to build or deploy.
 
 **Cloudflare Pages** (recommended) — supports both redirects and suggestions out of the box:
 
-1. Deploy the repo to Cloudflare Pages with build command `bun run codegen --from-merged && bun run build` and output directory `dist`
+1. Deploy the repo to Cloudflare Pages with build command `pnpm run codegen --from-merged && pnpm run build` and output directory `dist`
 2. The Pages Functions automatically handle `/suggest` (search suggestions) and `/opensearch.xml` (search engine discovery with correct origin) on the edge
 3. Visit the site — your browser will auto-discover it via OpenSearch
 4. Or manually add a custom search engine:
@@ -117,20 +117,20 @@ Nothing to build or deploy.
 
 ### Self-host without Docker
 
-Requires [Bun](https://bun.sh). Service Workers need an HTTP origin (not `file://`), but a local server works fine:
+Requires Node.js 24+ and [pnpm](https://pnpm.io/). Service Workers need an HTTP origin (not `file://`), but a local server works fine:
 
 ```sh
-bun run codegen && bun run build && bun run start
+pnpm run codegen && pnpm run build && pnpm run start
 ```
 
-`bun run codegen` fetches the latest bang definitions from DuckDuckGo and Kagi and generates the JavaScript bang maps. `bun run build` bundles, minifies, and pre-compresses all static assets with Brotli into `dist/`. `bun run start` serves the production build locally. Visit the local URL once — the Service Worker installs and redirects work offline after that. Set it as your browser's custom search engine:
+`pnpm run codegen` fetches the latest bang definitions from DuckDuckGo and Kagi and generates the JavaScript bang maps. `pnpm run build` bundles, minifies, and pre-compresses all static assets with Brotli into `dist/`. `pnpm run start` serves the production build locally. Visit the local URL once — the Service Worker installs and redirects work offline after that. Set it as your browser's custom search engine:
 
-If generated bang artifacts are missing, `bun run build` and `bun run profile` automatically run `bun run codegen --from-merged` before continuing.
+If generated bang artifacts are missing, `pnpm run build` and `pnpm run profile` automatically run `pnpm run codegen --from-merged` before continuing.
 
 - **Search URL:** `http://localhost:3000/?q=%s`
 - **Suggestion URL:** `http://localhost:3000/suggest?q=%s` (Optional)
 
-To pick up new bangs, pull the latest changes and re-run `bun run codegen`. If you host it, the daily GitHub Actions CI does this automatically.
+To pick up new bangs, pull the latest changes and re-run `pnpm run codegen`. If you host it, the daily GitHub Actions CI does this automatically.
 
 The settings page has a copy button that gives you the exact search URL template.
 

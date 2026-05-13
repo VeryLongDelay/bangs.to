@@ -29,12 +29,12 @@ Custom bangs live in [`data/custom-bangs.json`](data/custom-bangs.json). Each en
 - `url` must contain `{}` as the query placeholder
 - `domain` is shown in the UI for display
 
-After editing, run `bun run codegen` to regenerate the bang maps.
+After editing, run `pnpm run codegen` to regenerate the bang maps.
 
 ## Pull requests
 
 - Branch from `master`
-- Run `bun test` and `bun run test:e2e` before submitting
+- Run `pnpm test` and `pnpm run test:e2e` before submitting
 - Use [conventional commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `chore:`
 - Keep PRs focused — one concern per PR
 
@@ -43,19 +43,19 @@ After editing, run `bun run codegen` to regenerate the bang maps.
 All tests live in `tests/` folder, you can run unit tests only with:
 
 ```sh
-bun test
+pnpm test
 ```
 
 End-to-end tests live in `tests/e2e/`. Run them with:
 
 ```sh
-bun run test:e2e
+pnpm run test:e2e
 ```
 
 If this is your first Playwright run on a machine, install browsers once:
 
 ```sh
-bunx playwright install
+pnpm exec playwright install
 ```
 
 Add tests for new logic and user-facing behavior. Look at existing tests for patterns:
@@ -66,7 +66,7 @@ Add tests for new logic and user-facing behavior. Look at existing tests for pat
 
 ## Code style
 
-Formatting and linting are handled by [Biome](https://biomejs.dev). Run `bun run check` to verify and `bun run fix` to auto-fix.
+Formatting and linting are handled by [Biome](https://biomejs.dev). Run `pnpm run check` to verify and `pnpm run fix` to auto-fix.
 
 - Strict TypeScript (`strict: true`)
 - ESNext target

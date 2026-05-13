@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 import { readOrigin, readPathname } from '../src/shared/raw-url';
 
 describe('readPathname', () => {

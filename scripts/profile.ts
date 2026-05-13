@@ -2,12 +2,14 @@
  * Comprehensive profiling for bangs.to's core data structures and hot paths.
  * Measures what actually matters before optimizing.
  *
- * Run: bun scripts/profile.ts
+ * Run: pnpm run profile
  */
 
+import { readFile, stat } from 'node:fs/promises';
 import { readPathname } from '../src/shared/raw-url';
 import type { SuggestFrecency } from '../src/sw/frecency';
 import { ensureGeneratedBangData, GENERATED_BANG_DATA_FILES } from './codegen';
+import { runNodeScriptSync } from './package-tools';
 
 const [minPath, metaPath, triePath] = GENERATED_BANG_DATA_FILES;
 
@@ -101,6 +103,16 @@ function fmtBytesExact(b: number): string {
   return `${fmtBytes(b)} (${b.toLocaleString()}B)`;
 }
 
+const NS_ORIGIN = process.hrtime.bigint();
+
+function nanoseconds(): number {
+  return Number(process.hrtime.bigint() - NS_ORIGIN);
+}
+
+async function fileSize(path: string): Promise<number> {
+  return (await stat(path)).size;
+}
+
 await ensureGeneratedBangData(true);
 
 const [
@@ -144,16 +156,16 @@ console.log('Low single-digit nanosecond results should be treated as directiona
 
 separator('1. DATA SIZE & STRUCTURE ANALYSIS');
 
-const minBytes = Bun.file(minPath).size;
-const metaBytes = Bun.file(metaPath).size;
-const trieBytes = Bun.file(triePath).size;
+const minBytes = await fileSize(minPath);
+const metaBytes = await fileSize(metaPath);
+const trieBytes = await fileSize(triePath);
 const totalGeneratedBytes = minBytes + metaBytes + trieBytes;
 
 console.log(`\nBang count: ${BANG_COUNT.toLocaleString()}`);
 console.log(`bangs-min.js:  ${fmtBytesExact(minBytes)}  (trigger→URL parts, used by SW)`);
 console.log(`bangs-meta.js: ${fmtBytesExact(metaBytes)}  (trigger→{s,d}, used by UI)`);
 
-const trieFile = await Bun.file(triePath).text();
+const trieFile = await readFile(triePath, 'utf8');
 console.log(`bangs-trie.js: ${fmtBytesExact(trieBytes)}  (radix trie, used by suggest)`);
 console.log(`Total generated: ${fmtBytesExact(totalGeneratedBytes)}`);
 console.log(
@@ -238,14 +250,14 @@ const lookupHitCounts: number[] = [];
 for (let run = 0; run < RUNS; run++) {
   const offset = run % allSamples.length;
 
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   let baselineLen = 0;
   for (let i = 0; i < LOOKUP_ITERS; i++) {
     baselineLen += allSamples[(i + offset) % allSamples.length].length;
   }
-  lookupBaselineTimes.push((Bun.nanoseconds() - t0) / LOOKUP_ITERS);
+  lookupBaselineTimes.push((nanoseconds() - t0) / LOOKUP_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   let hitCount = 0;
   for (let i = 0; i < LOOKUP_ITERS; i++) {
     if (lookupBang(allSamples[(i + offset + baselineLen) % allSamples.length])) {
@@ -253,7 +265,7 @@ for (let run = 0; run < RUNS; run++) {
     }
   }
   lookupHitCounts.push(hitCount);
-  const elapsed = Bun.nanoseconds() - t0;
+  const elapsed = nanoseconds() - t0;
   lookupTimes.push(elapsed / LOOKUP_ITERS);
 }
 
@@ -350,12 +362,12 @@ for (let i = 0; i < 1_000; i++) {
 
 const trieSuggestTimes: number[] = [];
 for (let run = 0; run < RUNS; run++) {
-  const t0 = Bun.nanoseconds();
+  const t0 = nanoseconds();
   for (let i = 0; i < SUGGEST_ITERS; i++) {
     const p = suggestPartials[i % suggestPartials.length];
     void bangSuggestions(`!${p}`, '', p, emptyFrecency, emptyCustom);
   }
-  const elapsed = Bun.nanoseconds() - t0;
+  const elapsed = nanoseconds() - t0;
   trieSuggestTimes.push(elapsed / SUGGEST_ITERS);
 }
 
@@ -374,11 +386,11 @@ console.log('\n  Per-prefix timings:');
 for (const p of suggestPartials) {
   const times: number[] = [];
   for (let run = 0; run < RUNS; run++) {
-    const t0 = Bun.nanoseconds();
+    const t0 = nanoseconds();
     for (let i = 0; i < SUGGEST_PREFIX_ITERS; i++) {
       void bangSuggestions(`!${p}`, '', p, emptyFrecency, emptyCustom);
     }
-    const elapsed = Bun.nanoseconds() - t0;
+    const elapsed = nanoseconds() - t0;
     times.push(elapsed / SUGGEST_PREFIX_ITERS);
   }
 
@@ -435,11 +447,11 @@ console.log('-'.repeat(46));
 for (const q of queries) {
   const times: number[] = [];
   for (let run = 0; run < RUNS; run++) {
-    const t0 = Bun.nanoseconds();
+    const t0 = nanoseconds();
     for (let i = 0; i < REDIRECT_ITERS; i++) {
       redirectRaw(q.raw, settings);
     }
-    const elapsed = Bun.nanoseconds() - t0;
+    const elapsed = nanoseconds() - t0;
     times.push(elapsed / REDIRECT_ITERS);
   }
   const stats = summarizeRuns(times);
@@ -459,11 +471,11 @@ if (!(bangRedirect && nonBangRedirect)) {
 
 const redirectMixedTimes: number[] = [];
 for (let run = 0; run < RUNS; run++) {
-  const t0 = Bun.nanoseconds();
+  const t0 = nanoseconds();
   for (let i = 0; i < REDIRECT_ITERS; i++) {
     redirectRaw(queries[(i + run) % queries.length].raw, settings);
   }
-  redirectMixedTimes.push((Bun.nanoseconds() - t0) / REDIRECT_ITERS);
+  redirectMixedTimes.push((nanoseconds() - t0) / REDIRECT_ITERS);
 }
 const redirectMixedStats = summarizeRuns(redirectMixedTimes);
 
@@ -484,19 +496,19 @@ for (let i = 0; i < 20_000; i++) {
 }
 
 for (let run = 0; run < RUNS; run++) {
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   for (let i = 0; i < MESSAGE_ITERS; i++) {
     const q = messageQueries[(i + run) % messageQueries.length];
     messageSink += redirect(q, settings).headers.get('Location')?.length ?? 0;
   }
-  messageOldTimes.push((Bun.nanoseconds() - t0) / MESSAGE_ITERS);
+  messageOldTimes.push((nanoseconds() - t0) / MESSAGE_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < MESSAGE_ITERS; i++) {
     const q = messageQueries[(i + run) % messageQueries.length];
     messageSink += redirectUrl(q, settings).length;
   }
-  messageNewTimes.push((Bun.nanoseconds() - t0) / MESSAGE_ITERS);
+  messageNewTimes.push((nanoseconds() - t0) / MESSAGE_ITERS);
 }
 
 const messageOldStats = summarizeRuns(messageOldTimes);
@@ -527,17 +539,17 @@ for (let i = 0; i < 10_000; i++) {
 }
 
 for (let run = 0; run < RUNS; run++) {
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   for (let i = 0; i < PATH_ITERS; i++) {
     void new URL(RAW_URL).pathname;
   }
-  pathViaUrlTimes.push((Bun.nanoseconds() - t0) / PATH_ITERS);
+  pathViaUrlTimes.push((nanoseconds() - t0) / PATH_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < PATH_ITERS; i++) {
     void readPathname(RAW_URL);
   }
-  pathViaRawTimes.push((Bun.nanoseconds() - t0) / PATH_ITERS);
+  pathViaRawTimes.push((nanoseconds() - t0) / PATH_ITERS);
 }
 
 const pathViaUrlStats = summarizeRuns(pathViaUrlTimes);
@@ -573,20 +585,20 @@ for (let i = 0; i < 20_000; i++) {
 }
 
 for (let run = 0; run < RUNS; run++) {
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   for (let i = 0; i < PARAM_ITERS; i++) {
     const q = readQueryParam(PARAM_URL, 'q');
     const sp = readQueryParam(PARAM_URL, 'sp');
     parseSink += (q?.length ?? 0) + (sp?.length ?? 0);
   }
-  queryDualScanTimes.push((Bun.nanoseconds() - t0) / PARAM_ITERS);
+  queryDualScanTimes.push((nanoseconds() - t0) / PARAM_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < PARAM_ITERS; i++) {
     const [q, sp] = readTwoQueryParams(PARAM_URL, 'q', 'sp');
     parseSink += (q?.length ?? 0) + (sp?.length ?? 0);
   }
-  querySingleScanTimes.push((Bun.nanoseconds() - t0) / PARAM_ITERS);
+  querySingleScanTimes.push((nanoseconds() - t0) / PARAM_ITERS);
 }
 
 const queryDualStats = summarizeRuns(queryDualScanTimes);
@@ -639,40 +651,40 @@ for (let i = 0; i < 10_000; i++) {
 }
 
 for (let run = 0; run < RUNS; run++) {
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
     const s = parseCookie(reqNoCookie);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
-  cookieNoneTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
+  cookieNoneTimes.push((nanoseconds() - t0) / COOKIE_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
     const s = parseCookie(reqLightCookie);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
-  cookieLightTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
+  cookieLightTimes.push((nanoseconds() - t0) / COOKIE_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
     const s = parseCookie(reqHeavyCookie);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
-  cookieHeavyTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
+  cookieHeavyTimes.push((nanoseconds() - t0) / COOKIE_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
     const s = parseSettingsFromRawUrl(SETTINGS_PARSE_URL, reqHeavyCookie, 'none', true);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
-  settingsFullContextTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
+  settingsFullContextTimes.push((nanoseconds() - t0) / COOKIE_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < COOKIE_ITERS; i++) {
     const s = parseSettingsFromRawUrl(SETTINGS_PARSE_URL, reqHeavyCookie, 'none', false);
     parseSink += s.provider.length + s.trigger.length + s.custom.length;
   }
-  settingsPlainContextTimes.push((Bun.nanoseconds() - t0) / COOKIE_ITERS);
+  settingsPlainContextTimes.push((nanoseconds() - t0) / COOKIE_ITERS);
 }
 
 const cookieNoneStats = summarizeRuns(cookieNoneTimes);
@@ -739,13 +751,13 @@ for (let run = 0; run < RUNS; run++) {
     incrementalCounts[key] = value;
   }
 
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   for (let i = 0; i < FRECENCY_ITERS; i++) {
     const trigger = FREQUENCY_TRIGGERS[(i + run) % FREQUENCY_TRIGGERS.length];
     legacyCounts[trigger] = (legacyCounts[trigger] || 0) + 1;
     frecencySink += legacyFrecencyCookie(legacyCounts).length;
   }
-  legacyFrecencyTimes.push((Bun.nanoseconds() - t0) / FRECENCY_ITERS);
+  legacyFrecencyTimes.push((nanoseconds() - t0) / FRECENCY_ITERS);
 
   const incrementalEntries = Object.fromEntries(
     Object.entries(incrementalCounts).map(([trigger, count]) => [
@@ -754,7 +766,7 @@ for (let run = 0; run < RUNS; run++) {
     ])
   );
   const top = buildTopFrecency(incrementalEntries, FRECENCY_LIMIT);
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < FRECENCY_ITERS; i++) {
     const trigger = FREQUENCY_TRIGGERS[(i + run) % FREQUENCY_TRIGGERS.length];
     const next = (incrementalCounts[trigger] || 0) + 1;
@@ -764,7 +776,7 @@ for (let run = 0; run < RUNS; run++) {
     updateTopFrecencyOnIncrement(top, trigger, nextEntry, FRECENCY_LIMIT);
     frecencySink += serializeTopFrecency(top).length;
   }
-  incrementalFrecencyTimes.push((Bun.nanoseconds() - t0) / FRECENCY_ITERS);
+  incrementalFrecencyTimes.push((nanoseconds() - t0) / FRECENCY_ITERS);
 }
 
 if (frecencySink === -1) {
@@ -819,23 +831,23 @@ const handlerBangTimes: number[] = [];
 const handlerPlainTimes: number[] = [];
 const handlerPlainHeavyTimes: number[] = [];
 for (let run = 0; run < RUNS; run++) {
-  let t0 = Bun.nanoseconds();
+  let t0 = nanoseconds();
   for (let i = 0; i < HANDLER_ITERS; i++) {
     await handleSuggestRequest(reqBang);
   }
-  handlerBangTimes.push((Bun.nanoseconds() - t0) / HANDLER_ITERS);
+  handlerBangTimes.push((nanoseconds() - t0) / HANDLER_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < HANDLER_ITERS; i++) {
     await handleSuggestRequest(reqPlain);
   }
-  handlerPlainTimes.push((Bun.nanoseconds() - t0) / HANDLER_ITERS);
+  handlerPlainTimes.push((nanoseconds() - t0) / HANDLER_ITERS);
 
-  t0 = Bun.nanoseconds();
+  t0 = nanoseconds();
   for (let i = 0; i < HANDLER_ITERS; i++) {
     await handleSuggestRequest(reqPlainHeavy);
   }
-  handlerPlainHeavyTimes.push((Bun.nanoseconds() - t0) / HANDLER_ITERS);
+  handlerPlainHeavyTimes.push((nanoseconds() - t0) / HANDLER_ITERS);
 }
 
 const handlerBangStats = summarizeRuns(handlerBangTimes);
@@ -862,16 +874,15 @@ console.log(
 separator('10. FIRST-HIT SUGGEST (ISOLATED PROCESS)');
 
 function runIsolatedNs(script: string, label: string): number {
-  const proc = Bun.spawnSync({
-    cmd: ['bun', '-e', script],
-    stdout: 'pipe',
-    stderr: 'pipe'
+  const proc = runNodeScriptSync(script, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
   });
-  if (proc.exitCode !== 0) {
-    const err = new TextDecoder().decode(proc.stderr).trim();
+  if (proc.status !== 0) {
+    const err = String(proc.stderr).trim();
     throw new Error(`${label} failed: ${err}`);
   }
-  return Number(new TextDecoder().decode(proc.stdout).trim());
+  return Number(String(proc.stdout).trim());
 }
 
 function isolatedFirstHitNs(url: string, cookie: string): number {
@@ -880,9 +891,9 @@ import { handleSuggestRequest } from "./src/server/handlers";
 const req = new Request(${JSON.stringify(url)}, {
   headers: { Cookie: ${JSON.stringify(cookie)} }
 });
-const t0 = Bun.nanoseconds();
+const t0 = performance.now();
 await handleSuggestRequest(req);
-console.log(Bun.nanoseconds() - t0);
+console.log(Math.round((performance.now() - t0) * 1e6));
 `;
   return runIsolatedNs(script, 'isolatedFirstHitNs');
 }
@@ -894,11 +905,11 @@ await handleSuggestRequest(new Request("http://localhost/suggest?q=bangs&sp=none
   headers: { Cookie: "suggest=none,g," }
 }));
 await new Promise((resolve) => setTimeout(resolve, 5));
-const t0 = Bun.nanoseconds();
+const t0 = performance.now();
 await handleSuggestRequest(new Request("http://localhost/suggest?q=!gh", {
   headers: { Cookie: "suggest=default,g," }
 }));
-console.log(Bun.nanoseconds() - t0);
+console.log(Math.round((performance.now() - t0) * 1e6));
 `;
   return runIsolatedNs(script, 'isolatedWarmThenBangNs');
 }
@@ -941,8 +952,8 @@ console.log(
 
 separator('11. MODULE PARSE/EVAL TIME');
 
-const minFile = await Bun.file(minPath).text();
-const fullFile = await Bun.file(metaPath).text();
+const minFile = await readFile(minPath, 'utf8');
+const fullFile = await readFile(metaPath, 'utf8');
 const minEvalCode = minFile
   .replaceAll('export const ', 'const ')
   .replaceAll('export function ', 'function ');
@@ -955,10 +966,10 @@ const EVAL_RUNS = 20;
 
 const evalMinTimes: number[] = [];
 for (let i = 0; i < EVAL_RUNS; i++) {
-  const t0 = Bun.nanoseconds();
+  const t0 = nanoseconds();
   // Intentional: eval-equivalent to benchmark JS parse+eval time
   new Function(minEvalCode)();
-  const elapsed = Bun.nanoseconds() - t0;
+  const elapsed = nanoseconds() - t0;
   evalMinTimes.push(elapsed);
 }
 
@@ -973,10 +984,10 @@ console.log(
 
 const evalFullTimes: number[] = [];
 for (let i = 0; i < EVAL_RUNS; i++) {
-  const t0 = Bun.nanoseconds();
+  const t0 = nanoseconds();
   // Intentional: eval-equivalent to benchmark JS parse+eval time
   new Function(fullEvalCode)();
-  const elapsed = Bun.nanoseconds() - t0;
+  const elapsed = nanoseconds() - t0;
   evalFullTimes.push(elapsed);
 }
 
@@ -991,10 +1002,10 @@ console.log(
 
 const evalTrieTimes: number[] = [];
 for (let i = 0; i < EVAL_RUNS; i++) {
-  const t0 = Bun.nanoseconds();
+  const t0 = nanoseconds();
   // Intentional: eval-equivalent to benchmark JS parse+eval time
   new Function(trieEvalCode)();
-  const elapsed = Bun.nanoseconds() - t0;
+  const elapsed = nanoseconds() - t0;
   evalTrieTimes.push(elapsed);
 }
 

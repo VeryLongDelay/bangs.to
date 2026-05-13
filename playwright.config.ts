@@ -19,7 +19,7 @@ export default defineConfig({
     channel: EDGE_CHANNEL
   },
   webServer: {
-    command: 'bun run start',
+    command: 'pnpm run start',
     env: {
       ...process.env,
       PORT: String(PORT)

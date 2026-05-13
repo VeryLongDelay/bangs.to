@@ -6,31 +6,32 @@ Context for AI coding agents working in this repository.
 
 **bangs.to** is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. The current public site title/brand is **`bangs.to`**, configured in [`src/config/site.ts`](src/config/site.ts). Core behavior lives in a **Service Worker** (`src/sw/`), with shared client/runtime code in `src/ui/` and the site shell/pages generated from **Astro** in `src/pages/`, `src/components/`, and `src/layouts/`. The app also includes a local stats dashboard (`/stats`) backed by browser storage and the frecency snapshot.
 
-Production bundles are produced by **Bun** scripts (`scripts/build.ts`), not only Astro. Cloudflare Pages deploy uses `dist/` from that pipeline (`wrangler pages deploy dist`).
+Production bundles are produced by **pnpm-managed Node scripts** (`scripts/build.ts`), not only Astro. Cloudflare Pages deploy uses `dist/` from that pipeline (`wrangler pages deploy dist`).
 
 ## Prerequisites
 
-- **[Bun](https://bun.sh)** — runtime, package manager, and bundler for the main app.
+- **[pnpm](https://pnpm.io/)** — package manager used for installs and scripts
+- **Node.js 24+** — runtime for the custom build/dev/start/codegen scripts
 
 ## Commands agents should use
 
 | Goal                                                                       | Command             |
 | -------------------------------------------------------------------------- | ------------------- |
-| Install deps                                                               | `bun install`       |
-| Lint + format (must pass)                                                  | `bun run check`     |
-| Auto-fix lint/format                                                       | `bun run fix`       |
-| Typecheck                                                                  | `bun run typecheck` |
-| Unit tests                                                                 | `bun test`          |
-| Full prod build (runs codegen from merged data if generated files missing) | `bun run build`     |
-| Dev server (watch + live reload; codegen if needed)                        | `bun run dev`       |
-| Performance profiling                                                      | `bun run profile`   |
-| E2E (build + Playwright)                                                   | `bun run test:e2e`  |
+| Install deps                                                               | `pnpm install`       |
+| Lint + format (must pass)                                                  | `pnpm run check`     |
+| Auto-fix lint/format                                                       | `pnpm run fix`       |
+| Typecheck                                                                  | `pnpm run typecheck` |
+| Unit tests                                                                 | `pnpm test`          |
+| Full prod build (runs codegen from merged data if generated files missing) | `pnpm run build`     |
+| Dev server (watch + live reload; codegen if needed)                        | `pnpm run dev`       |
+| Performance profiling                                                      | `pnpm run profile`   |
+| E2E (build + Playwright)                                                   | `pnpm run test:e2e`  |
 
-After substantive edits, prefer **`bun run check`** and **`bun test`** at minimum; run **`bun run build`** when touching bundling, SW, headers, or codegen-related paths.
+After substantive edits, prefer **`pnpm run check`** and **`pnpm test`** at minimum; run **`pnpm run build`** when touching bundling, SW, headers, or codegen-related paths.
 
-**Bang data / codegen:** `bun run codegen` fetches DDG/Kagi sources and regenerates merged data and `src/generated/*`. CI uses **`bun run codegen --from-merged`** (no network). Do **not** hand-edit files under `src/generated/` — regenerate via codegen.
+**Bang data / codegen:** `pnpm run codegen` fetches DDG/Kagi sources and regenerates merged data and `src/generated/*`. CI uses **`pnpm run codegen --from-merged`** (no network). Do **not** hand-edit files under `src/generated/` — regenerate via codegen.
 
-**Astro:** `bun run build:astro` builds static Astro output to `.astro-build/`. This is separate from the primary `bun run build` pipeline; confirm which surface you are changing.
+**Astro:** `pnpm run build:astro` builds static Astro output to `.astro-build/`. This is separate from the primary `pnpm run build` pipeline; confirm which surface you are changing.
 
 **Branding:** If a task asks to rename the site or change its visible title, update [`src/config/site.ts`](src/config/site.ts) first, then review metadata outputs such as the manifest and OpenSearch descriptors.
 
@@ -55,7 +56,7 @@ Long-form explanations (CSP, frecency, Docker, CI, release): **`DEVELOPMENT.md`*
 ## Conventions
 
 - **TypeScript:** `strict` enabled; respect existing patterns (imports, naming, minimal commenting).
-- **Lint/format:** **Biome** (`biome.jsonc`). Use `bun run check` / `bun run fix`.
+- **Lint/format:** **Biome** (`biome.jsonc`). Use `pnpm run check` / `pnpm run fix`.
 - **CSS:** UnoCSS (`uno.config.ts`); CLI scans Astro and TS/HTML as configured in scripts.
 - **Routing/UI:** The site uses a shared Astro top bar/footer and a shared settings modal. The settings modal is route-addressable via page-specific `#settings` URLs such as `/#settings` and `/faq#settings`.
 - **Stats data:** The stats page is local-first and reads browser storage via the frecency snapshot in `src/sw/frecency.ts` / `src/sw/idb.ts`. Keep changes privacy-preserving and device-local unless the task explicitly says otherwise.

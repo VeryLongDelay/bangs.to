@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readQueryParam, readTwoQueryParams } from '../src/shared/raw-query';
 import { type BuildNode, buildRadixTrie } from '../src/shared/trie';
 
@@ -142,8 +142,7 @@ const TEST_BANGS: TestBang[] = [
 
 const TEST_TRIE = buildTestTrie(TEST_BANGS);
 
-mock.module('./generated/bangs-trie.js', () => TEST_TRIE);
-mock.module('../src/generated/bangs-trie.js', () => TEST_TRIE);
+vi.doMock('../src/generated/bangs-trie.js', () => TEST_TRIE);
 
 const {
   parseCookie,
@@ -153,7 +152,7 @@ const {
   suggest
 } = await import('../src/suggest');
 
-const fetchSpy = spyOn(globalThis, 'fetch');
+const fetchSpy = vi.spyOn(globalThis, 'fetch');
 
 beforeEach(() => {
   fetchSpy.mockReset();
