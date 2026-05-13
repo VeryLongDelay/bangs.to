@@ -8,6 +8,22 @@ import { setupModal } from './modal';
 import { initSettings } from './settings';
 
 const db = new DB();
+const CONSOLE_ICON_ASCII = String.raw`
+##########################
+##########################
+##########################
+###############..#   +####
+############.....#   -####
+#########.......##   #####
+######- ........##   #####
+#####    .......##   #####
+########   .....###-######
+########   .#...##########
+#######  #####..#   ######
+##########################
+##########################
+##########################
+`;
 
 function navigateSearch(query: string) {
   const target = `/?q=${encodeURIComponent(query)}`;
@@ -134,6 +150,23 @@ function initCopyTargets() {
   }
 }
 
+function initConsoleEasterEgg() {
+  const appWindow = window as typeof window & { __bangsConsoleArtShown?: boolean };
+
+  if (appWindow.__bangsConsoleArtShown) {
+    return;
+  }
+
+  appWindow.__bangsConsoleArtShown = true;
+
+  console.log(
+    `%c${CONSOLE_ICON_ASCII}%c\nbangs.to%c\nThanks for checking out bangs.to!`,
+    'color: #bfdbfe; font: 13px/1.05 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;',
+    'color: #f8fafc; font: 700 16px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;',
+    'color: #94a3b8; font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;'
+  );
+}
+
 async function syncSuggestCookie() {
   const [provider, trigger, url, custom] = await Promise.all([
     db.getSetting('suggest-provider').then(v => v || 'default'),
@@ -146,6 +179,7 @@ async function syncSuggestCookie() {
 }
 
 function init() {
+  initConsoleEasterEgg();
   syncSuggestCookie();
   initSearchForm();
   initCopyTargets();
