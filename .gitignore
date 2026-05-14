@@ -10,8 +10,10 @@ skills-lock.json
 wrangler.toml
 dist/
 test-results/
-!data/bangs.json
-!data/custom-bangs.json
+data/bangs.json
+data/custom-bangs.json
+data/ddg.json
+data/kagi.json
 node_modules/
 build/target/
 src/generated/
