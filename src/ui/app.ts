@@ -8,6 +8,7 @@ import { setupModal } from './modal';
 import { initSettings } from './settings';
 
 const db = new DB();
+// biome-ignore lint/complexity/noUselessStringRaw: ascii art
 const CONSOLE_ICON_ASCII = String.raw`
 ##########################
 ##########################
