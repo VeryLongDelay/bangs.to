@@ -23,9 +23,13 @@ const links = [
 <header
   class="card mb-6 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
 >
-  <div class="flex items-center gap-3">
+  <a
+    href="/"
+    class="group flex items-center gap-3 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/70 focus-visible:ring-offset-3 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950"
+    aria-label={`Go to ${SITE_TITLE} home`}
+  >
     <div
-      class="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white/72 p-0.5 shadow-[0_12px_24px_rgba(37,99,235,0.14)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:border-primary-300/60 hover:shadow-[0_20px_40px_rgba(37,99,235,0.22)] active:translate-y-0 active:scale-[0.98] dark:border-white/12 dark:bg-[rgba(15,23,42,0.5)] dark:hover:border-white/18 dark:hover:bg-[rgba(15,23,42,0.64)]"
+      class="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white/72 p-0.5 shadow-[0_12px_24px_rgba(37,99,235,0.14)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:border-primary-300/60 hover:shadow-[0_20px_40px_rgba(37,99,235,0.22)] active:translate-y-0 active:scale-[0.98] dark:border-white/12 dark:bg-[rgba(15,23,42,0.5)] dark:hover:border-white/18 dark:hover:bg-[rgba(15,23,42,0.64)]"
       aria-hidden="true"
     >
       <div
@@ -52,7 +56,7 @@ const links = [
       <p class="font-display text-lg font-700 tracking-tight text-text">{SITE_TITLE}</p>
       <p class="text-sm text-text-secondary">{SITE_TAGLINE}</p>
     </div>
-  </div>
+  </a>
 
   <nav class="flex flex-wrap items-center gap-2 text-sm">
     {
