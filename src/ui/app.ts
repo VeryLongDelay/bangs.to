@@ -161,7 +161,7 @@ function initConsoleEasterEgg() {
   appWindow.__bangsConsoleArtShown = true;
 
   console.log(
-    `%c${CONSOLE_ICON_ASCII}%c\nbangs.to%c\nThanks for checking out bangs.to!`,
+    `%c${CONSOLE_ICON_ASCII}%c\nban.gs%c\nThanks for checking out ban.gs!`,
     'color: #bfdbfe; font: 13px/1.05 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;',
     'color: #f8fafc; font: 700 16px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;',
     'color: #94a3b8; font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;'

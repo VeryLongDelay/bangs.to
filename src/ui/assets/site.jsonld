@@ -3,27 +3,27 @@
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://bangs.to/#website",
-      "url": "https://bangs.to",
-      "name": "Bangs.to",
-      "alternateName": "bangs.to",
+      "@id": "https://ban.gs/#website",
+      "url": "https://ban.gs",
+      "name": "ban.gs",
+      "alternateName": "ban.gs",
       "description": "Blazing-fast DuckDuckGo/Kagi-style !bangs for any search engine. Redirects cached browser-side to avoid DNS latency, powered by a JavaScript Service Worker.",
-      "image": "https://bangs.to/ogimage.png",
+      "image": "https://ban.gs/ogimage.png",
       "inLanguage": "en-US",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://bangs.to/?q={search_term_string}",
+        "target": "https://ban.gs/?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     },
     {
       "@type": "SoftwareApplication",
-      "@id": "https://bangs.to/#app",
-      "name": "Bangs.to",
+      "@id": "https://ban.gs/#app",
+      "name": "ban.gs",
       "applicationCategory": "BrowserApplication",
       "operatingSystem": "Web",
-      "url": "https://bangs.to",
-      "image": "https://bangs.to/ogimage.png",
+      "url": "https://ban.gs",
+      "image": "https://ban.gs/ogimage.png",
       "description": "Blazing-fast DuckDuckGo/Kagi-style !bangs for any search engine. Redirects cached browser-side to avoid DNS latency, powered by a JavaScript Service Worker.",
       "offers": {
         "@type": "Offer",

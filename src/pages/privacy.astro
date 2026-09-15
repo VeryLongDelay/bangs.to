@@ -5,7 +5,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 
 <SiteLayout
   title={`${SITE_TITLE} Privacy`}
-  description="A plain-English explanation of what bangs.to keeps local, what touches the network, and where your data goes."
+  description="A plain-English explanation of what ban.gs keeps local, what touches the network, and where your data goes."
   currentPath="/privacy"
 >
   <div class="grid gap-4 lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1fr)]">
@@ -17,7 +17,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         What stays on your machine
       </h1>
       <p class="mt-4 max-w-[32ch] text-sm leading-7 text-text-secondary">
-        bangs.to is built to resolve !bangs redirects in the browser, not by sending every query to a
+        ban.gs is built to resolve !bangs redirects in the browser, not by sending every query to a
         redirect service first.
       </p>
 
@@ -53,9 +53,9 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       <section class="card">
         <h2 class="section-title mb-2">Core redirects</h2>
         <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
-          bangs.to is not meant to sit in the middle of every search. The normal path is: your
+          ban.gs is not meant to sit in the middle of every search. The normal path is: your
           browser loads the local redirect logic, the service worker resolves the bang on your
-          device, then your browser goes straight to the final destination. That means bangs.to is
+          device, then your browser goes straight to the final destination. That means ban.gs is
           not reading your search terms on a remote redirect server for the core feature.
         </p>
         <p class="mt-3 max-w-[70ch] text-sm leading-7 text-text-secondary">
@@ -81,7 +81,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <h2 class="section-title mb-2">Cookies and local storage</h2>
         <div class="grid gap-3">
           <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
-            bangs.to uses a small amount of browser storage so the tool can remember how you want it
+            ban.gs uses a small amount of browser storage so the tool can remember how you want it
             to behave.
           </p>
           <div class="rounded-[22px] bg-bg-soft p-4">
@@ -104,7 +104,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       </section>
 
       <section class="card">
-        <h2 class="section-title mb-2">What bangs.to does not do</h2>
+        <h2 class="section-title mb-2">What ban.gs does not do</h2>
         <div class="grid gap-3">
           <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
             There are no user accounts, no social graph, and no first-party analytics pipeline that
@@ -124,7 +124,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <h2 class="section-title mb-2">Practical boundaries</h2>
         <div class="grid gap-3">
           <p class="max-w-[70ch] text-sm leading-7 text-text-secondary">
-            Privacy here is specific: bangs.to tries to avoid being the extra party in the middle of
+            Privacy here is specific: ban.gs tries to avoid being the extra party in the middle of
             a bang redirect. It does not make the destination search engine private, it does not
             hide your IP from the site you open, and it does not replace the privacy choices of your
             browser, DNS, VPN, or network.

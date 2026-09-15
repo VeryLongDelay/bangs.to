@@ -1,5 +1,6 @@
-import { copyFile, mkdir, readdir } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { SITE_TITLE } from '../src/config/site';
 
 const UI_DIR = 'src/ui';
 const ASSETS_DIR = join(UI_DIR, 'assets');
@@ -46,4 +47,13 @@ export async function copyStaticAssets(outDir: string): Promise<void> {
       copyFile(join(ASSETS_DIR, sourcePath), join(outDir, destPath))
     )
   ]);
+
+  const manifestPath = join(outDir, 'site.webmanifest');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as {
+    name: string;
+    short_name: string;
+  };
+  manifest.name = SITE_TITLE;
+  manifest.short_name = SITE_TITLE;
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 }

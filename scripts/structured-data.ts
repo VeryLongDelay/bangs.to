@@ -12,7 +12,7 @@ export function createSiteJsonLd() {
         '@id': `${SITE_URL}/#website`,
         url: SITE_URL,
         name: SITE_TITLE,
-        alternateName: 'bangs.to',
+        alternateName: SITE_TITLE,
         description: OG_DESCRIPTION,
         image: OG_IMAGE_URL,
         inLanguage: 'en-US',

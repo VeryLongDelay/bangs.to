@@ -1,10 +1,10 @@
-# Agent instructions — bangs.to
+# Agent instructions — ban.gs
 
 Context for AI coding agents working in this repository.
 
 ## What this project is
 
-**bangs.to** is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. The current public site title/brand is **`bangs.to`**, configured in [`src/config/site.ts`](src/config/site.ts). Core behavior lives in a **Service Worker** (`src/sw/`), with shared client/runtime code in `src/ui/` and the site shell/pages generated from **Astro** in `src/pages/`, `src/components/`, and `src/layouts/`. The app also includes a local stats dashboard (`/stats`) backed by browser storage and the frecency snapshot.
+**ban.gs** is a privacy-oriented, local-first **bang redirect** app: users type triggers like `!w cats` and get routed to the right search/site URL. The current public site title/brand is **`ban.gs`**, configured in [`src/config/site.ts`](src/config/site.ts). Core behavior lives in a **Service Worker** (`src/sw/`), with shared client/runtime code in `src/ui/` and the site shell/pages generated from **Astro** in `src/pages/`, `src/components/`, and `src/layouts/`. The app also includes a local stats dashboard (`/stats`) backed by browser storage and the frecency snapshot.
 
 Production bundles are produced by **pnpm-managed Node scripts** (`scripts/build.ts`), not only Astro. Cloudflare Pages deploy uses `dist/` from that pipeline (`wrangler pages deploy dist`).
 

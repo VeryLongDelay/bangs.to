@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in bangs.to! This guide covers what you need to know to contribute.
+Thanks for your interest in ban.gs! This guide covers what you need to know to contribute.
 
 ## Quick start
 
