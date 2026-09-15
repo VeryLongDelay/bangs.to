@@ -25,23 +25,23 @@
     "deploy": "node --import tsx scripts/codegen.ts --from-merged && node --import tsx scripts/build.ts && wrangler pages deploy dist"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.12",
+    "@biomejs/biome": "2.5.13",
     "@minify-html/node": "0.18.1",
     "@playwright/test": "1.63.0",
-    "@types/node": "26.5.0",
-    "@unocss/cli": "66.10.0",
-    "astro": "7.3.1",
+    "@types/node": "26.5.1",
+    "@unocss/cli": "66.10.2",
+    "astro": "7.3.2",
     "esbuild": "0.28.2",
-    "prettier-plugin-astro": "0.14.1",
+    "prettier-plugin-astro": "1.0.0",
     "tsx": "4.23.13",
     "typescript": "7.0.2",
-    "unocss": "66.10.0",
+    "unocss": "66.10.2",
     "vitest": "5.0.0"
   },
   "dependencies": {
     "defu": "6.1.7",
     "postcss": "8.5.28",
-    "rollup": "4.63.1",
-    "vite": "8.2.2"
+    "rollup": "4.63.2",
+    "vite": "8.3.0"
   }
 }
