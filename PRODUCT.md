@@ -10,7 +10,7 @@ People who live in the browser address bar: developers, researchers, and power s
 
 ## Product Purpose
 
-bangs.to turns the address bar into a shortcut launcher: type a bang and query, and the Service Worker resolves the destination quickly, without an intermediate "redirect page" experience. It exists to beat round-trip latency and engine lock-in while keeping core redirects private and device-local. Success is measured by speed users can feel, clarity of setup (search engine URL, suggestions), and trust: defaults that protect query content on the redirect path, with optional features clearly bounded.
+ban.gs turns the address bar into a shortcut launcher: type a bang and query, and the Service Worker resolves the destination quickly, without an intermediate "redirect page" experience. It exists to beat round-trip latency and engine lock-in while keeping core redirects private and device-local. Success is measured by speed users can feel, clarity of setup (search engine URL, suggestions), and trust: defaults that protect query content on the redirect path, with optional features clearly bounded.
 
 ## Brand Personality
 

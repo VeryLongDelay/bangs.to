@@ -39,7 +39,7 @@ pnpm run build:css
 ## Project structure
 
 ```
-bangs.to/
+ban.gs/
 ├── functions/
 │   ├── suggest.ts            # Cloudflare Pages Function for /suggest
 │   └── opensearch.xml.ts     # Cloudflare Pages Function for /opensearch.xml
@@ -56,7 +56,7 @@ bangs.to/
 │   └── kagi.json             # Kagi source (gitignored, fetched by codegen)
 ├── src/
 │   ├── config/
-│   │   └── site.ts            # Centralized site title/tagline (current brand: bangs.to)
+│   │   └── site.ts            # Centralized site title/tagline (current brand: ban.gs)
 │   ├── pages/                 # Astro routes → static HTML (index, home, bangs, stats, contact, faq, instructions)
 │   ├── components/            # Astro components (layout chrome, try-search, settings modal, etc.)
 │   ├── layouts/               # Astro layouts (e.g. SiteLayout)
@@ -221,7 +221,7 @@ The old `/settings` path is still normalized by the runtime for backward compati
 
 The current site title is configured in [`src/config/site.ts`](src/config/site.ts):
 
-- `SITE_TITLE` — currently `bangs.to`
+- `SITE_TITLE` — currently `ban.gs`
 - `SITE_TAGLINE` — shared top-bar copy
 
 When changing the public brand/title, update `src/config/site.ts` first, then confirm browser-facing metadata:
@@ -242,14 +242,14 @@ The Dockerfile uses a multi-stage build to produce a minimal runtime image:
 The production server exposes `GET /health`, and the runtime image defines a Docker `HEALTHCHECK` against that endpoint.
 
 ```sh
-docker build -t bangs-to .
-docker run -p 3000:3000 bangs-to
+docker build -t ban-gs .
+docker run -p 3000:3000 ban-gs
 ```
 
 The port is configurable via the `PORT` environment variable:
 
 ```sh
-docker run -p 8080:8080 -e PORT=8080 bangs-to
+docker run -p 8080:8080 -e PORT=8080 ban-gs
 ```
 
 Static assets are served with Brotli pre-compression when the client supports it, falling back to uncompressed. No runtime compression overhead.

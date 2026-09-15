@@ -1,27 +1,27 @@
-# bangs.to
+# ban.gs
 
-[![Live Site](https://img.shields.io/badge/Live_Site-bangs.to-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://bangs.to)
+[![Live Site](https://img.shields.io/badge/Live_Site-ban.gs-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ban.gs)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/verylongdelay/bangs.to)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/verylongdelay/ban.gs)
 
 Turn your browser's address bar into a shortcut launcher. Type `!g kittens` to search Google, `!w dogs` for Wikipedia, `!gh react` for GitHub — over 14,000 shortcuts (called "bangs") that take you straight to the right site, instantly. No extra tabs, no round-trips, no waiting for a page to load.
 
-Every other bang tool loads a full page before redirecting — adding hundreds of milliseconds — or routes through an edge server adding network latency. bangs.to skips the page entirely — a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) handles the redirect before your browser even starts rendering.
+Every other bang tool loads a full page before redirecting — adding hundreds of milliseconds — or routes through an edge server adding network latency. ban.gs skips the page entirely — a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) handles the redirect before your browser even starts rendering.
 
 ### Try it now
 
-Visit **[bangs.to](https://bangs.to)** — if your browser supports [OpenSearch](https://developer.mozilla.org/en-US/docs/Web/OpenSearch), bangs.to will appear in your search engine list automatically. Otherwise, add **`https://bangs.to/?q=%s`** as a custom search engine in your browser. Optionally, set **`https://bangs.to/suggest?q=%s`** as the suggestion URL for address bar autocomplete. That's it.
+Visit **[ban.gs](https://ban.gs)** — if your browser supports [OpenSearch](https://developer.mozilla.org/en-US/docs/Web/OpenSearch), ban.gs will appear in your search engine list automatically. Otherwise, add **`https://ban.gs/?q=%s`** as a custom search engine in your browser. Optionally, set **`https://ban.gs/suggest?q=%s`** as the suggestion URL for address bar autocomplete. That's it.
 
 ### Already using DuckDuckGo, Brave, or Kagi?
 
-All three support bangs natively — but every query still round-trips through their servers before redirecting, adding significant network latency you can feel. bangs.to resolves the bang locally in the browser and redirects before any network request leaves your machine. You also get bang-aware search suggestions in your address bar, custom bangs, feeling lucky, local usage stats, and it works in any browser — not just the one your engine ships with.
+All three support bangs natively — but every query still round-trips through their servers before redirecting, adding significant network latency you can feel. ban.gs resolves the bang locally in the browser and redirects before any network request leaves your machine. You also get bang-aware search suggestions in your address bar, custom bangs, feeling lucky, local usage stats, and it works in any browser — not just the one your engine ships with.
 
 ### Privacy
 
 > Core redirects never leave your machine — the Service Worker handles them locally with no server involved once installed. Search suggestions are optional and go through the `/suggest` endpoint when enabled. A same-site cookie stores your configured suggestion provider and custom bang triggers so the server knows which upstream to proxy. A separate same-site cookie (`sf`) stores your top bang usage counts so suggestions can be personalized by frecency — it contains only bang triggers and scores, no query content. Local stats live in browser storage and include per-bang counts, recency-weighted scores, local time-of-week usage buckets, and a few recent query samples per bang so similarity ranking can work. No accounts, no sessions, no remote analytics pipeline. Cloudflare Pages exposes basic aggregate request counts in its dashboard as a platform feature we did not opt into and cannot disable. It contains no query content or personally identifiable information.
 >
-> If you'd rather not trust the hosted suggest endpoint at all, bangs.to is fully self-hostable. Deploy to Cloudflare Pages or run it yourself with Docker or pnpm. See [Setup](#setup-as-search-engine) for details.
+> If you'd rather not trust the hosted suggest endpoint at all, ban.gs is fully self-hostable. Deploy to Cloudflare Pages or run it yourself with Docker or pnpm. See [Setup](#setup-as-search-engine) for details.
 
 ## Features
 
@@ -29,14 +29,14 @@ All three support bangs natively — but every query still round-trips through t
 - **Private** — No analytics, no tracking. All data stays on your device for the core feature - redirects
 - **14,000+ bangs** — Merged from DuckDuckGo, Kagi, and custom sources. Updated daily via automated CI
 - **Custom bangs** — Add your own bangs through the settings UI. They take priority over built-ins
-- **Search suggestions** — The only bang tool with bang-aware autocomplete in your browser's native address bar. Type `!y` and the browser itself suggests `!yt` (YouTube), `!ya` (Yandex), `!yf` (Yahoo Finance) — ranked by a combination of global popularity and your personal usage frequency. Regular queries return web search suggestions from Google, DuckDuckGo, Bing, Brave, or a custom provider. Both are unified through a single `/suggest` endpoint that plugs into your browser's built-in suggestion UI. **Rich suggestions** — Firefox and Firefox-based browsers (Zen, LibreWolf) display bang descriptions, site names, and favicons inline in the address bar dropdown via `google:suggestdetail`. Google proxy suggestions also pass through rich data (entity images, titles) when available. Chromium-based browsers do not support rich rendering for search-type suggestions from custom search engines — this is a Chrome limitation, not a bangs.to one
+- **Search suggestions** — The only bang tool with bang-aware autocomplete in your browser's native address bar. Type `!y` and the browser itself suggests `!yt` (YouTube), `!ya` (Yandex), `!yf` (Yahoo Finance) — ranked by a combination of global popularity and your personal usage frequency. Regular queries return web search suggestions from Google, DuckDuckGo, Bing, Brave, or a custom provider. Both are unified through a single `/suggest` endpoint that plugs into your browser's built-in suggestion UI. **Rich suggestions** — Firefox and Firefox-based browsers (Zen, LibreWolf) display bang descriptions, site names, and favicons inline in the address bar dropdown via `google:suggestdetail`. Google proxy suggestions also pass through rich data (entity images, titles) when available. Chromium-based browsers do not support rich rendering for search-type suggestions from custom search engines — this is a Chrome limitation, not a ban.gs one
 - **Frecency + stats** — The Service Worker tracks which bangs you use, when you use them, and a few recent query samples so suggestions can boost by recency, frequency, and similarity. The `/stats` page visualizes your local usage with leaderboards, heatmaps, recency views, and query memory. This data stays in browser storage on your device
 - **Feeling Lucky** — Prefix a query with `\`, or add a bare `!` before or after it, to skip the results page and jump straight to the first result. Works with Google's "I'm Feeling Lucky" when that's your default engine, falls back to DuckDuckGo's `\` redirect for others. Configurable per-engine or with a custom URL, or disable it entirely
-- **OpenSearch** — Browsers auto-discover bangs.to as a search engine via `/opensearch.xml`, including the suggestions endpoint. The XML is dynamically generated at request time using the current origin, so it works out of the box on any self-hosted domain or `localhost` — no hardcoded URLs to change
+- **OpenSearch** — Browsers auto-discover ban.gs as a search engine via `/opensearch.xml`, including the suggestions endpoint. The XML is dynamically generated at request time using the current origin, so it works out of the box on any self-hosted domain or `localhost` — no hardcoded URLs to change
 
 ## Bang syntax
 
-bangs.to supports 4 formats. All bangs are case-insensitive.
+ban.gs supports 4 formats. All bangs are case-insensitive.
 
 | Format              | Example      | Result                      |
 | ------------------- | ------------ | --------------------------- |
@@ -45,7 +45,7 @@ bangs.to supports 4 formats. All bangs are case-insensitive.
 | Prefix, query first | `kittens !g` | Google search for "kittens" |
 | Suffix, bang first  | `g! kittens` | Google search for "kittens" |
 
-If the query is just a bang with no search term (e.g. `!g`), bangs.to redirects to the service's homepage.
+If the query is just a bang with no search term (e.g. `!g`), ban.gs redirects to the service's homepage.
 
 ### Feeling Lucky
 
@@ -79,17 +79,17 @@ google, ddg, bing, brave, yahoo, ecosia, kagi, yandex, baidu, none
 Example suggestion URL with a provider override:
 
 ```
-https://bangs.to/suggest?q=%s&sp=ddg
+https://ban.gs/suggest?q=%s&sp=ddg
 ```
 
-**Why this exists:** Chromium-based browsers (Chrome, Edge, Arc) send cookies with suggest requests when bangs.to is the default search engine, so settings configured in the UI are automatically picked up. Firefox and Firefox-based browsers (Zen, LibreWolf) intentionally [withhold cookies from suggest requests](https://bugzilla.mozilla.org/show_bug.cgi?id=1624457) as a privacy measure. For those browsers, `sp` is the only way to choose a suggestion provider — without it, suggestions default to Google. Custom bangs and frecency-ranked suggestions are not available in browsers that withhold cookies, since the suggest endpoint has no way to receive that data.
+**Why this exists:** Chromium-based browsers (Chrome, Edge, Arc) send cookies with suggest requests when ban.gs is the default search engine, so settings configured in the UI are automatically picked up. Firefox and Firefox-based browsers (Zen, LibreWolf) intentionally [withhold cookies from suggest requests](https://bugzilla.mozilla.org/show_bug.cgi?id=1624457) as a privacy measure. For those browsers, `sp` is the only way to choose a suggestion provider — without it, suggestions default to Google. Custom bangs and frecency-ranked suggestions are not available in browsers that withhold cookies, since the suggest endpoint has no way to receive that data.
 
 ### Use the hosted version
 
-A public instance is available at **[bangs.to](https://bangs.to)**. Just visit it, then add it as a custom search engine in your browser:
+A public instance is available at **[ban.gs](https://ban.gs)**. Just visit it, then add it as a custom search engine in your browser:
 
-- **Search URL:** `https://bangs.to/?q=%s`
-- **Suggestion URL:** `https://bangs.to/suggest?q=%s` (Optional)
+- **Search URL:** `https://ban.gs/?q=%s`
+- **Suggestion URL:** `https://ban.gs/suggest?q=%s` (Optional)
 
 Nothing to build or deploy.
 
@@ -153,10 +153,10 @@ When you type `!gh react` in the address bar, the Service Worker intercepts the 
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for build pipeline and project structure details.
 
-† bangs.to doesn't include any analytics scripts or tracking. Cloudflare Pages exposes basic request counts in its dashboard for all hosted sites — this is a platform-level
+† ban.gs doesn't include any analytics scripts or tracking. Cloudflare Pages exposes basic request counts in its dashboard for all hosted sites — this is a platform-level
 metric we did not opt into and cannot disable. It is not Cloudflare Web Analytics.
 
-‡ Unlike the unavoidable aggregate request counts exposed by Cloudflare Pages which applies both for bangs.to and unduckified, issue [#13](https://github.com/taciturnaxolotl/unduckified/issues/13) in the Unduckified repository shows Cloudflare injecting `beacon.min.js`, which [Cloudflare documents as its Web Analytics beacon](https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/).
+‡ Unlike the unavoidable aggregate request counts exposed by Cloudflare Pages which applies both for ban.gs and unduckified, issue [#13](https://github.com/taciturnaxolotl/unduckified/issues/13) in the Unduckified repository shows Cloudflare injecting `beacon.min.js`, which [Cloudflare documents as its Web Analytics beacon](https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/).
 The author claims that Web Analytics have been disabled, but `beacon.min.js` is still being loaded, indicating that an analytics-related Cloudflare script remains present.
 
 > **Note:** Comparison data is accurate at time of writing. These projects are actively developed and may have changed since.
@@ -165,7 +165,7 @@ The author claims that Web Analytics have been disabled, but `beacon.min.js` is 
 
 Every other bang tool (unduck, unduckified) — works the same way: your browser navigates to their page, loads HTML, parses and executes JavaScript (including a 1.5–2.7 MB bang database), and only then calls `window.location.replace()` to send you to your destination. You see it happen: there is a screen flash, their page briefly appears or flickers, and then you arrive where you wanted to go. That blank-page flash is the browser loading and executing their redirect page. It typically takes 100–500ms depending on your device, and it happens on every single redirect — even with all assets cached.
 
-bangs.to works differently. A [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) intercepts your navigation **before the browser starts rendering any page**. It parses the bang from the raw URL, looks it up in an in-memory map, and responds with a `302 redirect`. No page loads. No JavaScript bundle to parse on the redirect path. No white flash. Your browser goes straight from the address bar to your destination nearly as if you'd typed the URL directly.
+ban.gs works differently. A [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) intercepts your navigation **before the browser starts rendering any page**. It parses the bang from the raw URL, looks it up in an in-memory map, and responds with a `302 redirect`. No page loads. No JavaScript bundle to parse on the redirect path. No white flash. Your browser goes straight from the address bar to your destination nearly as if you'd typed the URL directly.
 
 The bang database (trigger→URL pairs, ~867 KB) is parsed once when the Service Worker installs and stays in memory across navigations — it is not re-parsed on every redirect. The settings UI is a separate bundle that only loads when you visit the homepage. During a redirect, the only code that runs is a lightweight parser and a hash-map lookup.
 
@@ -173,11 +173,11 @@ That lookup path is also pre-optimized by `scripts/codegen.ts` at build time. In
 
 ### Will I actually notice the difference?
 
-Yes. Try it yourself: open unduck or unduckified, type `!g cats`, and watch the screen. You'll likely see a white flash or brief page load before Google appears. This is evident by the issues opened in unduckified repo [#6](https://github.com/taciturnaxolotl/unduckified/issues/6) and in unduck repo [70](https://github.com/T3-Content/unduck/issues/70). Now do the same with bangs.to. The browser navigates directly to Google — there is no intermediate page to see. The difference is immediately obvious, especially on mobile devices or environments where JavaScript parse time is higher.
+Yes. Try it yourself: open unduck or unduckified, type `!g cats`, and watch the screen. You'll likely see a white flash or brief page load before Google appears. This is evident by the issues opened in unduckified repo [#6](https://github.com/taciturnaxolotl/unduckified/issues/6) and in unduck repo [70](https://github.com/T3-Content/unduck/issues/70). Now do the same with ban.gs. The browser navigates directly to Google — there is no intermediate page to see. The difference is immediately obvious, especially on mobile devices or environments where JavaScript parse time is higher.
 
 ## Acknowledgments
 
-bangs.to was inspired by Theo Browne's [unduck](https://github.com/t3dotgg/unduck), which demonstrated the value of fast client-side bang redirects. Inspration also taken from Dmytro Pletenskyi's [Flashbang](https://github.com/ph1losof/flashbang). Bangs data is sourced from [DuckDuckGo](https://duckduckgo.com/bang) and [Kagi](https://kagi.com).
+ban.gs was inspired by Theo Browne's [unduck](https://github.com/t3dotgg/unduck), which demonstrated the value of fast client-side bang redirects. Inspration also taken from Dmytro Pletenskyi's [Flashbang](https://github.com/ph1losof/flashbang). Bangs data is sourced from [DuckDuckGo](https://duckduckgo.com/bang) and [Kagi](https://kagi.com).
 
 ## Daily updates
 
@@ -191,7 +191,7 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for prerequisites, build commands, and proj
 
 [AGPL-3.0](LICENSE)
 
-bangs.to is designed to be self-hosted and most projects in this space bundle analytics. AGPL ensures that anyone who deploys a modified version must share their changes — protecting end users from forks that quietly add tracking or degrade privacy. The project introduces a genuinely novel approach (Service Worker intercept, two-tier bang data, bang-aware suggestions, and local-first stats), and AGPL ensures derivatives contribute back rather than just extract.
+ban.gs is designed to be self-hosted and most projects in this space bundle analytics. AGPL ensures that anyone who deploys a modified version must share their changes — protecting end users from forks that quietly add tracking or degrade privacy. The project introduces a genuinely novel approach (Service Worker intercept, two-tier bang data, bang-aware suggestions, and local-first stats), and AGPL ensures derivatives contribute back rather than just extract.
 
 This software is licensed under the GNU Affero General Public License v3.0.
 See the [LICENSE](LICENSE) file for the full license text.

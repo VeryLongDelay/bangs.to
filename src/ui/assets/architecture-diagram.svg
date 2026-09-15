@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1600" height="760" viewBox="0 0 1600 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">bangs.to architecture diagram</title>
+  <title id="title">ban.gs architecture diagram</title>
   <desc id="desc">High-level architecture showing the browser runtime, service worker redirect flow, same-origin handlers, local storage, and optional suggestion provider path.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="760" gradientUnits="userSpaceOnUse">
@@ -58,7 +58,7 @@
     <circle cx="107" cy="135" r="9.5" fill="#fff"/>
   </g>
 
-  <text x="196" y="88" class="title">bangs.to architecture</text>
+  <text x="196" y="88" class="title">ban.gs architecture</text>
   <text x="196" y="120" class="subtitle">local-first redirects in the browser, same-origin helpers only where browsers require them</text>
 
   <g filter="url(#cardShadow)">

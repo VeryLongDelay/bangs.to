@@ -1,5 +1,5 @@
 /**
- * Comprehensive profiling for bangs.to's core data structures and hot paths.
+ * Comprehensive profiling for ban.gs's core data structures and hot paths.
  * Measures what actually matters before optimizing.
  *
  * Run: pnpm run profile

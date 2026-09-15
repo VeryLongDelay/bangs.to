@@ -91,15 +91,15 @@ describe('handleSuggestRequest', () => {
 
 // describe('handleOpenSearchRequest', () => {
 //   test('returns a same-origin OpenSearch descriptor', async () => {
-//     const response = handleOpenSearchRequest(req('https://bangs.to/opensearch.xml'));
+//     const response = handleOpenSearchRequest(req('https://ban.gs/opensearch.xml'));
 
 //     expect(response.status).toBe(200);
 //     expect(response.headers.get('Content-Type')).toBe('application/opensearchdescription+xml');
 
 //     const xml = await response.text();
-//     expect(xml).toContain('<ShortName>Bangs.to</ShortName>');
-//     expect(xml).toContain('template="https://bangs.to/?q={searchTerms}"');
-//     expect(xml).toContain('template="https://bangs.to/suggest?q={searchTerms}"');
+//     expect(xml).toContain('<ShortName>ban.gs</ShortName>');
+//     expect(xml).toContain('template="https://ban.gs/?q={searchTerms}"');
+//     expect(xml).toContain('template="https://ban.gs/suggest?q={searchTerms}"');
 //     expect(xml).not.toContain('duckduckgo.com/ac/');
 //   });
 // });
